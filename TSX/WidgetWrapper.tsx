@@ -25,8 +25,30 @@ import * as React from 'react';
 import LineParameters from './Widget/LineParameters';
 import { ServerErrorIcon } from '@gpa-gemstone/react-interactive';
 import { cloneDeep } from 'lodash';
+import EventSearchOpenSEE from './Widget/EventSearchOpenSEE'
+import ESRIMap from './Widget/ESRIMap'
+import FaultInfo from './Widget/FaultInfo'
+import EventSearchAssetFaultSegments from './Widget/EventSearchAssetFaultSegments';
+import EventSearchAssestVoltageDisturbances from './Widget/EventSearchAssestVoltageDisturbances'
+import EventSearchCorrelatedSags from './Widget/EventSearchCorrelatedSags'
+import SOE from './Widget/SOE'
+import EventSearchPQI from './Widget/EventSearchPQI'
+import EventSearchFileInfo from './Widget/EventSearchFileInfo'
+import EventSearchNoteWindow from './Widget/EventSearchNoteWindow'
+import Lightning from './Widget/Lightning'
+import StructureInfo from './Widget/StructureInfo'
+import LSC from './Widget/LSC'
+import PQWeb from './Widget/PQWeb'
+import InterruptionReport from './Widget/InterruptionReport'
+import EventSearchRelayPerformance from './Widget/EventSearchRelayPerformance'
+import EventSearchBreakerPerformance from './Widget/EventSearchBreakerPerformance'
+import EventSearchCapBankAnalyticOverview from './Widget/EventSearchCapBankAnalyticOverview'
+import AssetHistoryStats from './Widget/AssetHistoryStats'
+import AssetHistoryTable from './Widget/AssetHistoryTable'
 
-const allWidgets: EventWidget.IWidget<any>[]  = [LineParameters];
+const allWidgets: EventWidget.IWidget<any>[] = [LineParameters, EventSearchOpenSEE, ESRIMap, FaultInfo, EventSearchAssetFaultSegments,
+    EventSearchAssestVoltageDisturbances, EventSearchCorrelatedSags, SOE, EventSearchPQI, Lightning, EventSearchFileInfo, EventSearchNoteWindow,
+    StructureInfo, LSC, PQWeb, InterruptionReport, EventSearchRelayPerformance, EventSearchBreakerPerformance, EventSearchCapBankAnalyticOverview, AssetHistoryStats, AssetHistoryTable];
 
 interface IProps {
     Widget: EventWidget.IWidgetView,
