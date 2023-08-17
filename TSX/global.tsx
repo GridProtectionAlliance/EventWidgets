@@ -34,7 +34,8 @@ export namespace EventWidget {
         FaultID?: number,
         StartTime?: number,
         HomePath: string,
-        Roles: string[]
+        Roles: string[],
+        Width?: number
     }
 
     export interface IWidgetSettingsProps<T> {
@@ -47,5 +48,9 @@ export namespace EventWidget {
         Settings: React.FC<IWidgetSettingsProps<T>>,
         DefaultSettings: T,
         Name: string,
+    }
+
+    export interface ISetting {
+        SystemCenterURL: string
     }
 }
