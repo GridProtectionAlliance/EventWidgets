@@ -46,18 +46,14 @@ interface ILoopImpedance {
     PerMileXS: string
 }
 
-interface ISetting {
-    SystemCenterURL: string
-}
-
-const LineParameters: EventWidget.IWidget<ISetting> = {
+const LineParameters: EventWidget.IWidget<EventWidget.ISetting> = {
 
     Name: 'LineParameters',
     DefaultSettings: { SystemCenterURL: 'http://localhost:8989' },
     Settings: (props) => {
         return <div className="row">
             <div className="col">
-                <Input<ISetting>
+                <Input<EventWidget.ISetting>
                     Record={props.Settings}
                     Field={'SystemCenterURL'}
                     Help={'The URL for SystemCenter. This has to be accesable from the Client.'}
@@ -67,7 +63,7 @@ const LineParameters: EventWidget.IWidget<ISetting> = {
             </div>
         </div>
     },
-    Widget: (props: EventWidget.IWidgetProps<ISetting>) => {
+    Widget: (props: EventWidget.IWidgetProps<EventWidget.ISetting>) => {
         const [hidden, setHidden] = React.useState<boolean>(true);
         const [lineParameters, setLineParameters] = React.useState<ILineParameters>(null);
         const [loopParameters, setLoopParemeters] = React.useState<ILoopImpedance>(null);
