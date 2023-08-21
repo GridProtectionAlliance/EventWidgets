@@ -24,25 +24,14 @@
 import React from 'react';
 import moment from 'moment';
 import { EventWidget } from '../global';
-import { Input } from '@gpa-gemstone/react-forms';
 
-const PQWeb: EventWidget.IWidget<EventWidget.ISetting> = {
+const PQWeb: EventWidget.IWidget<{}> = {
     Name: 'TVAPQWeb', 
     DefaultSettings: { SystemCenterURL: 'http://localhost:8989' },
-    Settings: (props) => {
-        return <div className="row">
-            <div className="col">
-                <Input<EventWidget.ISetting>
-                    Record={props.Settings}
-                    Field={'SystemCenterURL'}
-                    Help={'The URL for SystemCenter. This has to be accesable from the Client.'}
-                    Setter={(record) => props.SetSettings(record)}
-                    Valid={() => true}
-                    Label={'System Center URL'} />
-            </div>
-        </div>
+    Settings: () => {
+        return <></>
     },
-    Widget: (props: EventWidget.IWidgetProps<EventWidget.ISetting>) => {
+    Widget: (props: EventWidget.IWidgetProps<{}>) => {
         const [tab, setTab] = React.useState<'LSC' | 'All'>('LSC');
 
         return (

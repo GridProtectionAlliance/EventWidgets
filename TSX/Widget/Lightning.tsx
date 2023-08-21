@@ -26,25 +26,14 @@ import { scaleLinear, line, extent, select, axisLeft } from 'd3';
 import moment from 'moment';
 import { EventWidget } from '../global';
 import Table from '@gpa-gemstone/react-table';
-import { Input } from '@gpa-gemstone/react-forms';
 
-const TVALightningChart: EventWidget.IWidget<EventWidget.ISetting> = {
+const TVALightningChart: EventWidget.IWidget<{}> = {
     Name: 'TVALightning',
-    DefaultSettings: { SystemCenterURL: 'http://localhost:8989' },
-    Settings: (props) => {
-        return <div className="row">
-            <div className="col">
-                <Input<EventWidget.ISetting>
-                    Record={props.Settings}
-                    Field={'SystemCenterURL'}
-                    Help={'The URL for SystemCenter. This has to be accesable from the Client.'}
-                    Setter={(record) => props.SetSettings(record)}
-                    Valid={() => true}
-                    Label={'System Center URL'} />
-            </div>
-        </div>
+    DefaultSettings: {},
+    Settings: () => {
+        return <></>
     },
-    Widget: (props: EventWidget.IWidgetProps<EventWidget.ISetting>) => {
+    Widget: (props: EventWidget.IWidgetProps<{}>) => {
     const svgWidth = (window.innerWidth - 300) / 2 - 17 - 40;
     const svgHeight = 200;
     const margin = { top: 0, right: 0, bottom: 20, left: 40 };

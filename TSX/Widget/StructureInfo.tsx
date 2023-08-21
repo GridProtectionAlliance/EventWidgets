@@ -23,26 +23,14 @@
 
 import React from 'react';
 import { EventWidget } from '../global';
-import { Input } from '@gpa-gemstone/react-forms';
 
-
-const StructureInfo: EventWidget.IWidget<EventWidget.ISetting> = {
+const StructureInfo: EventWidget.IWidget<{}> = {
     Name: 'TVAStructureInfo',
-    DefaultSettings: { SystemCenterURL: 'http://localhost:8989' },
-    Settings: (props) => {
-        return <div className="row">
-            <div className="col">
-                <Input<any>
-                    Record={props.Settings}
-                    Field={'SystemCenterURL'}
-                    Help={'The URL for SystemCenter. This has to be accesable from the Client.'}
-                    Setter={(record) => props.SetSettings(record)}
-                    Valid={() => true}
-                    Label={'System Center URL'} />
-            </div>
-        </div>
+    DefaultSettings: {},
+    Settings: () => {
+        return <></>
     },
-    Widget: (props: EventWidget.IWidgetProps<EventWidget.ISetting>) => {
+    Widget: (props: EventWidget.IWidgetProps<{}>) => {
         const [structureInfo, setStructureInfo] = React.useState<Array<{ StrNumber: string, Latitude: number, Longitude: number, Imagepath: string }>>([]);
         const [selectedIndex, setSelectedIndex] = React.useState<number>(-1);
 

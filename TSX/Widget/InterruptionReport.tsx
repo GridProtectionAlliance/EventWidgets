@@ -26,7 +26,6 @@ import { Select } from '@gpa-gemstone/react-forms';
 import moment from 'moment';
 import React from 'react';
 import { EventWidget } from '../global';
-import { Input } from '@gpa-gemstone/react-forms';
 
 interface IInterruption {
     TimeOut: string,
@@ -38,23 +37,13 @@ interface IInterruption {
     CircuitInfo: string
 }
 
-const InterruptionReport: EventWidget.IWidget<EventWidget.ISetting> = {
+const InterruptionReport: EventWidget.IWidget<{}> = {
     Name: 'HECCOIR',
-    DefaultSettings: { SystemCenterURL: 'http://localhost:8989' },
-    Settings: (props) => {
-        return <div className="row">
-            <div className="col">
-                <Input<EventWidget.ISetting>
-                    Record={props.Settings}
-                    Field={'SystemCenterURL'}
-                    Help={'The URL for SystemCenter. This has to be accesable from the Client.'}
-                    Setter={(record) => props.SetSettings(record)}
-                    Valid={() => true}
-                    Label={'System Center URL'} />
-            </div>
-        </div>
+    DefaultSettings: {},
+    Settings: () => {
+        return <></>
     },
-    Widget: (props: EventWidget.IWidgetProps<EventWidget.ISetting>) => {
+    Widget: (props: EventWidget.IWidgetProps<{}>) => {
         const [data, setData] = React.useState<IInterruption[]>([]);
         const [hours, setHours] = React.useState<number>(6);
 

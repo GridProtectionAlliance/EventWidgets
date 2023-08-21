@@ -24,7 +24,6 @@
 import React from 'react';
 import Table from '@gpa-gemstone/react-table';
 import { EventWidget } from '../global';
-import { Input } from '@gpa-gemstone/react-forms';
 
 interface ILSC {
     Facility: string,
@@ -39,23 +38,13 @@ interface ILSC {
     EventID: number
 }
 
-const LSC: EventWidget.IWidget<EventWidget.ISetting> = {
+const LSC: EventWidget.IWidget<{}> = {
     Name: 'TVASLC', //This is whats getting returned from api should be TVALSC once api gets fix
-    DefaultSettings: { SystemCenterURL: 'http://localhost:8989' },
-    Settings: (props) => {
-        return <div className="row">
-            <div className="col">
-                <Input<EventWidget.ISetting>
-                    Record={props.Settings}
-                    Field={'SystemCenterURL'}
-                    Help={'The URL for SystemCenter. This has to be accesable from the Client.'}
-                    Setter={(record) => props.SetSettings(record)}
-                    Valid={() => true}
-                    Label={'System Center URL'} />
-            </div>
-        </div>
+    DefaultSettings: {},
+    Settings: () => {
+        return <></>
     },
-    Widget: (props: EventWidget.IWidgetProps<EventWidget.ISetting>) => {
+    Widget: (props: EventWidget.IWidgetProps<{}>) => {
         const [lscInfo, setLSCInfo] = React.useState<ILSC[]>([]);
         React.useEffect(() => {
             return GetData();

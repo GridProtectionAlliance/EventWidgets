@@ -23,7 +23,6 @@
 
 import React from 'react';
 import { EventWidget } from '../global';
-import { Input } from '@gpa-gemstone/react-forms';
 import Table from '@gpa-gemstone/react-table';
 
 interface IStatsData {
@@ -37,23 +36,13 @@ interface IStatsData {
     AssetName: string;
 }
 
-const AssetHistoryStats: EventWidget.IWidget<EventWidget.ISetting> = {
+const AssetHistoryStats: EventWidget.IWidget<{}> = {
     Name: 'AssetHistoryStats',
-    DefaultSettings: { SystemCenterURL: 'http://localhost:8989' },
-    Settings: (props) => {
-        return <div className="row">
-            <div className="col">
-                <Input<EventWidget.ISetting>
-                    Record={props.Settings}
-                    Field={'SystemCenterURL'}
-                    Help={'The URL for SystemCenter. This has to be accesable from the Client.'}
-                    Setter={(record) => props.SetSettings(record)}
-                    Valid={() => true}
-                    Label={'System Center URL'} />
-            </div>
-        </div>
+    DefaultSettings: { },
+    Settings: () => {
+        return <></>
     },
-    Widget: (props: EventWidget.IWidgetProps<EventWidget.ISetting>) => {
+    Widget: (props: EventWidget.IWidgetProps<{}>) => {
         const [statsData, setStatsData] = React.useState<IStatsData[]>([]);
 
         React.useEffect(() => {

@@ -26,29 +26,18 @@ import { EventWidget } from '../global';
 import { MultiCheckBoxSelect, Select } from '@gpa-gemstone/react-forms';
 import Table from '@gpa-gemstone/react-table';
 import cloneDeep from 'lodash/cloneDeep';
-import { Input } from '@gpa-gemstone/react-forms';
 
 interface ISOEFilters { abnormal: boolean, close: boolean, no: boolean, normal: boolean, received: boolean, start: boolean, trip: boolean, yes: boolean }
 
 interface SOEInfo { Time: string, Alarm: string, Status: string }
 
-const SOE: EventWidget.IWidget<EventWidget.ISetting> = {
+const SOE: EventWidget.IWidget<{}> = {
     Name: 'TVASOE',
-        DefaultSettings: { SystemCenterURL: 'http://localhost:8989' },
-    Settings: (props) => {
-        return <div className="row">
-            <div className="col">
-                <Input<EventWidget.ISetting>
-                    Record={props.Settings}
-                    Field={'SystemCenterURL'}
-                    Help={'The URL for SystemCenter. This has to be accesable from the Client.'}
-                    Setter={(record) => props.SetSettings(record)}
-                    Valid={() => true}
-                    Label={'System Center URL'} />
-            </div>
-        </div>
+    DefaultSettings: {},
+    Settings: () => {
+        return <></>
     },
-    Widget: (props: EventWidget.IWidgetProps<EventWidget.ISetting>) => {
+    Widget: (props: EventWidget.IWidgetProps<{}>) => {
         const [soeInfo, setSOEInfo] = React.useState<SOEInfo[]>([]);
         const [statusFilter, setStatusFilter] = React.useState<ISOEFilters>({ abnormal: false, close: false, no: false, normal: false, received: false, start: false, trip: false, yes: false })
         const [timeWindow, setTimeWindow] = React.useState<number>(2);

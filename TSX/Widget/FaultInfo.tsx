@@ -25,7 +25,6 @@ import React from 'react';
 import moment from 'moment';
 import { EventWidget } from '../global';
 import Table from '@gpa-gemstone/react-table';
-import { Input } from '@gpa-gemstone/react-forms';
 
 interface IFaultInfo {
     FaultTime?: string,
@@ -47,23 +46,13 @@ interface ILinks {
     Value: string
 }
 
-const FaultInfo: EventWidget.IWidget<EventWidget.ISetting> = {
+const FaultInfo: EventWidget.IWidget<{}> = {
     Name: 'TVAFaultInfo',
-    DefaultSettings: { SystemCenterURL: 'http://localhost:8989' },
-    Settings: (props) => {
-        return <div className="row">
-            <div className="col">
-                <Input<EventWidget.ISetting>
-                    Record={props.Settings}
-                    Field={'SystemCenterURL'}
-                    Help={'The URL for SystemCenter. This has to be accesable from the Client.'}
-                    Setter={(record) => props.SetSettings(record)}
-                    Valid={() => true}
-                    Label={'System Center URL'} />
-            </div>
-        </div>
+    DefaultSettings: {},
+    Settings: () => {
+        return <></>
     },
-    Widget: (props: EventWidget.IWidgetProps<EventWidget.ISetting>) => {
+    Widget: (props: EventWidget.IWidgetProps<{}>) => {
         const [hidden, setHidden] = React.useState<boolean>(true);
         const [faultInfo, setFaultInfo] = React.useState<IFaultInfo[]>([]);
         const [links, setLinks] = React.useState<ILinks[]>([]);
