@@ -26,7 +26,6 @@ import SEBrowserService from '../../../Scripts/TS/Services/SEBrowser';
 import moment from 'moment';
 import { EventWidget } from '../global';
 import Table from '@gpa-gemstone/react-table';
-import { Input } from '@gpa-gemstone/react-forms';
 
 interface IFaultSegment {
     SegmentType: string;
@@ -34,23 +33,13 @@ interface IFaultSegment {
     EndTime: string;
 }
 
-const EventSearchAssetFaultSegments: EventWidget.IWidget<EventWidget.ISetting> = {
+const EventSearchAssetFaultSegments: EventWidget.IWidget<{}> = {
     Name: 'EventSearchFaultSegments',
-        DefaultSettings: { SystemCenterURL: 'http://localhost:8989' },
-    Settings: (props) => {
-        return <div className="row">
-            <div className="col">
-                <Input<EventWidget.ISetting>
-                    Record={props.Settings}
-                    Field={'SystemCenterURL'}
-                    Help={'The URL for SystemCenter. This has to be accesable from the Client.'}
-                    Setter={(record) => props.SetSettings(record)}
-                    Valid={() => true}
-                    Label={'System Center URL'} />
-            </div>
-        </div>
+        DefaultSettings: {},
+    Settings: () => {
+        return <></>
     },
-    Widget: (props: EventWidget.IWidgetProps<EventWidget.ISetting>) => {
+    Widget: (props: EventWidget.IWidgetProps<{}>) => {
         const [data, setData] = React.useState<IFaultSegment[]>([]);
         const [count, setCount] = React.useState<number>(0);
         const [handle, setHandle] = React.useState<JQuery.jqXHR>();

@@ -24,7 +24,6 @@
 import React from 'react';
 import OpenSEEService from '../../../Scripts/TS/Services/OpenSEE';
 import { EventWidget } from '../global';
-import { Input } from '@gpa-gemstone/react-forms';
 import Table from '@gpa-gemstone/react-table';
 
 interface IEventSearchBreakerPerformance {
@@ -35,23 +34,13 @@ interface IEventSearchBreakerPerformance {
     L2window: number,
 }
 
-const EventSearchBreakerPerformance: EventWidget.IWidget<EventWidget.ISetting> = {
+const EventSearchBreakerPerformance: EventWidget.IWidget<{}> = {
     Name: 'EventSearchBreakerPerformance',
     DefaultSettings: { SystemCenterURL: 'http://localhost:8989' },
-    Settings: (props) => {
-        return <div className="row">
-            <div className="col">
-                <Input<EventWidget.ISetting>
-                    Record={props.Settings}
-                    Field={'SystemCenterURL'}
-                    Help={'The URL for SystemCenter. This has to be accesable from the Client.'}
-                    Setter={(record) => props.SetSettings(record)}
-                    Valid={() => true}
-                    Label={'System Center URL'} />
-            </div>
-        </div>
+    Settings: () => {
+        return <></>
     },
-    Widget: (props: EventWidget.IWidgetProps<EventWidget.ISetting>) => {
+    Widget: (props: EventWidget.IWidgetProps<{}>) => {
         const TTwindow = React.useRef(null);
         const PTwindow = React.useRef(null);
         const TCCwindow = React.useRef(null);

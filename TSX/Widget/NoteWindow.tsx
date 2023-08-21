@@ -34,21 +34,11 @@ interface ISetting {
     NoteTags: string[]
 }
 
-const NoteWidget: EventWidget.IWidget<any> = {
+const NoteWidget: EventWidget.IWidget<ISetting> = {
     Name: 'EventSearchNoteWindow',
-    DefaultSettings: { SystemCenterURL: 'http://localhost:8989', NoteTags: '', NoteTypes: '' },
-    Settings: (props) => {
-        return <div className="row">
-            <div className="col">
-                <Input<EventWidget.ISetting>
-                    Record={props.Settings}
-                    Field={'SystemCenterURL'}
-                    Help={'The URL for SystemCenter. This has to be accesable from the Client.'}
-                    Setter={(record) => props.SetSettings(record)}
-                    Valid={() => true}
-                    Label={'System Center URL'} />
-            </div>
-        </div>
+    DefaultSettings: { NoteTags: [], NoteTypes: [] },
+    Settings: () => {
+        return <></>
     },
     Widget: (props: EventWidget.IWidgetProps<ISetting>) => {
         const [noteType, setNoteType] = React.useState<OpenXDA.Types.NoteType>({ ID: -1, Name: 'Event', ReferenceTableName: 'Event' });

@@ -50,7 +50,4 @@ export namespace EventWidget {
         Name: string,
     }
 
-    export interface ISetting {
-        SystemCenterURL: string
-    }
 }

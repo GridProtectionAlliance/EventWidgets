@@ -24,25 +24,14 @@
 import React from 'react';
 import { EventWidget } from '../global';
 import Table from '@gpa-gemstone/react-table';
-import { Input } from '@gpa-gemstone/react-forms';
 
-const EventSearchFileInfo: EventWidget.IWidget<EventWidget.ISetting> = {
+const EventSearchFileInfo: EventWidget.IWidget<{}> = {
     Name: 'EventSearchFileInfo',
-    DefaultSettings: { SystemCenterURL: 'http://localhost:8989' },
-    Settings: (props) => {
-        return <div className="row">
-            <div className="col">
-                <Input<EventWidget.ISetting>
-                    Record={props.Settings}
-                    Field={'SystemCenterURL'}
-                    Help={'The URL for SystemCenter. This has to be accesable from the Client.'}
-                    Setter={(record) => props.SetSettings(record)}
-                    Valid={() => true}
-                    Label={'System Center URL'} />
-            </div>
-        </div>
+    DefaultSettings: {},
+    Settings: () => {
+        return <></>
     },
-    Widget: (props: EventWidget.IWidgetProps<EventWidget.ISetting>) => {
+    Widget: (props: EventWidget.IWidgetProps<{}>) => {
         const [fileName, setFileName] = React.useState<string>('');
         const [mappedChannels, setMappedChannels] = React.useState<Array<{ Channel: string, Mapping: string }>>([]);
         const [meterKey, setMeterKey] = React.useState<string>('');
