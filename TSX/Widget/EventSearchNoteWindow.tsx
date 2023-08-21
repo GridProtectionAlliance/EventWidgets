@@ -1,7 +1,7 @@
 //******************************************************************************************************
 //  EventSearchNoteWindow.tsx - Gbtc
 //
-//  Copyright © 2019, Grid Protection Alliance.  All Rights Reserved.
+//  Copyright ï¿½ 2019, Grid Protection Alliance.  All Rights Reserved.
 //
 //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
 //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
@@ -29,9 +29,14 @@ import { Note } from '@gpa-gemstone/common-pages';
 import { MultiCheckBoxSelect, Select } from '@gpa-gemstone/react-forms';
 import { Input } from '@gpa-gemstone/react-forms';
 
-const NoteWidget: EventWidget.IWidget<EventWidget.ISetting> = {
+interface ISetting {
+    NoteTypes: string[],
+    NoteTags: string[]
+}
+
+const NoteWidget: EventWidget.IWidget<any> = {
     Name: 'EventSearchNoteWindow',
-    DefaultSettings: { SystemCenterURL: 'http://localhost:8989' },
+    DefaultSettings: { SystemCenterURL: 'http://localhost:8989', NoteTags: '', NoteTypes: '' },
     Settings: (props) => {
         return <div className="row">
             <div className="col">
@@ -45,7 +50,7 @@ const NoteWidget: EventWidget.IWidget<EventWidget.ISetting> = {
             </div>
         </div>
     },
-    Widget: (props: EventWidget.IWidgetProps<any>) => {
+    Widget: (props: EventWidget.IWidgetProps<ISetting>) => {
         const [noteType, setNoteType] = React.useState<OpenXDA.Types.NoteType>({ ID: -1, Name: 'Event', ReferenceTableName: 'Event' });
         const [selectedTags, setSelectedTags] = React.useState<number[]>([]);
         const [noteApp, setNoteApp] = React.useState<OpenXDA.Types.NoteApplication>({ ID: -1, Name: 'SEbrowser' });
@@ -199,7 +204,7 @@ const NoteWidget: EventWidget.IWidget<EventWidget.ISetting> = {
                             <Select<OpenXDA.Types.NoteType>
                                 Record={noteType}
                                 Label={'Record:'}
-                                Options={noteTypes.map(t => ({ Label: t.Name, Value: t.ID.toString() }))}
+                                Options={noteTypes.map(t => ({ Label: t.Label, Value: t.ID.toString() }))}
                                 Setter={(r) => setNoteType(noteTypes.find((t) => t.ID == r.ID))}
                                 Field={'ID'} />
                         </div>
