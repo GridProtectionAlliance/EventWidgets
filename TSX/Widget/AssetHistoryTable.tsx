@@ -54,7 +54,7 @@ const AssetHistoryTable: EventWidget.IWidget<{}> = {
         function getHistoryData() {
             return $.ajax({
                 type: "GET",
-                url: `${homePath}api/OpenXDA/GetEventSearchHistory/${props.EventID}/${count}`,
+                url: `${homePath}api/AssetHistoryTable/${props.EventID}/${count}`,
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
                 cache: true,
