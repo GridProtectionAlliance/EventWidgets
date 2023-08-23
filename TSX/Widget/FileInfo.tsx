@@ -44,7 +44,7 @@ const EventSearchFileInfo: EventWidget.IWidget<{}> = {
         function GetData() {
             const handle = $.ajax({
                 type: "GET",
-                url: `${homePath}api/OpenXDA/GetFileName/${props.EventID}`,
+                url: `${homePath}api/FileInfo/GetFileName/${props.EventID}`,
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
                 cache: true,
@@ -55,7 +55,7 @@ const EventSearchFileInfo: EventWidget.IWidget<{}> = {
 
             const handle2 = $.ajax({
                 type: "GET",
-                url: `${homePath}api/OpenXDA/GetMappedChannels/${props.EventID}`,
+                url: `${homePath}api/FileInfo/GetMappedChannels/${props.EventID}`,
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
                 cache: true,
@@ -66,7 +66,7 @@ const EventSearchFileInfo: EventWidget.IWidget<{}> = {
 
             const handle3 = $.ajax({
                 type: "GET",
-                url: `${homePath}api/OpenXDA/GetMeterConfiguration/${props.EventID}`,
+                url: `${homePath}api/FileInfo/GetMeterConfiguration/${props.EventID}`,
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
                 cache: true,
@@ -94,9 +94,7 @@ const EventSearchFileInfo: EventWidget.IWidget<{}> = {
                 </div>
 
                 <div className="card-body">
-                    <div className="card-header"><th>File:</th><td style={{ borderBottom: '2px solid #dee2e6' }}>{fileName}</td></div>
-
-                    <div className="card-header">Mapped Channels</div>
+                    <p>{fileName}</p>
                     <Table
                         cols={[
                             { key: 'channel', field: 'Channel', label: 'Channel' },
