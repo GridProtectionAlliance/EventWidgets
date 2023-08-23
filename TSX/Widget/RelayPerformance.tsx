@@ -69,7 +69,7 @@ const EventSearchRelayPerformance: EventWidget.IWidget<{}> = {
         function getRelayPerformanceData() {
             return $.ajax({
                 type: "GET",
-                url: `${homePath}api/OpenXDA/GetRelayPerformance/${props.EventID}`,
+                url: `${homePath}api/RelayPerformance?eventId=${props.EventID}`,
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
                 cache: true,
