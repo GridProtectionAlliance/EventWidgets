@@ -41,36 +41,70 @@ interface ISettings {
     Zoom: number,
     transmissionLayerURL: string,
     safetyLayerURL: string,
-    lscLayerURL: string
+    lscLayerURL: string,
 }
 
-const defaultSettings: ISettings = {
-    Center: [35, -85], Zoom: 7,
-    transmissionLayerURL: `http://pq/arcgisproxynew/proxy.ashx?https://gis.tva.gov/arcgis/rest/services/EGIS_Transmission/Transmission_Grid_Restricted_2/MapServer/`,
-    safetyLayerURL: `http://pq/arcgisproxynew/proxy.ashx?https://gis.tva.gov/arcgis/rest/services/EGIS_Edit/safetyHazards/MapServer/`,
-    lscLayerURL: `http://pq/arcgisproxynew/proxy.ashx?https://gis.tva.gov/arcgis/rest/services/EGIS_Transmission/Transmission_Station_Assets/MapServer/`
-}
-interface ISetting {
-    SystemCenterURL: string
-}
-
-const ESRIMap: EventWidget.IWidget<ISetting> = {
+const ESRIMap: EventWidget.IWidget<ISettings> = {
     Name: 'TVAESRIMap',
-    DefaultSettings: { SystemCenterURL: 'http://localhost:8989' },
+    DefaultSettings: {
+        Center: [35, -85],
+        Zoom: 7,
+        transmissionLayerURL: `http://pq/arcgisproxynew/proxy.ashx?https://gis.tva.gov/arcgis/rest/services/EGIS_Transmission/Transmission_Grid_Restricted_2/MapServer/`,
+        safetyLayerURL: `http://pq/arcgisproxynew/proxy.ashx?https://gis.tva.gov/arcgis/rest/services/EGIS_Edit/safetyHazards/MapServer/`,
+        lscLayerURL: `http://pq/arcgisproxynew/proxy.ashx?https://gis.tva.gov/arcgis/rest/services/EGIS_Transmission/Transmission_Station_Assets/MapServer/`
+    },
     Settings: (props) => {
-        return <div className="row">
+        return (
+         <div className="row">
             <div className="col">
-                <Input<EventWidget.ISetting>
+                <Input<ISettings>
                     Record={props.Settings}
-                    Field={'SystemCenterURL'}
-                    Help={'The URL for SystemCenter. This has to be accesable from the Client.'}
+                    Field={'transmissionLayerURL'}
+                    Help={'The URL for transmission layer in ESRIMap Widget.'}
                     Setter={(record) => props.SetSettings(record)}
                     Valid={() => true}
-                    Label={'System Center URL'} />
-            </div>
-        </div>
+                    Label={'Transmission layer URl'} />
+                </div>
+                <div className="col">
+                    <Input<ISettings>
+                        Record={props.Settings}
+                        Field={'safetyLayerURL'}
+                        Help={'The URL for safety layer in ESRIMap Widget.'}
+                        Setter={(record) => props.SetSettings(record)}
+                        Valid={() => true}
+                        Label={'Safety layer URl'} />
+                </div>
+                <div className="col">
+                    <Input<ISettings>
+                        Record={props.Settings}
+                        Field={'lscLayerURL'}
+                        Help={'The URL for lsc layer in ESRIMap Widget.'}
+                        Setter={(record) => props.SetSettings(record)}
+                        Valid={() => true}
+                        Label={'LSC layer URl'} />
+                </div>
+                <div className="col">
+                    <Input<ISettings>
+                        Record={props.Settings}
+                        Field={'Zoom'}
+                        Help={'The Zoom setting for ESRIMap widget. ex: 7'}
+                        Setter={(record) => props.SetSettings(record)}
+                        Valid={() => true}
+                        Label={'Zoom setting'} />
+                </div>
+                <div className="col">
+                    <Input<ISettings>
+                        Record={props.Settings}
+                        Field={'Center'}
+                        Help={'The Center setting for ESRIMap widget. ex: [35, -85]'}
+                        Setter={(record) => props.SetSettings(record)}
+                        Valid={() => true}
+                        Label={'Center setting'} />
+                </div>
+         </div>
+        )
     },
-    Widget: (props: EventWidget.IWidgetProps<any>) => {
+    Widget: (props: EventWidget.IWidgetProps<ISettings>) => {
         const map = React.useRef<leaflet.Map>(null);
         const div = React.useRef(null);
         const [status, setStatus] = React.useState<Application.Types.Status>('idle');
@@ -84,7 +118,7 @@ const ESRIMap: EventWidget.IWidget<ISetting> = {
             setStatus("loading");
             const handle = $.ajax({
                 type: "GET",
-                url: `${homePath}api/OpenXDA/GetLightningInfo/${props.EventID}/${window}`,
+                url: `${homePath}api/ESRIMap/GetLightningInfo/${props.EventID}/${window}`,
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
                 cache: true,
@@ -97,7 +131,7 @@ const ESRIMap: EventWidget.IWidget<ISetting> = {
         React.useEffect(() => {
             const handle = $.ajax({
                 type: "GET",
-                url: `${homePath}api/OpenXDA/GetFaultInfo/${props.EventID}`,
+                url: `${homePath}api/FaultInformation/${props.EventID}`,
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
                 cache: true,
@@ -115,7 +149,7 @@ const ESRIMap: EventWidget.IWidget<ISetting> = {
         /* Create map and add layers */
         React.useEffect(() => {
             if (div == null) return;
-            const setting: ISettings = props.Settings == undefined ? defaultSettings : props.Settings;
+            const setting: ISettings = props.Settings == undefined ? ESRIMap.DefaultSettings : props.Settings;
             map.current = leaflet.map(div.current, { center: setting.Center, zoom: setting.Zoom, });
             basemapLayer('Gray').addTo(map.current);
 
