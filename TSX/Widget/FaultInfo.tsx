@@ -64,7 +64,7 @@ const FaultInfo: EventWidget.IWidget<{}> = {
         function GetData() {
             const handle = $.ajax({
                 type: "GET",
-                url: `${homePath}api/OpenXDA/FaultInfo/${props.EventID}`,
+                url: `${homePath}api/FaultInformation/${props.EventID}`,
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
                 cache: true,
@@ -73,7 +73,7 @@ const FaultInfo: EventWidget.IWidget<{}> = {
 
             const handle2 = $.ajax({
                 type: "GET",
-                url: `${homePath}api/SEBrowser/GetLinks/FaultInfo`,
+                url: `${homePath}api/FaultInformation/GetLinks/FaultInfo`,
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
                 cache: true,
@@ -109,44 +109,13 @@ const FaultInfo: EventWidget.IWidget<{}> = {
                     <Table
                         cols={[
                             {
-                                key: 'FaultTime', label: 'Fault Inception Time: ',
+                                key: 'FaultTime', label: 'Inception Time',
                                 content: (d: IFaultInfo) => d.FaultTime ? `${moment(d.FaultTime).format('YYYY-MM-DD HH:mm:ss.SSS')} (Central Time)` : ''
                             },
                             {
-                                key: 'FaultDuration', label: 'Fault Duration: ',
+                                key: 'FaultDuration', label: 'Duration',
                                 content: (d: IFaultInfo) => d.FaultDuration != null ? `${d.FaultDuration} cycles / ${(d.FaultDuration * 16.6).toFixed(2)} ms` : ''
                             },
-                            {
-                                key: 'FaultType', label: 'Fault Type: ',
-                                content: (d: IFaultInfo) => d.FaultType || ''
-                            },
-                            {
-                                key: 'Location', label: 'Location: ',
-                                content: (d: IFaultInfo) => d.FaultDistance != null && d.StationName != null && d.StationID != null && d.LineName != null && d.LineAssetKey != null
-                                    ? `${d.FaultDistance} miles from ${d.StationName} (${d.StationID}) on ${d.LineName} (${d.LineAssetKey})` : ''
-                            },
-                            {
-                                key: 'DoubleEndedLocation', label: 'Double Ended Location: ',
-                                content: (d: IFaultInfo) => d.DblDist != null && d.StationName != null ? `${d.DblDist} miles from ${d.StationName}` : ''
-                            },
-                            {
-                                key: 'TreeProbability', label: 'Tree Probability: ',
-                                content: (d: IFaultInfo) => d.TreeFaultResistance != null ? TreeProbability(d.TreeFaultResistance) : ''
-                            },
-                            {
-                                key: 'View', label: 'View:',
-                                content: (d: IFaultInfo) => links.map(a => {
-                                    if (a.Name == 'FaultInfo.Miles') {
-                                        return (
-                                            <a style={{ paddingRight: 5 }} key={a.Name} href={a.Value + `?Station=${d.StationID}&Line=${d.LineAssetKey}&Mileage=${d.FaultDistance}`} target='_blank'>{a.Display}</a>
-                                        );
-                                    } else {
-                                        return (
-                                            <a style={{ paddingRight: 5 }} key={a.Name} href={a.Value} target='_blank'>{a.Display}</a>);
-                                    }
-                                })
-                            }
-
                         ]}
                         data={faultInfo}
                         onClick={() => { /* Do Nothing */ }}
