@@ -34,7 +34,7 @@ interface ITimeCorrelatedSags {
     SagDurationCycles: number;
     StartTime: string;
     MeterName: string;
-    LineName: string;
+    AssetName: string;
 }
 
 const EventSearchCorrelatedSags: EventWidget.IWidget<{} > = {
@@ -55,7 +55,7 @@ const EventSearchCorrelatedSags: EventWidget.IWidget<{} > = {
 
             correlatedSagsHandle = $.ajax({
                 type: 'GET',
-                url: `${homePath}api/OpenXDA/GetTimeCorrelatedSags?eventId=${props.EventID}`,
+                url: `${homePath}api/CorrelatedSags?eventId=${props.EventID}`,
                 contentType: 'application/json; charset=utf-8',
                 dataType: 'json',
                 cache: true,
@@ -85,7 +85,7 @@ const EventSearchCorrelatedSags: EventWidget.IWidget<{} > = {
                             { key: 'SagDuration', field: 'SagDurationMilliseconds', label: 'Duration', content: (d: ITimeCorrelatedSags) => `${d.SagDurationMilliseconds} ms (${d.SagDurationCycles} cycles)` },
                             { key: 'StartTime', field: 'StartTime', label: 'Start Time', content: (d: ITimeCorrelatedSags) => moment(d.StartTime).format('HH:mm:ss.SSS') },
                             { key: 'MeterName', field: 'MeterName', label: 'Meter Name' },
-                            { key: 'LineName', field: 'LineName', label: 'Line Name' }
+                            { key: 'AssetName', field: 'AssetName', label: 'Asset Name' }
                         ]}
                         data={data}
                         onClick={() => { /* Do Nothing */ }}
