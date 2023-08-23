@@ -1,7 +1,7 @@
-//******************************************************************************************************
+ï»¿//******************************************************************************************************
 //  EventSearchAssetFaultSegments.tsx - Gbtc
 //
-//  Copyright © 2019, Grid Protection Alliance.  All Rights Reserved.
+//  Copyright ï¿½ 2019, Grid Protection Alliance.  All Rights Reserved.
 //
 //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
 //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
@@ -35,7 +35,7 @@ interface IFaultSegment {
 
 const EventSearchAssetFaultSegments: EventWidget.IWidget<{}> = {
     Name: 'EventSearchFaultSegments',
-        DefaultSettings: {},
+    DefaultSettings: {},
     Settings: () => {
         return <></>
     },
@@ -43,24 +43,41 @@ const EventSearchAssetFaultSegments: EventWidget.IWidget<{}> = {
         const [data, setData] = React.useState<IFaultSegment[]>([]);
         const [count, setCount] = React.useState<number>(0);
         const [handle, setHandle] = React.useState<JQuery.jqXHR>();
-        const seBrowserService = new SEBrowserService();
+
+        let assetFaultHandle;
+
+        function getAssetFaultData() {
+            if (assetFaultHandle !== undefined)
+                assetFaultHandle.abort()
+
+            assetFaultHandle = $.ajax({
+                type: "GET",
+                url: `${homePath}api/AssetFaultSegment?EventID=${props.EventID}`,
+                contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                cache: true,
+                async: true
+            })
+            return assetFaultHandle;
+        }
+
 
         React.useEffect(() => {
             if (props.EventID >= 0) {
-                const handle = seBrowserService.getEventSearchAsssetFaultSegmentsData(props.EventID).done((data: IFaultSegment[]) => {
+                const handle = getAssetFaultData()
+                handle.done((data) => {
                     setData(data);
                     setCount(data.length);
-                });
-
+                })
                 setHandle(handle);
             }
-
             return () => {
                 if (handle?.abort != undefined) {
                     handle.abort();
                 }
             };
         }, [props.EventID]);
+
 
         return (
             <div className="card" style={{ display: count > 0 ? 'block' : 'none' }}>
