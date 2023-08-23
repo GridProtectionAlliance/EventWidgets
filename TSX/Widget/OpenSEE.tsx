@@ -115,7 +115,7 @@ const EventSearchOpenSEE: EventWidget.IWidget<{}> = {
         function GetData(type: ('Voltage' | 'Current' | 'TripCoilCurrent'), datasetter: (d: ISeries[]) => void) {
             return $.ajax({
                 type: "GET",
-                url: `${homePath}api/OpenXDA/GetData?eventId=${props.EventID}` +
+                url: `${homePath}api/OpenSEE/GetData?eventId=${props.EventID}` +
                     `&pixels=${1200}` +
                     `&type=${type}` +
                     `&dataType=Time`,
