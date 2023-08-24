@@ -25,30 +25,32 @@ import * as React from 'react';
 import LineParameters from './Widget/LineParameters';
 import { ServerErrorIcon } from '@gpa-gemstone/react-interactive';
 import { cloneDeep } from 'lodash';
-import EventSearchOpenSEE from './Widget/EventSearchOpenSEE'
+import EventSearchOpenSEE from './Widget/OpenSEE'
 import ESRIMap from './Widget/ESRIMap'
 import FaultInfo from './Widget/FaultInfo'
-import EventSearchAssetFaultSegments from './Widget/EventSearchAssetFaultSegments';
-import EventSearchAssestVoltageDisturbances from './Widget/EventSearchAssestVoltageDisturbances'
-import EventSearchCorrelatedSags from './Widget/EventSearchCorrelatedSags'
+import EventSearchAssetFaultSegments from './Widget/AssetFaultSegments';
+import AssetVoltageDisturbances from './Widget/AssetVoltageDisturbances'
+import EventSearchCorrelatedSags from './Widget/CorrelatedSags'
 import SOE from './Widget/SOE'
-import EventSearchPQI from './Widget/EventSearchPQI'
-import EventSearchFileInfo from './Widget/EventSearchFileInfo'
-import EventSearchNoteWindow from './Widget/EventSearchNoteWindow'
+import EventSearchPQI from './Widget/PQI'
+import EventSearchFileInfo from './Widget/FileInfo'
+import EventSearchNoteWindow from './Widget/NoteWindow'
 import Lightning from './Widget/Lightning'
 import StructureInfo from './Widget/StructureInfo'
 import LSC from './Widget/LSC'
-import PQWeb from './Widget/PQWeb'
 import InterruptionReport from './Widget/InterruptionReport'
-import EventSearchRelayPerformance from './Widget/EventSearchRelayPerformance'
-import EventSearchBreakerPerformance from './Widget/EventSearchBreakerPerformance'
-import EventSearchCapBankAnalyticOverview from './Widget/EventSearchCapBankAnalyticOverview'
+import EventSearchRelayPerformance from './Widget/RelayPerformance'
+import EventSearchBreakerPerformance from './Widget/BreakerPerformance'
+import EventSearchCapBankAnalyticOverview from './Widget/CapBankAnalyticOverview'
 import AssetHistoryStats from './Widget/AssetHistoryStats'
 import AssetHistoryTable from './Widget/AssetHistoryTable'
+import MatlabAnalyticResults from './Widget/MatlabAnalyticResults';
 
-const allWidgets: EventWidget.IWidget<any>[] = [LineParameters, EventSearchOpenSEE, ESRIMap, FaultInfo, EventSearchAssetFaultSegments,
-    EventSearchAssestVoltageDisturbances, EventSearchCorrelatedSags, SOE, EventSearchPQI, Lightning, EventSearchFileInfo, EventSearchNoteWindow,
-    StructureInfo, LSC, PQWeb, InterruptionReport, EventSearchRelayPerformance, EventSearchBreakerPerformance, EventSearchCapBankAnalyticOverview, AssetHistoryStats, AssetHistoryTable];
+const allWidgets: EventWidget.IWidget<any>[] = [LineParameters , 
+    EventSearchOpenSEE, ESRIMap, FaultInfo, EventSearchAssetFaultSegments,
+    AssetVoltageDisturbances, EventSearchCorrelatedSags, SOE, EventSearchPQI, Lightning, EventSearchFileInfo, EventSearchNoteWindow,
+    StructureInfo, LSC, InterruptionReport, EventSearchRelayPerformance, EventSearchBreakerPerformance, EventSearchCapBankAnalyticOverview,
+    AssetHistoryStats, AssetHistoryTable, MatlabAnalyticResults];
 
 interface IProps {
     Widget: EventWidget.IWidgetView,
