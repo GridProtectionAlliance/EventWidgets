@@ -23,7 +23,9 @@
 
 using GSF.Data;
 using System;
+using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Web.Http;
 
 namespace Wigets.Controllers
@@ -67,10 +69,65 @@ namespace Wigets.Controllers
                 ";
 
                 DataTable dataTable = connection.RetrieveData(SQL, eventID);
-                return Ok(dataTable);
+                if (dataTable.Rows.Count == 0)
+                {
+                    return Ok();
+                }
+
+                DataRow row = dataTable.Rows[0];
+                List<Dictionary<string, object>> result = new List<Dictionary<string, object>>();
+
+                foreach (DataColumn col in dataTable.Columns)
+                {
+                    string key = col.ColumnName;
+                    object value = row[col];
+                    object formattedValue = value;
+
+                    switch (key)
+                    {
+                        case "FaultTime":
+                            formattedValue = value != null ? $"{Convert.ToDateTime(value):yyyy-MM-dd HH:mm:ss.fff} (Central Time)" : "";
+                            break;
+                        case "FaultDuration":
+                            formattedValue = value != null ? $"{value} cycles / {((Convert.ToDouble(value)) * 16.6):f2} ms" : "";
+                            break;
+                        case "FaultType":
+                            formattedValue = value ?? "";
+                            break;
+                        case "Location":
+                            formattedValue = value != null && row["StationName"] != null && row["StationID"] != null && row["LineName"] != null && row["LineAssetKey"] != null
+                                ? $"{value} miles from {row["StationName"]} ({row["StationID"]}) on {row["LineName"]} ({row["LineAssetKey"]})"
+                                : "";
+                            break;
+                        case "DoubleEndedLocation":
+                            formattedValue = value != null && row["StationName"] != null ? $"{value} miles from {row["StationName"]}" : "";
+                            break;
+                        case "FaultDistance":
+                        case "DblDist":
+                        case "Length":
+                            formattedValue = value != null ? Convert.ToDouble(value) : (object)null;
+                            break;
+                        default:
+                            formattedValue = value;
+                            break;
+                    }
+
+
+                    Dictionary<string, object> item = new Dictionary<string, object>
+                    {
+                        { "Key", key },
+                        { "Value", formattedValue }
+                    };
+                    result.Add(item);
+                }
+
+                return Ok(result);
 
             }
         }
+
+
+
         [Route("GetLinks/{category}"), HttpGet]
         public IHttpActionResult GetLinks(string category)
         {

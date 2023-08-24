@@ -54,7 +54,7 @@ const FaultInfo: EventWidget.IWidget<{}> = {
     },
     Widget: (props: EventWidget.IWidgetProps<{}>) => {
         const [hidden, setHidden] = React.useState<boolean>(true);
-        const [faultInfo, setFaultInfo] = React.useState<IFaultInfo[]>([]);
+        const [faultInfo, setFaultInfo] = React.useState<any[]>([]);
         const [links, setLinks] = React.useState<ILinks[]>([]);
 
         React.useEffect(() => {
@@ -92,7 +92,6 @@ const FaultInfo: EventWidget.IWidget<{}> = {
             return function () {
                 if (handle.abort != undefined) handle.abort();
                 if (handle2.abort != undefined) handle2.abort();
-
             }
         }
 
@@ -102,20 +101,15 @@ const FaultInfo: EventWidget.IWidget<{}> = {
             else if (value > 10) return `Medium (Rf=${value.toFixed(2)})`;
             else return `Low (Rf=${value.toFixed(2)})`;
         }
+
         return (
             <div className="card" hidden={hidden}>
                 <div className="card-header">Fault Information:</div>
                 <div className="card-body">
                     <Table
                         cols={[
-                            {
-                                key: 'FaultTime', label: 'Inception Time',
-                                content: (d: IFaultInfo) => d.FaultTime ? `${moment(d.FaultTime).format('YYYY-MM-DD HH:mm:ss.SSS')} (Central Time)` : ''
-                            },
-                            {
-                                key: 'FaultDuration', label: 'Duration',
-                                content: (d: IFaultInfo) => d.FaultDuration != null ? `${d.FaultDuration} cycles / ${(d.FaultDuration * 16.6).toFixed(2)} ms` : ''
-                            },
+                            { key: 'Key', field: 'Key', label: '' },
+                            { key: 'Value', field: 'Value', label: '' }
                         ]}
                         data={faultInfo}
                         onClick={() => { /* Do Nothing */ }}
