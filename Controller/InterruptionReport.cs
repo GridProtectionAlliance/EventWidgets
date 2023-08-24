@@ -30,7 +30,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Web.Http;
 
-namespace Wigets.Controllers
+namespace Widgets.Controllers
 {
     [RoutePrefix("api/InterruptionReport")]
     public class InterruptionReportController : ApiController

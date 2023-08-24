@@ -32,7 +32,7 @@ using System.Data;
 using System.Net;
 using System.Web.Http;
 
-namespace Wigets.Controllers
+namespace Widgets.Controllers
 {
     [RoutePrefix("api/Note/NoteType")]
     public class NoteTypeController : ModelController<LimitedNoteType> { }

@@ -29,7 +29,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Web.Http;
 
-namespace Wigets.Controllers
+namespace Widgets.Controllers
 {
     [Route("api/RelayPerformance")]
     public class RelayPerformanceController : ApiController

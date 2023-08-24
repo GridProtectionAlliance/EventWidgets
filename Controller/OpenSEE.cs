@@ -34,7 +34,7 @@ using System.Runtime.Caching;
 using System.Threading.Tasks;
 using System.Linq;
 
-namespace Wigets.Controllers
+namespace Widgets.Controllers
 {
     [RoutePrefix("api/OpenSEE")]
     public class OpenSEEController : ApiController

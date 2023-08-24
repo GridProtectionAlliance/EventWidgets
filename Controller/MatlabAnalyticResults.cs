@@ -16,7 +16,7 @@
 //
 //  Code Modification History:
 //  ----------------------------------------------------------------------------------------------------
-//  08/08/2023 - C. Lackner
+//  08/08/2023 - Preston Crawford
 //       Generated original version of source code.
 //
 //******************************************************************************************************
@@ -25,7 +25,7 @@ using GSF.Data;
 using System.Data;
 using System.Web.Http;
 
-namespace Wigets.Controllers
+namespace Widgets.Controllers
 {
     [RoutePrefix("api/MatlabAnalytics")]
     public class MatlabAnalyticsController : ApiController

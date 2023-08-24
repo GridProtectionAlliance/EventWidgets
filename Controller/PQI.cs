@@ -29,7 +29,7 @@ using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
 
-namespace Wigets.Controllers
+namespace Widgets.Controllers
 {
     [RoutePrefix("api/PQI")]
     public class PQIController : ApiController

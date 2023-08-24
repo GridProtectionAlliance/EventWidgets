@@ -28,7 +28,7 @@ using System.Data;
 using System.Linq;
 using System.Web.Http;
 
-namespace Wigets.Controllers
+namespace Widgets.Controllers
 {
     [RoutePrefix("api/FaultInformation")]
     public class FaultInformationController : ApiController

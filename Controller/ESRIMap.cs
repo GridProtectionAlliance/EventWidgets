@@ -26,7 +26,7 @@ using System;
 using System.Data;
 using System.Web.Http;
 
-namespace Wigets.Controllers
+namespace Widgets.Controllers
 {
     [RoutePrefix("api/ESRIMap")]
     public class ESRIMapController : ApiController

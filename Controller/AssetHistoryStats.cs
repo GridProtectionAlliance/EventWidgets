@@ -26,7 +26,7 @@ using GSF.Data;
 using System.Data;
 using System.Web.Http;
 
-namespace Wigets.Controllers
+namespace Widgets.Controllers
 {
     [RoutePrefix("api/AssetHistoryStats")]
     public class AssetHistoryStatsController : ApiController
