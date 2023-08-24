@@ -24,6 +24,7 @@
 import React from 'react';
 import { EventWidget } from '../global';
 import Table from '@gpa-gemstone/react-table';
+import { Select } from '@gpa-gemstone/react-forms';
 
 interface IStatsData {
     VPeakMax: number;
@@ -44,28 +45,64 @@ const AssetHistoryStats: EventWidget.IWidget<{}> = {
     },
     Widget: (props: EventWidget.IWidgetProps<{}>) => {
         const [statsData, setStatsData] = React.useState<IStatsData[]>([]);
+        const [time, setTime] = React.useState<string>('999');
 
         React.useEffect(() => {
-            getStatsData();
+            getStatsData(time);
         }, [props.EventID]);
 
-        function getStatsData() {
-            $.ajax({
-                url: `${homePath}api/AssetHistoryStats/${props.EventID}`,
-                method: 'GET',
-                dataType: 'json',
-                success: (data) => {
-                    if (data && data.length > 0) {
-                        const stats = data[0];
-                        setStatsData(stats);
-                    }
-                },
-            });
+        React.useEffect(() => {
+            getStatsData(time);
+        }, [time]);
+
+        function getStatsData(time: string) {
+            if (time === '1' || time === '12') {
+                $.ajax({
+                    url: `${homePath}api/AssetHistoryStats/${props.EventID}/${time}`,
+                    method: 'GET',
+                    dataType: 'json',
+                    success: (data) => {
+                        if (data && data.length > 0) {
+                            const stats = data[0];
+                            setStatsData(stats);
+                        }
+                    },
+                });
+            }
+            else {
+                $.ajax({
+                    url: `${homePath}api/AssetHistoryStats/${props.EventID}`,
+                    method: 'GET',
+                    dataType: 'json',
+                    success: (data) => {
+                        if (data && data.length > 0) {
+                            const stats = data[0];
+                            setStatsData(stats);
+                        }
+                    },
+                });
+            }
         }
 
         return (
             <div className="card">
-                <div className="card-header">Lifetime Stats for {statsData['AssetName']}:</div>
+                <div className="card-header">Stats for {statsData['AssetName']}:
+                <div className='pull-right'>
+                    <div className="form-inline">
+                        <Select
+                            Record={{ time }}
+                            Field='time'
+                            Options={[
+                                { Value: "999", Label: "Lifetime" },
+                                { Value: "12", Label: "Last Year" },
+                                { Value: "1", Label: "Last Month" }
+                            ]}
+                            Setter={(record) => setTime(record.time)}
+                            Label="Time Window: "
+                        />
+                    </div>
+                </div>
+            </div>
                 <div className="card-body">
                     <Table
                         cols={[
