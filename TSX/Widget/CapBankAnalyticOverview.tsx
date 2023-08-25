@@ -47,9 +47,29 @@ const EventSearchCapBankAnalyticOverview: EventWidget.IWidget<{}> = {
         const [data, setData] = React.useState<ICapBankAnalytic[]>([]);
         const service = new OpenSEEService();
 
+        let capBankAnalyticHandle;
+        function getCapBankAnalytics() {
+            if (capBankAnalyticHandle !== undefined) {
+                capBankAnalyticHandle.abort();
+            }
+
+                capBankAnalyticHandle = $.ajax({
+                    type: "GET",
+                    url: `${homePath}api/OpenXDA/getCapBankAnalytic?eventId=${props.EventID}`,
+                    contentType: "application/json; charset=utf-8",
+                    dataType: 'json',
+                    cache: true,
+                    async: true
+                })
+            return capBankAnalyticHandle;
+        }
+
         React.useEffect(() => {
-            if (props.EventID >= 0)
-                service.getCapBankAnalytic(props.EventID).then(setData);
+            const handle = getCapBankAnalytics();
+            handle.done((data) => {
+                setData(data);
+            });
+            return () => { if (handle != null && handle.abort != null) handle.abort(); }
         }, [props.EventID]);
 
 
