@@ -27,7 +27,6 @@ import { AssetNoteSlice, EventNoteSlice, LocationNoteSlice, MeterNoteSlice } fro
 import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { Note } from '@gpa-gemstone/common-pages';
 import { MultiCheckBoxSelect, Select } from '@gpa-gemstone/react-forms';
-import { Input } from '@gpa-gemstone/react-forms';
 
 interface ISetting {
     NoteTypes: string[],
@@ -49,7 +48,7 @@ const NoteWidget: EventWidget.IWidget<ISetting> = {
         const [noteTags, setNoteTags] = React.useState<OpenXDA.Types.NoteTag[]>([]);
 
         const [ids, setIDs] = React.useState<{ EventID: number, MeterID: number, AssetID: number, LocationID: number }>({ EventID: props.EventID, MeterID: -1, AssetID: -1, LocationID: -1 });
-
+        const isEngineer: boolean = props.Roles.includes('Engineer');
 
         React.useEffect(() => {
             const idHandle = getIDs();
@@ -133,7 +132,8 @@ const NoteWidget: EventWidget.IWidget<ISetting> = {
 
             return handle;
         }
-
+        console.log('roles:', props.Roles)
+        console.log('isEngineer:', isEngineer)
         function getIDs(): JQuery.jqXHR {
             const handle = $.ajax({
                 type: "GET",
@@ -206,10 +206,10 @@ const NoteWidget: EventWidget.IWidget<ISetting> = {
                         NoteTags={noteTags.filter((t) => selectedTags.find(i => i == t.ID) != null)}
                         NoteTypes={[noteType]}
                         NoteSlice={slice}
-                        AllowAdd={true}
+                        AllowAdd={isEngineer}
                         Title={''}
-                        AllowEdit={true}
-                        AllowRemove={false}
+                        AllowEdit={isEngineer}
+                        AllowRemove={isEngineer}
                         ShowCard={false}
                         Filter={(n) => selectedTags.find(i => i == n.NoteTagID) != null}
                     /> : <div className={'alert alert-warning'}>
