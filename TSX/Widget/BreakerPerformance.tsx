@@ -1,5 +1,5 @@
 //******************************************************************************************************
-//  EventSearchBreakerPerformance.tsx - Gbtc
+//  EventSearchPreviewPane.tsx - Gbtc
 //
 //  Copyright © 2019, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -16,132 +16,157 @@
 //
 //  Code Modification History:
 //  ----------------------------------------------------------------------------------------------------
-//  08/22/2019 - Christoph Lackner
+//  09/21/2019 - Christoph Lackner
 //       Generated original version of source code.
 //
 //******************************************************************************************************
-
-import React from 'react';
-import OpenSEEService from '../../../Scripts/TS/Services/OpenSEE';
-import { EventWidget } from '../global';
+import * as React from 'react';
+import moment from 'moment';
+import { LineWithThreshold, Plot } from '@gpa-gemstone/react-graph';
 import Table from '@gpa-gemstone/react-table';
+import { RandomColor } from '@gpa-gemstone/helper-functions';
+import { EventWidget } from '../global';
+import { findAppropriateUnit, getMoment, getStartEndTime } from '../../../Scripts/TSX/Components/EventSearch/TimeWindowUtils';
 
-interface IEventSearchBreakerPerformance {
-    TTwindow: number,
-    PTwindow: number,
-    TCCwindow: number,
-    L1window: number,
-    L2window: number,
+interface IRelayPerformance {
+    EventID: number,
+    Tmax1: number,
+    TplungerLatch: number,
+    IplungerLatch: number,
+    Idrop: number,
+    TiDrop: number,
+    Tend: number,
+    TripTimeCurrent: number,
+    PickupTimeCurrent: number,
+    TripInitiate: string,
+    TripTime: number,
+    PickupTime: number,
+    TripCoilCondition: number,
+    Imax1: number,
+    Imax2: number,
+    TripTimeAlert: number,
+    TripcoilConditionAlert: number,
+    PickupTimeAlert: number,
+    EventType: string,
+    TripCoilConditionTime: number,
+    ExtinctionTimeA?: number,
+    ExtinctionTimeB?: number,
+    ExtinctionTimeC?: number,
+    I2CA?: number,
+    I2CB?: number,
+    I2CC?: number,
 }
 
 const EventSearchBreakerPerformance: EventWidget.IWidget<{}> = {
     Name: 'EventSearchBreakerPerformance',
-    DefaultSettings: { SystemCenterURL: 'http://localhost:8989' },
+    DefaultSettings: {},
     Settings: () => {
         return <></>
     },
     Widget: (props: EventWidget.IWidgetProps<{}>) => {
-        const TTwindow = React.useRef(null);
-        const PTwindow = React.useRef(null);
-        const TCCwindow = React.useRef(null);
-        const L1window = React.useRef(null);
-        const L2window = React.useRef(null);
-        const [showRelayHistory, setShowRelayHistory] = React.useState(false);
-        const service = new OpenSEEService();
-        const [data, setData] = React.useState<IEventSearchBreakerPerformance[]>([]);
-
+        const divref = React.useRef(null);
+        const [relayPeformance, setRelayPerformance] = React.useState<IRelayPerformance[]>([]);
+        const [Tstart, setTstart] = React.useState<number>(0);
+        const [Tend, setTend] = React.useState<number>(0);
+        const [data, setData] = React.useState<IRelayPerformance[]>([]);
+        const [Width, SetWidth] = React.useState<number>(0);
 
         React.useEffect(() => {
-            getData(props);
-        }, [])
+            getTimeLimits()
+        }, [props.WindowSize, props.TimeWindowUnits, props.Time, props.Date])
+
+        React.useEffect(() => {
+
+            const handle = getRelayPerformance()
+            handle.done((data) => {
+                setData(data);
+            });
+            return () => { if (handle != null && handle.abort != null) handle.abort(); };
+
+        }, [props.EventID]);
+
+        React.useLayoutEffect(() => { SetWidth(divref?.current?.offsetWidth ?? 0) });
 
 
-        function getData(props) {
-            /*
-            $(this.refs.TTwindow).children().remove();
-            $(this.refs.PTwindow).children().remove();
-            $(this.refs.TCCwindow).children().remove();
-            $(this.refs.L1window).children().remove();
-            $(this.refs.L2window).children().remove();
-            */
-            const pixels = (window.innerWidth - 300 - 40) / 2;
+        function getRelayPerformance(): JQuery.jqXHR<IRelayPerformance[]> {
+            const adjustedTime = findAppropriateUnit(getMoment(props.Date, props.Time),
+                getStartEndTime(getMoment(props.Date, props.Time), props.WindowSize, props.TimeWindowUnits)[1],
+                props.TimeWindowUnits);
 
-            service.getStatisticData(props.eventid, pixels, "History").then(data => {
-
-                if (data == null) {
-                    setShowRelayHistory(false);
-                    return;
-                }
-                setShowRelayHistory(true);
-
-                const tripTimeVessel = [];
-                const pickupTimeVessel = [];
-                const tripCoilConditionVessel = [];
-                const l1Vessel = [];
-                const l2Vessel = [];
-
-                $.each(data.Data, (index, value) => {
-                    if (value.MeasurementType == "TripTime") { tripTimeVessel.push({ label: value.ChartLabel, data: value.DataPoints, color: this.getColor(value.ChartLabel) }) }
-                    else if (value.MeasurementType == "PickupTime") { pickupTimeVessel.push({ label: value.ChartLabel, data: value.DataPoints, color: this.getColor(value.ChartLabel) }) }
-                    else if (value.MeasurementType == "TripCoilCondition") { tripCoilConditionVessel.push({ label: value.ChartLabel, data: value.DataPoints, color: this.getColor(value.ChartLabel) }) }
-                    else if (value.MeasurementType == "Imax1") { l1Vessel.push({ label: value.ChartLabel, data: value.DataPoints, color: this.getColor(value.ChartLabel) }) }
-                    else if (value.MeasurementType == "Imax2") { l2Vessel.push({ label: value.ChartLabel, data: value.DataPoints, color: this.getColor(value.ChartLabel) }) }
-
-                    else if (value.MeasurementType == "TripTimeAlert") { tripTimeVessel.push({ label: value.ChartLabel, data: value.DataPoints, color: '#FF0000', lines: { show: false }, points: { show: false } }) }
-                    else if (value.MeasurementType == "PickupTimeAlert") { pickupTimeVessel.push({ label: value.ChartLabel, data: value.DataPoints, color: '#FF0000', lines: { show: false }, points: { show: false } }) }
-                    else if (value.MeasurementType == "TripCoilConditionAlert") { tripCoilConditionVessel.push({ label: value.ChartLabel, data: value.DataPoints, color: '#FF0000', lines: { show: false }, points: { show: false } }) }
-                });
-
-                //$.plot($(this.refs.TTwindow), tripTimeVessel, this.optionsTripTime);
-                //$.plot($(this.refs.PTwindow), pickupTimeVessel, this.optionsPickupTime);
-                //$.plot($(this.refs.TCCwindow), tripCoilConditionVessel, this.optionsTripCoilCondition);
-                //$.plot($(this.refs.L1window), l1Vessel, this.optionsImax1);
-                //$.plot($(this.refs.L2window), l2Vessel, this.optionsImax2);
+            const h = $.ajax({
+                type: "GET",
+                url: `${homePath}api/BreakerPerformance?eventID=${props.EventID}&date=${props.Date}` +
+                    `&time=${props.Time}&timeWindowunits=${adjustedTime[0]}&windowSize=${adjustedTime[1]}`,
+                contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                cache: false,
+                async: true
             });
 
+            h.done((d: IRelayPerformance[]) => { if (d != null) setRelayPerformance(d); })
+            return h;
+        }
+
+        function getTimeLimits() {
+            const [Tstart, Tend] = getStartEndTime(getMoment(props.Date, props.Time), props.WindowSize, props.TimeWindowUnits)
+            setTend(Tend.valueOf());
+            setTstart(Tstart.valueOf())
 
         }
 
         return (
-            /*
-          <div className="card">
-                <div className="card-header">Historic Breaker Performance</div>
-                <div className="card-body">
-                    <div ref={TTwindow} style={{
-                        height: 150, width: 'calc(100%)', , margin: '0x', padding: '0px'  display: showRelayHistory ? 'block' : 'none' }}></div>
-                        <div ref={PTwindow} style={{ height: 150, width: 'calc(100%)', margin: '0x', padding: '0px'  display: showRelayHistory ? 'block' : 'none' }}></div>
-                        <div ref={TCCwindow} style={{ height: 150, width: 'calc(100%)', margin: '0x', padding: '0px'  display: showRelayHistory ? 'block' : 'none' }}></div>
-                        <div ref={L1window} style={{ height: 150, width: 'calc(100%)', margin: '0x', padding: '0px'  display: showRelayHistory ? 'block' : 'none' }}></div>
-                        <div ref={L2window} style={{ height: 150, width: 'calc(100%)', margin: '0x', padding: '0px'  display: showRelayHistory ? 'block' : 'none' }}></div>
+            <>
+                <div className="card">
+                    <div className="card-header">Historic Breaker Performance:</div>
+                    <div className="card-body" ref={divref}>
+                        {relayPeformance.length > 0 ? <div>
+                            <Plot height={400} width={Width - 100} showBorder={false} defaultTdomain={[Tstart, Tend]} legend={'bottom'} Tlabel={'Time'}
+                                Ylabel={'Trip (micros)'} showMouse={true} zoom={false} pan={false} useMetricFactors={false}>
+                                <LineWithThreshold highlightHover={true} showPoints={true} lineStyle={'-'} color={RandomColor()} data={relayPeformance.map(ev => [moment.utc(ev.TripInitiate).valueOf(), ev.TripTime * 0.1] as [number, number]).reverse()}
+                                    threshHolds={relayPeformance.length > 0 && relayPeformance[0].TripTimeAlert != 0 && relayPeformance[0].TripTimeAlert != undefined ? [{ Value: relayPeformance[0].TripTimeAlert, Color: '#ff0000' }] : []} legend={'Trip Time'}
+                                />
+                            </Plot>
+                            <Plot height={400} width={Width - 100} showBorder={false} defaultTdomain={[Tstart, Tend]} legend={'bottom'} Tlabel={'Time'}
+                                Ylabel={'Pickup (micros)'} showMouse={true} zoom={false} pan={false} useMetricFactors={false}>
+                                <LineWithThreshold highlightHover={true} showPoints={true} lineStyle={'-'} color={RandomColor()} data={relayPeformance.map(ev => [moment.utc(ev.TripInitiate).valueOf(), ev.PickupTime * 0.1] as [number, number]).reverse()}
+                                    threshHolds={relayPeformance.length > 0 && relayPeformance[0].PickupTimeAlert != 0 && relayPeformance[0].PickupTimeAlert != undefined ? [{ Value: relayPeformance[0].PickupTimeAlert, Color: '#ff0000' }] : []} legend={'Pickup Time'}
+                                />
+                            </Plot>
+                            <Plot height={400} width={Width - 100} showBorder={false} defaultTdomain={[Tstart, Tend]} legend={'bottom'} Tlabel={'Time'}
+                                Ylabel={'TCC (A/s)'} showMouse={true} zoom={false} pan={false} useMetricFactors={false}>
+                                <LineWithThreshold highlightHover={true} showPoints={true} lineStyle={'-'} color={RandomColor()} data={relayPeformance.map(ev => [moment.utc(ev.TripInitiate).valueOf(), ev.TripCoilCondition] as [number, number]).reverse()}
+                                    threshHolds={relayPeformance.length > 0 && relayPeformance[0].TripcoilConditionAlert != 0 && relayPeformance[0].TripcoilConditionAlert != undefined ? [{ Value: relayPeformance[0].TripcoilConditionAlert, Color: '#ff0000' }] : []} legend={'Trip Coil condition'}
+                                />
+                            </Plot>
+                        </div> : null}
+                        <Table
+                            cols={[
+                                { key: 'EventID', field: 'EventID', label: 'Event ID' },
+                                { key: 'EventType', field: 'EventType', label: 'Type' },
+                                { key: 'TripInitiate', label: 'Trip Initiation', content: (d) => moment(d.TripInitiate).format('MM/DD/YY HH:mm:ss.SSSS') },
+                                { key: 'TripCoilCondition', field: 'TripCoilCondition', label: 'Trip Coil Condition', content: (d) => `${d.TripCoilCondition.toFixed(2)} A/s` },
+                                { key: 'TripCoilConditionTime', field: 'TripCoilConditionTime', label: 'Tril Coil Condition Time', content: (d) => `${(d.TripCoilConditionTime / 10).toFixed(0)}` },
+                                { key: 'Tend', field: 'Tend', label: 'TCE Curr. Extinction', content: (d) => `${(d.Tend / 10).toFixed(0)}` },
+                                { key: 'ExtinctionTimeA', field: 'ExtinctionTimeA', label: 'Arc Time A', content: (d) => `${(d.ExtinctionTimeA / 10).toFixed(0)}` },
+                                { key: 'ExtinctionTimeB', field: 'ExtinctionTimeB', label: 'Arc Time B', content: (d) => `${(d.ExtinctionTimeB / 10).toFixed(0)}` },
+                                { key: 'ExtinctionTimeC', field: 'ExtinctionTimeC', label: 'Arc Time C', content: (d) => `${(d.ExtinctionTimeC / 10).toFixed(0)}` }
+                            ]}
+                            data={data}
+                            onClick={() => { /* Do Nothing */ }}
+                            onSort={() => { /* Do Nothing */ }}
+                            sortKey={''}
+                            ascending={true}
+                            tableClass="table"
+                            theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', height: 50 }}
+                            tbodyStyle={{ display: 'block', overflowY: 'scroll', width: '100%', maxHeight: props.MaxHeight ?? 500 }}
+                            rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        />
                     </div>
                 </div>
-            );
-            */
-            <div className="card">
-                <div className="card-header">Historic Breaker Performance</div>
-                <div className="card-body">
-                    <Table
-                        cols={[
-                            { key: 'TTwindow', field: 'TTwindow', label: 'TTwindow' },
-                            { key: 'PTwindow', field: 'PTwindow', label: 'PTwindow' },
-                            { key: 'TCCwindow', field: 'TCCwindow', label: 'TCCwindow' },
-                            { key: 'L1window', field: 'L1window', label: 'L1window' },
-                            { key: 'L2window', field: 'L2window', label: 'L2window' }
-                        ]}
-                        data={data}
-                        onClick={() => { /* Do Nothing */ }}
-                        onSort={() => { /* Do Nothing */ }}
-                        sortKey={''}
-                        ascending={true}
-                        tableClass="table"
-                        theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', height: 50 }}
-                        tbodyStyle={{ display: 'block', overflowY: 'scroll', width: '100%', maxHeight: props.MaxHeight ?? 500 }}
-                        rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    />
-                </div>
-            </div>
-        );
+            </>
+        )
     }
 }
+
 export default EventSearchBreakerPerformance;
 
