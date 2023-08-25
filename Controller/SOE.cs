@@ -31,7 +31,7 @@ namespace Widget.Controllers
     [RoutePrefix("api/SOE")]
     public class SOEController : ApiController
     {
-        protected string SettingsCategory => "systemSettings";
+        const string SettingsCategory = "dbSOE";
 
         [Route("{eventID:int}/{timeWindow:int}"), HttpGet]
         public IHttpActionResult Get(int eventID, int timeWindow)
