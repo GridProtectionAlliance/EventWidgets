@@ -61,6 +61,10 @@ interface IProps {
     StartTime: number,
     HomePath: string,
     Roles: string[],
+    Date?: string,
+    Time?: string,
+    TimeWindowUnits?: number,
+    WindowSize?: number
 }
 
 const WidgetRouter: React.FC<IProps> = (props: IProps) => {
@@ -86,6 +90,10 @@ const WidgetRouter: React.FC<IProps> = (props: IProps) => {
             Roles={props.Roles}
             DisturbanceID={props.DisturbanceID}
             FaultID={props.FaultID}
+            Date={props.Date}
+            Time={props.Time}
+            TimeWindowUnits={props.TimeWindowUnits}
+            WindowSize={props.WindowSize}
         />
     </ErrorBoundary>
 }
