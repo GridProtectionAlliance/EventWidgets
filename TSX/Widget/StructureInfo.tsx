@@ -37,7 +37,7 @@ const StructureInfo: EventWidget.IWidget<{}> = {
         const getFaultInfo = async (): Promise<Array<{ StationName: string, Inception: number, Latitude: number, Longitude: number, Distance: number, AssetName: string }>> => {
             const res = await $.ajax({
                 type: 'GET',
-                url: `${homePath}api/OpenXDA/GetFaultInfo/${props.EventID}`,
+                url: `${homePath}api/FaultInformation/${props.EventID}`,
                 contentType: 'application/json; charset=utf-8',
                 dataType: 'json',
                 cache: true,
