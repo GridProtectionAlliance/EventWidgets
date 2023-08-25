@@ -132,8 +132,7 @@ const NoteWidget: EventWidget.IWidget<ISetting> = {
 
             return handle;
         }
-        console.log('roles:', props.Roles)
-        console.log('isEngineer:', isEngineer)
+
         function getIDs(): JQuery.jqXHR {
             const handle = $.ajax({
                 type: "GET",
