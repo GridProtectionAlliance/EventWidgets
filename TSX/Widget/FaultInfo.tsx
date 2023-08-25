@@ -37,6 +37,8 @@ interface IFaultInfo {
     LineAssetKey?: string,
     DblDist?: number,
     TreeFaultResistance?: number
+    Key: string,
+    Value: string
 }
 
 interface ILinks {
@@ -54,7 +56,7 @@ const FaultInfo: EventWidget.IWidget<{}> = {
     },
     Widget: (props: EventWidget.IWidgetProps<{}>) => {
         const [hidden, setHidden] = React.useState<boolean>(true);
-        const [faultInfo, setFaultInfo] = React.useState<any[]>([]);
+        const [faultInfo, setFaultInfo] = React.useState<IFaultInfo[]>([]);
         const [links, setLinks] = React.useState<ILinks[]>([]);
 
         React.useEffect(() => {
