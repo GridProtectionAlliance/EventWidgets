@@ -176,7 +176,7 @@ const NoteWidget: EventWidget.IWidget<ISetting> = {
 
         return (
             <div className='card' style={{ maxHeight: props.MaxHeight ?? 500, overflowY: 'auto' }}>
-                <div className='card-header'>Notes</div>
+                <div className='card-header'>Notes:</div>
                 <div className='card-body'>
                     <div className='row'>
                         <div className='col'>
@@ -208,7 +208,7 @@ const NoteWidget: EventWidget.IWidget<ISetting> = {
                         AllowAdd={isEngineer}
                         Title={''}
                         AllowEdit={isEngineer}
-                        AllowRemove={isEngineer}
+                        AllowRemove={false}
                         ShowCard={false}
                         Filter={(n) => selectedTags.find(i => i == n.NoteTagID) != null}
                     /> : <div className={'alert alert-warning'}>
