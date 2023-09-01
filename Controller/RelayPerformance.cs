@@ -16,43 +16,49 @@
 //
 //  Code Modification History:
 //  ----------------------------------------------------------------------------------------------------
-//  08/08/2023 - C. Lackner
+//  08/08/2023 - Preston Crawford
 //       Generated original version of source code.
 //
 //******************************************************************************************************
 
 using GSF.Data;
+using GSF.Data.Model;
+using GSF.Web;
+using openXDA.Model;
+using System.Collections.Generic;
 using System.Data;
 using System.Web.Http;
 
 namespace Widgets.Controllers
 {
-    [RoutePrefix("api/LineParameter")]
-    public class LineParameterController : ApiController
+    [Route("api/RelayPerformance")]
+    public class RelayPerformanceController : ApiController
     {
         protected string SettingsCategory => "systemSettings";
 
-        [Route("{eventID:int}"), HttpGet]
-        public IHttpActionResult GetLineParameters(int eventID)
+        [HttpGet]
+        public DataTable GetRelayPerformance()
         {
+            Dictionary<string, string> query = Request.QueryParameters();
+            int eventID = int.Parse(query["eventId"]);
+            if (eventID <= 0) return new DataTable();
             using (AdoDataConnection connection = new(SettingsCategory))
             {
-               
-                const string SQL = @"
-                    SELECT
-	                    LineView.*
-                    FROM
-	                    LineView JOIN
-	                    Event ON Event.AssetID = LineView.ID
-                    WHERE
-	                    Event.ID = {0}
-                ";
-
-                DataTable dataTable = connection.RetrieveData(SQL, eventID);
-                return Ok(dataTable);
-
-
+                Event evt = new TableOperations<Event>(connection).QueryRecordWhere("ID = {0}", eventID);
+                return RelayHistoryTable(evt.AssetID, -1);
             }
+        }
+
+        private DataTable RelayHistoryTable(int relayID, int eventID)
+        {
+            DataTable dataTable;
+
+            using (AdoDataConnection connection = new(SettingsCategory))
+            {
+                if (eventID > 0) { dataTable = connection.RetrieveData("SELECT * FROM BreakerHistory WHERE BreakerID = {0} AND EventID = {1}", relayID, eventID); }
+                else { dataTable = connection.RetrieveData("SELECT * FROM BreakerHistory WHERE BreakerID = {0}", relayID); }
+            }
+            return dataTable;
         }
     }
 }

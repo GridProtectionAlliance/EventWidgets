@@ -45,7 +45,6 @@ interface ILoopImpedance {
     PerMileRS: string,
     PerMileXS: string
 }
-
 interface ISetting {
     SystemCenterURL: string
 }

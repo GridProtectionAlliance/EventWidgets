@@ -16,42 +16,48 @@
 //
 //  Code Modification History:
 //  ----------------------------------------------------------------------------------------------------
-//  08/08/2023 - C. Lackner
+//  08/08/2023 - Preston Crawford
 //       Generated original version of source code.
 //
 //******************************************************************************************************
 
 using GSF.Data;
+using GSF.Web;
+using System.Collections.Generic;
 using System.Data;
 using System.Web.Http;
 
 namespace Widgets.Controllers
 {
-    [RoutePrefix("api/LineParameter")]
-    public class LineParameterController : ApiController
+    [Route("api/AssetFaultSegment")]
+    public class AssetFaultSegmentController : ApiController
     {
         protected string SettingsCategory => "systemSettings";
 
-        [Route("{eventID:int}"), HttpGet]
-        public IHttpActionResult GetLineParameters(int eventID)
+        [HttpGet]
+        public DataTable GetAssetFaultSegments()
         {
             using (AdoDataConnection connection = new(SettingsCategory))
             {
-               
-                const string SQL = @"
+                Dictionary<string, string> query = Request.QueryParameters();
+                int eventID = int.Parse(query["EventID"]);
+
+                DataTable table = connection.RetrieveData(@" 
                     SELECT
-	                    LineView.*
+	                    SegmentType.Name as SegmentType, 
+	                    FaultSegment.StartTime,
+	                    FaultSegment.EndTime
                     FROM
-	                    LineView JOIN
-	                    Event ON Event.AssetID = LineView.ID
+	                    FaultSegment JOIN
+	                    SegmentType ON FaultSegment.SegmentTypeID = SegmentType.ID	                    
                     WHERE
-	                    Event.ID = {0}
-                ";
+                        eventid = {0} AND
+                        SegmentType.Name != 'Fault'
+                    ORDER BY FaultSegment.StartTime
+                    ", eventID
+                    );
 
-                DataTable dataTable = connection.RetrieveData(SQL, eventID);
-                return Ok(dataTable);
-
-
+                return table;
             }
         }
     }

@@ -16,43 +16,54 @@
 //
 //  Code Modification History:
 //  ----------------------------------------------------------------------------------------------------
-//  08/08/2023 - C. Lackner
+//  08/22/2023 - Preston Crawford
 //       Generated original version of source code.
 //
 //******************************************************************************************************
 
 using GSF.Data;
+using System;
 using System.Data;
 using System.Web.Http;
 
 namespace Widgets.Controllers
 {
-    [RoutePrefix("api/LineParameter")]
-    public class LineParameterController : ApiController
+    [RoutePrefix("api/ESRIMap")]
+    public class ESRIMapController : ApiController
     {
         protected string SettingsCategory => "systemSettings";
 
-        [Route("{eventID:int}"), HttpGet]
-        public IHttpActionResult GetLineParameters(int eventID)
+        [Route("GetLightningInfo/{eventID:int}/{timeWindow:int}"), HttpGet]
+        public IHttpActionResult GetLightningInfo(int eventID, int timeWindow)
         {
             using (AdoDataConnection connection = new(SettingsCategory))
             {
-               
-                const string SQL = @"
-                    SELECT
-	                    LineView.*
-                    FROM
-	                    LineView JOIN
-	                    Event ON Event.AssetID = LineView.ID
-                    WHERE
-	                    Event.ID = {0}
-                ";
+                try
+                {
 
-                DataTable dataTable = connection.RetrieveData(SQL, eventID);
-                return Ok(dataTable);
+                    const string SQL = @"
+                        SELECT
+	                        Service, DisplayTime, Amplitude, Latitude,Longitude
+                        FROM
+	                        LightningStrike JOIN
+	                        Event ON LightningStrike.EventID = Event.ID JOIN
+	                        FaultSummary ON Event.ID = FaultSummary.EventID AND FaultSummary.IsSelectedAlgorithm = 1
+                        WHERE
+	                        Event.ID = {0} AND CAST(LightningStrike.DisplayTime as datetime2) BETWEEN DateAdd(S,-{1}, FaultSummary.Inception) AND  DateAdd(S,{1}, FaultSummary.Inception)
+                    ";
 
+                    DataTable dataTable = connection.RetrieveData(SQL, eventID, timeWindow);
+
+                    return Ok(dataTable);
+
+                }
+                catch (Exception ex)
+                {
+                    return InternalServerError(ex);
+                }
 
             }
+
         }
     }
 }

@@ -1,5 +1,5 @@
 ﻿//******************************************************************************************************
-//  LineParameters.cs - Gbtc
+//  AssetVoltageDisturbances.cs - Gbtc
 //
 //  Copyright © 2023, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -16,10 +16,11 @@
 //
 //  Code Modification History:
 //  ----------------------------------------------------------------------------------------------------
-//  08/08/2023 - C. Lackner
+//  08/22/2023 - Preston Crawford
 //       Generated original version of source code.
 //
 //******************************************************************************************************
+
 
 using GSF.Data;
 using System.Data;
@@ -27,30 +28,36 @@ using System.Web.Http;
 
 namespace Widgets.Controllers
 {
-    [RoutePrefix("api/LineParameter")]
-    public class LineParameterController : ApiController
+    [RoutePrefix("api/AssetHistoryTable")]
+    public class AssetHistoryTableController : ApiController
     {
         protected string SettingsCategory => "systemSettings";
 
-        [Route("{eventID:int}"), HttpGet]
-        public IHttpActionResult GetLineParameters(int eventID)
+        [Route("{EventID:int}/{count:int}"), HttpGet]
+        public DataTable GetAssetHistory(int EventID, int count = 10)
         {
             using (AdoDataConnection connection = new(SettingsCategory))
             {
-               
-                const string SQL = @"
+                DataTable table = connection.RetrieveData(@" 
                     SELECT
-	                    LineView.*
+                        TOP " + count.ToString() + @"
+	                    EventType.Name as EventType,
+	                    Event.StartTime,
+	                    Event.ID,
+                        Asset.AssetName
                     FROM
-	                    LineView JOIN
-	                    Event ON Event.AssetID = LineView.ID
-                    WHERE
-	                    Event.ID = {0}
-                ";
+	                    Event JOIN
+                        Asset ON Event.AssetID = Asset.ID JOIN
+	                    EventType ON Event.EventTypeID = EventType.ID JOIN
+	                    Event as OrgEvt ON Event.MeterID = OrgEvt.MeterID AND Event.AssetID = OrgEvt.AssetID AND Event.ID != OrgEvt.ID
+                    WHERE 
+	                    OrgEvt.ID = {0}
+                    ORDER BY 
+                        Event.StartTime DESC
+                    "
+                    , EventID);
 
-                DataTable dataTable = connection.RetrieveData(SQL, eventID);
-                return Ok(dataTable);
-
+                return table;
 
             }
         }

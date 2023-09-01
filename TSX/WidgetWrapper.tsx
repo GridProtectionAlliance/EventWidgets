@@ -25,8 +25,32 @@ import * as React from 'react';
 import LineParameters from './Widget/LineParameters';
 import { ServerErrorIcon } from '@gpa-gemstone/react-interactive';
 import { cloneDeep } from 'lodash';
+import EventSearchOpenSEE from './Widget/OpenSEE'
+import ESRIMap from './Widget/ESRIMap'
+import FaultInfo from './Widget/FaultInfo'
+import EventSearchAssetFaultSegments from './Widget/AssetFaultSegments';
+import AssetVoltageDisturbances from './Widget/AssetVoltageDisturbances'
+import EventSearchCorrelatedSags from './Widget/CorrelatedSags'
+import SOE from './Widget/SOE'
+import EventSearchPQI from './Widget/PQI'
+import EventSearchFileInfo from './Widget/FileInfo'
+import EventSearchNoteWindow from './Widget/NoteWindow'
+import Lightning from './Widget/Lightning'
+import StructureInfo from './Widget/StructureInfo'
+import PQICurve from './Widget/PQICurves'
+import InterruptionReport from './Widget/InterruptionReport'
+import EventSearchRelayPerformance from './Widget/RelayPerformance'
+import EventSearchBreakerPerformance from './Widget/BreakerPerformance'
+import EventSearchCapBankAnalyticOverview from './Widget/CapBankAnalyticOverview'
+import AssetHistoryStats from './Widget/AssetHistoryStats'
+import AssetHistoryTable from './Widget/AssetHistoryTable'
+import MatlabAnalyticResults from './Widget/MatlabAnalyticResults';
 
-const allWidgets: EventWidget.IWidget<any>[]  = [LineParameters];
+const allWidgets: EventWidget.IWidget<any>[] = [LineParameters , 
+    EventSearchOpenSEE, ESRIMap, FaultInfo, EventSearchAssetFaultSegments,
+    AssetVoltageDisturbances, EventSearchCorrelatedSags, SOE, EventSearchPQI, Lightning, EventSearchFileInfo, EventSearchNoteWindow,
+    StructureInfo, PQICurve, InterruptionReport, EventSearchRelayPerformance, EventSearchBreakerPerformance, EventSearchCapBankAnalyticOverview,
+    AssetHistoryStats, AssetHistoryTable, MatlabAnalyticResults];
 
 interface IProps {
     Widget: EventWidget.IWidgetView,
@@ -37,6 +61,10 @@ interface IProps {
     StartTime: number,
     HomePath: string,
     Roles: string[],
+    Date?: string,
+    Time?: string,
+    TimeWindowUnits?: number,
+    WindowSize?: number
 }
 
 const WidgetRouter: React.FC<IProps> = (props: IProps) => {
@@ -62,6 +90,10 @@ const WidgetRouter: React.FC<IProps> = (props: IProps) => {
             Roles={props.Roles}
             DisturbanceID={props.DisturbanceID}
             FaultID={props.FaultID}
+            Date={props.Date}
+            Time={props.Time}
+            TimeWindowUnits={props.TimeWindowUnits}
+            WindowSize={props.WindowSize}
         />
     </ErrorBoundary>
 }

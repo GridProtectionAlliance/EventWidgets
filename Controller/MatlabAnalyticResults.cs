@@ -16,7 +16,7 @@
 //
 //  Code Modification History:
 //  ----------------------------------------------------------------------------------------------------
-//  08/08/2023 - C. Lackner
+//  08/08/2023 - Preston Crawford
 //       Generated original version of source code.
 //
 //******************************************************************************************************
@@ -27,30 +27,33 @@ using System.Web.Http;
 
 namespace Widgets.Controllers
 {
-    [RoutePrefix("api/LineParameter")]
-    public class LineParameterController : ApiController
+    [RoutePrefix("api/MatlabAnalytics")]
+    public class MatlabAnalyticsController : ApiController
     {
         protected string SettingsCategory => "systemSettings";
 
         [Route("{eventID:int}"), HttpGet]
-        public IHttpActionResult GetLineParameters(int eventID)
+        public IHttpActionResult GetMatlabAnalytics(int eventID)
         {
             using (AdoDataConnection connection = new(SettingsCategory))
             {
-               
+
                 const string SQL = @"
-                    SELECT
-	                    LineView.*
-                    FROM
-	                    LineView JOIN
-	                    Event ON Event.AssetID = LineView.ID
-                    WHERE
-	                    Event.ID = {0}
+                    SELECT 
+	                    Name as TagName,
+	                    Description as TagDescription,
+	                    EventID,
+	                    TagData,
+	                    EventTagID,
+	                    ShowInFilter
+                    FROM EventTag 
+                    INNER JOIN EventEventTag 
+                      ON EventTag.ID = EventEventTag.EventTagID
+                    WHERE EventEventTag.EventID = {0};
                 ";
 
                 DataTable dataTable = connection.RetrieveData(SQL, eventID);
                 return Ok(dataTable);
-
 
             }
         }

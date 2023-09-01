@@ -34,7 +34,12 @@ export namespace EventWidget {
         FaultID?: number,
         StartTime?: number,
         HomePath: string,
-        Roles: string[]
+        Roles: string[],
+        Width?: number,
+        Date?: string,
+        Time?: string,
+        TimeWindowUnits?: number,
+        WindowSize?: number
     }
 
     export interface IWidgetSettingsProps<T> {
@@ -48,4 +53,5 @@ export namespace EventWidget {
         DefaultSettings: T,
         Name: string,
     }
+
 }
