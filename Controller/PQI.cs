@@ -24,6 +24,7 @@
 using GSF.Data;
 using openXDA.PQI;
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Net;
 using System.Threading.Tasks;
@@ -89,30 +90,32 @@ namespace Widgets.Controllers
         }
 
         [Route("GetEquipment/{eventID:int}"), HttpGet]
-        public IHttpActionResult GetEquipment(int eventID)
+        public async Task<IHttpActionResult> GetEquipment(int eventID)
         {
-            try
-            {
-                string FetchAccessToken()
-                {
-                    NetworkCredential clientCredential = new(ClientID, ClientSecret);
-                    NetworkCredential userCredential = new(Username, Password);
-                    PingClient pingClient = new(PingURL);
-                    Task exchangeTask = pingClient.ExchangeAsync(clientCredential, userCredential);
-                    exchangeTask.GetAwaiter().GetResult();
-                    return pingClient.AccessToken;
-                }
-
                 PQIWSClient pqiwsClient = new(BaseURL, FetchAccessToken);
                 PQIWSQueryHelper pqiwsQueryHelper = new(() => new GSF.Data.AdoDataConnection(SettingsCategory), pqiwsClient);
 
-                return Ok(pqiwsQueryHelper.GetAllImpactedEquipmentAsync(eventID).Result);
-            }
-            catch (Exception ex)
-            {
-                return InternalServerError(ex);
-            }
+                return Ok(await pqiwsQueryHelper.GetAllImpactedEquipmentAsync(eventID));
         }
 
+        [Route("GetCurves/{eventID:int}"), HttpGet]
+        public async Task<IHttpActionResult> GetCurves(int eventID)
+        {
+            PQIWSClient pqiwsClient = new(BaseURL, FetchAccessToken);
+            PQIWSQueryHelper pqiwsQueryHelper = new(() => new GSF.Data.AdoDataConnection(SettingsCategory), pqiwsClient);
+            List <Tuple<TestCurve, List<TestCurvePoint>>> r = await pqiwsQueryHelper.GetAllTestCurvesAsync(new List<int>() { eventID });
+            return Ok(r);
+            
+        }
+
+        private string FetchAccessToken()
+        {
+            NetworkCredential clientCredential = new(ClientID, ClientSecret);
+            NetworkCredential userCredential = new(Username, Password);
+            PingClient pingClient = new(PingURL);
+            Task exchangeTask = pingClient.ExchangeAsync(clientCredential, userCredential);
+            exchangeTask.GetAwaiter().GetResult();
+            return pingClient.AccessToken;
+        }
     }
 }

@@ -37,7 +37,7 @@ import EventSearchFileInfo from './Widget/FileInfo'
 import EventSearchNoteWindow from './Widget/NoteWindow'
 import Lightning from './Widget/Lightning'
 import StructureInfo from './Widget/StructureInfo'
-import LSC from './Widget/LSC'
+import PQICurve from './Widget/PQICurves'
 import InterruptionReport from './Widget/InterruptionReport'
 import EventSearchRelayPerformance from './Widget/RelayPerformance'
 import EventSearchBreakerPerformance from './Widget/BreakerPerformance'
@@ -49,7 +49,7 @@ import MatlabAnalyticResults from './Widget/MatlabAnalyticResults';
 const allWidgets: EventWidget.IWidget<any>[] = [LineParameters , 
     EventSearchOpenSEE, ESRIMap, FaultInfo, EventSearchAssetFaultSegments,
     AssetVoltageDisturbances, EventSearchCorrelatedSags, SOE, EventSearchPQI, Lightning, EventSearchFileInfo, EventSearchNoteWindow,
-    StructureInfo, LSC, InterruptionReport, EventSearchRelayPerformance, EventSearchBreakerPerformance, EventSearchCapBankAnalyticOverview,
+    StructureInfo, PQICurve, InterruptionReport, EventSearchRelayPerformance, EventSearchBreakerPerformance, EventSearchCapBankAnalyticOverview,
     AssetHistoryStats, AssetHistoryTable, MatlabAnalyticResults];
 
 interface IProps {
