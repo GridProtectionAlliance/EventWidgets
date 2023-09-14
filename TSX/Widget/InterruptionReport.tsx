@@ -26,6 +26,7 @@ import { Select } from '@gpa-gemstone/react-forms';
 import moment from 'moment';
 import React from 'react';
 import { EventWidget } from '../global';
+import { error } from 'jquery';
 
 interface IInterruption {
     TimeOut: string,
@@ -61,7 +62,7 @@ const InterruptionReport: EventWidget.IWidget<{}> = {
                 dataType: 'json',
                 cache: true,
                 async: true
-            }).done((d) => { setData(d); });
+            }).fail((e,m) => { throw error(m) }).done((d) => { setData(d); });
 
         }
 
