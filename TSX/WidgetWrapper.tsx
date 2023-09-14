@@ -93,7 +93,7 @@ const WidgetRouter: React.FC<IProps> = (props: IProps) => {
                 Size={150} />
             </div>
              </div>
-           : <ErrorBoundary Widget={Widget.Name}>
+        : <ErrorBoundary Widget={props.Widget.Name}>
         <Widget.Widget
             Settings={Settings}
             StartTime={props.StartTime}
@@ -128,6 +128,7 @@ class ErrorBoundary extends React.Component<{Widget: string}, IError> {
             name: error.name,
             message: error.message
         });
+        console.log(error);
     }
 
     render() {
