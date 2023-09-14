@@ -68,7 +68,7 @@ interface IProps {
 }
 
 const WidgetRouter: React.FC<IProps> = (props: IProps) => {
-    const Widget = React.useMemo(() => allWidgets.find(item => item.Name === props.Widget.Name), [props.Widget.Name]);
+    const Widget = React.useMemo(() => allWidgets.find(item => item.Name === props.Widget.Type), [props.Widget.ID]);
 
     const Settings = React.useMemo(() => {
         if (props.Widget.setting == null)
