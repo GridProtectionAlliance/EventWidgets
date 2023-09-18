@@ -23,24 +23,65 @@
 
 import React from 'react';
 import { EventWidget } from '../global';
-import { MultiCheckBoxSelect, Select } from '@gpa-gemstone/react-forms';
+import { Input, MultiCheckBoxSelect, Select } from '@gpa-gemstone/react-forms';
 import Table from '@gpa-gemstone/react-table';
 import cloneDeep from 'lodash/cloneDeep';
+import { TrashCan } from '@gpa-gemstone/gpa-symbols';
+import _ from 'lodash';
 
 interface ISOEFilters { abnormal: boolean, close: boolean, no: boolean, normal: boolean, received: boolean, start: boolean, trip: boolean, yes: boolean }
-
+interface IValue {Value: string }
 interface SOEInfo { Time: string, Alarm: string, Status: string }
-
-const SOE: EventWidget.IWidget<{}> = {
+interface ISetting {
+    FilterOut: string[]
+}
+const SOE: EventWidget.IWidget<ISetting> = {
     Name: 'TVASOE',
-    DefaultSettings: {},
-    Settings: () => {
-        return <></>
+    DefaultSettings: {
+        FilterOut: ['abnormal', 'close', 'no', 'normal', 'received', 'start', 'trip', 'yes']
     },
-    Widget: (props: EventWidget.IWidgetProps<{}>) => {
+    Settings: (props) => {
+        const val = React.useMemo(() => props.Settings.FilterOut.map(t => ({ Value: t })), [props.Settings.FilterOut])
+        return <>
+            <div className="row">
+                {val.map((item,i) => <div className="col-4">
+                    <Input<IValue>
+                        Record={item}
+                        Field={'Value'}
+                        Setter={(record) => {
+                            const u = _.cloneDeep(props.Settings.FilterOut);
+                            u[i] = record.Value;
+                            props.SetSettings({ FilterOut: u })
+                        }}
+                        Valid={() => true}
+                        Label={'Filter ' + i} />
+                    <button className="btn btn-small btn-danger" onClick={() => {
+                        const u = _.cloneDeep(props.Settings.FilterOut);
+                        u.splice(i, 1);
+                        props.SetSettings({ FilterOut: u })
+                    }}>{TrashCan}</button>
+                </div>)}
+            </div>
+            <div className="row">
+                <div className="col">
+                    <button className="btn btn-primary" onClick={() => {
+                        const u = _.cloneDeep(props.Settings.FilterOut);
+                        u.push('');
+                        props.SetSettings({ FilterOut: u })
+                    }}>Add Exclusion Filter</button>
+                </div>
+            </div>
+        </>
+    },
+    Widget: (props: EventWidget.IWidgetProps<ISetting>) => {
         const [soeInfo, setSOEInfo] = React.useState<SOEInfo[]>([]);
-        const [statusFilter, setStatusFilter] = React.useState<ISOEFilters>({ abnormal: false, close: false, no: false, normal: false, received: false, start: false, trip: false, yes: false })
+        const [statusFilter, setStatusFilter] = React.useState<string[]>([])
         const [timeWindow, setTimeWindow] = React.useState<number>(2);
+        const [filterOptions, setFilterOptions] = React.useState<{ Value: number, Text: string, Selected: boolean}[]>([])
+
+        React.useEffect(() => {
+            setFilterOptions(props.Settings.FilterOut.map((f, i) => ({ Value: i, Text: f.toLowerCase(), Selected: false })))
+        }, [props.Settings.FilterOut]);
 
         React.useEffect(() => {
             return GetData();
@@ -57,7 +98,7 @@ const SOE: EventWidget.IWidget<{}> = {
             });
 
             handle.done(data => {
-                setSOEInfo(data);
+                setSOEInfo(data.filter(si => !statusFilter.includes(si.Status.toLowerCase())));
             });
 
             return function () {
@@ -80,23 +121,18 @@ const SOE: EventWidget.IWidget<{}> = {
                                     { Value: "60", Label: "60" }
                                 ]}
                                 Setter={(record) => setTimeWindow(record.timeWindow)}
-                                Label="Time Window(s)"
+                                Label="Time Window (s)"
                             />
                         </div>
                         <div className='col-8'>
                             <MultiCheckBoxSelect
-                                Options={Object.keys(statusFilter).map((k, i) => ({ Value: i, Text: k, Selected: statusFilter[k] }))}
+                                Options={filterOptions}
                                 Label={'Filter Out: '}
                                 OnChange={(evt, options) => {
                                     const filters = cloneDeep(statusFilter)
-                                    const filterKeys = Object.keys(filters);
-
-                                    options.forEach((option) => {
-                                        const key = filterKeys[option.Value];
-                                        filters[key as keyof ISOEFilters] = !filters[key as keyof ISOEFilters];
-                                    });
-
-                                    setStatusFilter(filters)
+                                    const remove = options.filter(o => !o.Selected).map(o => o.Text)
+                                    const add = options.filter(o => o.Selected).map(o => o.Text);
+                                    setStatusFilter(filters.filter(t => !remove.includes(t)).concat(add))
                                 }} />
                         </div>
 
@@ -108,7 +144,7 @@ const SOE: EventWidget.IWidget<{}> = {
                                 { key: "Alarm", label: "Alarm", field: "Alarm" },
                                 { key: "Status", label: "Status", field: "Status" }
                             ]}
-                            data={soeInfo.filter(si => !statusFilter[si.Status.toLowerCase()])}
+                            data={soeInfo}
                             onSort={() => { /*Do Nothing*/ }}
                             sortKey={''}
                             ascending={true}

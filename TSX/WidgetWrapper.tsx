@@ -68,19 +68,32 @@ interface IProps {
 }
 
 const WidgetRouter: React.FC<IProps> = (props: IProps) => {
-    const Widget = React.useMemo(() => allWidgets.find(item => item.Name === props.Widget.Name), [props.Widget.Name]);
+    const Widget = React.useMemo(() => allWidgets.find(item => item.Name === props.Widget.Type), [props.Widget.ID]);
+
     const Settings = React.useMemo(() => {
         if (props.Widget.setting == null)
-            return Widget.DefaultSettings;
-        const s = cloneDeep(Widget.DefaultSettings);
-        for (const [k, v] of Object.entries(Widget.DefaultSettings)) {
+            return Widget?.DefaultSettings ?? {};
+        const s = cloneDeep(Widget?.DefaultSettings ?? {});
+        for (const [k, v] of Object.entries(Widget?.DefaultSettings ?? {})) {
             if (props.Widget.setting.hasOwnProperty(k))
                 s[k] = cloneDeep(props.Widget.setting[k]);
         }
         return s;
     }, [Widget, props.Widget.setting]);
 
-    return <ErrorBoundary>
+   
+
+    return <>{Widget == null ?  <div className="card">
+            <div className="card-header">
+                {props.Widget.Name} - Error
+            </div>
+            <div className="card-body">
+                <ServerErrorIcon Show={true}
+                Label={`Widget ${props.Widget.Name} is not available. Please contact your system administrator.`}
+                Size={150} />
+            </div>
+             </div>
+        : <ErrorBoundary Widget={props.Widget.Name}>
         <Widget.Widget
             Settings={Settings}
             StartTime={props.StartTime}
@@ -95,7 +108,8 @@ const WidgetRouter: React.FC<IProps> = (props: IProps) => {
             TimeWindowUnits={props.TimeWindowUnits}
             WindowSize={props.WindowSize}
         />
-    </ErrorBoundary>
+    </ErrorBoundary>}
+    </>
 }
 
 interface IError {
@@ -103,7 +117,7 @@ interface IError {
     message: string
 }
 
-class ErrorBoundary extends React.Component<{}, IError> {
+class ErrorBoundary extends React.Component<{Widget: string}, IError> {
     constructor(props) {
         super(props);
         this.state = { name: "", message: "" };
@@ -114,12 +128,23 @@ class ErrorBoundary extends React.Component<{}, IError> {
             name: error.name,
             message: error.message
         });
+        console.log(error);
     }
 
     render() {
         if (this.state.name.length > 0) {
             return (
-                <ServerErrorIcon Show={true} />
+                <div className="card">
+                    <div className="card-header">
+                        {this.props.Widget} - Error
+                    </div>
+                    <div className="card-body">
+
+                <ServerErrorIcon Show={true}
+                    Label={`Widget ${this.props.Widget} has encoutered an error.`}
+                            Size={150} />
+                    </div>
+            </div>
             );
         } else {
             return <>{this.props.children}</>;

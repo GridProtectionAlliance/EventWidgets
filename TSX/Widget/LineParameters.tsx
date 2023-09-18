@@ -69,7 +69,7 @@ const LineParameters: EventWidget.IWidget<ISetting> = {
     Widget: (props: EventWidget.IWidgetProps<ISetting>) => {
         const [hidden, setHidden] = React.useState<boolean>(true);
         const [lineParameters, setLineParameters] = React.useState<ILineParameters>(null);
-        const [loopParameters, setLoopParemeters] = React.useState<ILoopImpedance>(null);
+        const [loopParameters, setLoopParemeters] = React.useState<ILoopImpedance[]>([]);
 
 
         React.useEffect(() => {
@@ -105,7 +105,7 @@ const LineParameters: EventWidget.IWidget<ISetting> = {
             const zsm = zs / lineParameters.Length;
             const angS = Math.atan(xs / rs) * 180 / Math.PI;
 
-            setLoopParemeters({
+            setLoopParemeters([{
                 Length: lineParameters.Length,
                 ZS: zs.toFixed(3),
                 Ang: angS.toFixed(3),
@@ -114,7 +114,7 @@ const LineParameters: EventWidget.IWidget<ISetting> = {
                 PerMileZS: zsm.toFixed(3),
                 PerMileRS: rsm.toFixed(4),
                 PerMileXS: xsm.toFixed(4)
-            })    
+            }])    
 
         }, [lineParameters])
 
@@ -139,7 +139,7 @@ const LineParameters: EventWidget.IWidget<ISetting> = {
                             { key: 'PerMileRS', field: 'PerMileRS', label: 'Per Mile RS' },
                             { key: 'PerMileXS', field: 'PerMileXS', label: 'Per Mile XS' }
                         ]}
-                        data={[loopParameters]}
+                        data={loopParameters}
                         onClick={() => { /* Do Nothing */ }}
                         onSort={() => { /* Do Nothing */ }}
                         sortKey={''}

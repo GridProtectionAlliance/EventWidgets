@@ -24,7 +24,14 @@ import React from 'react';
 
 export namespace EventWidget {
 
-    export interface IWidgetView { ID: number, CategoryID: number, Name: string, setting: object, Enabled: boolean }
+    export interface IWidgetView {
+        ID: number,
+        CategoryID: number,
+        Name: string,
+        Type: string,
+        setting: object,
+        Enabled: boolean
+    }
 
     export interface IWidgetProps<T> {
         Settings: T,
