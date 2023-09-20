@@ -24,14 +24,26 @@
 import React from 'react';
 import { EventWidget } from '../global';
 import Table from '@gpa-gemstone/react-table';
+import { Input } from '@gpa-gemstone/react-forms';
 
-const EventSearchFileInfo: EventWidget.IWidget<{}> = {
+interface ISetting { SystemCenterUrl: string }
+
+const EventSearchFileInfo: EventWidget.IWidget<ISetting> = {
     Name: 'EventSearchFileInfo',
-    DefaultSettings: {},
-    Settings: () => {
-        return <></>
+    DefaultSettings: { SystemCenterUrl: 'https://systemCenter.demo.gridprotectionalliance.org' },
+    Settings: (props) => {
+        return <div className="row">
+            < div className="col" >
+                <Input<ISetting>
+                    Record={props.Settings}
+                    Field={'SystemCenterUrl'}
+                    Setter={(record) => props.SetSettings(record)}
+                    Valid={() => true}
+                    Label={'SystemCenter URL'} />
+            </div >
+        </div >
     },
-    Widget: (props: EventWidget.IWidgetProps<{}>) => {
+    Widget: (props: EventWidget.IWidgetProps<ISetting>) => {
         const [fileName, setFileName] = React.useState<string>('');
         const [mappedChannels, setMappedChannels] = React.useState<Array<{ Channel: string, Mapping: string }>>([]);
         const [meterKey, setMeterKey] = React.useState<string>('');
@@ -90,7 +102,7 @@ const EventSearchFileInfo: EventWidget.IWidget<{}> = {
         return (
             <div className="card">
                 <div className="card-header">File Info:
-                    <a className="pull-right" target="_blank" href={scInstance + `?name=ConfigurationHistory&MeterKey=${meterKey}&MeterConfigurationID=${meterConfigurationID}`}>Meter Configuration Via System Center</a>
+                    <a className="pull-right" target="_blank" href={props.Settings.SystemCenterUrl + `?name=ConfigurationHistory&MeterKey=${meterKey}&MeterConfigurationID=${meterConfigurationID}`}>Meter Configuration Via System Center</a>
                 </div>
 
                 <div className="card-body">
