@@ -46,7 +46,7 @@ import AssetHistoryStats from './Widget/AssetHistoryStats'
 import AssetHistoryTable from './Widget/AssetHistoryTable'
 import MatlabAnalyticResults from './Widget/MatlabAnalyticResults';
 
-const allWidgets: EventWidget.IWidget<any>[] = [LineParameters , 
+const AllWidgets: EventWidget.IWidget<any>[] = [LineParameters , 
     EventSearchOpenSEE, ESRIMap, FaultInfo, EventSearchAssetFaultSegments,
     AssetVoltageDisturbances, EventSearchCorrelatedSags, SOE, EventSearchPQI, Lightning, EventSearchFileInfo, EventSearchNoteWindow,
     StructureInfo, PQICurve, InterruptionReport, EventSearchRelayPerformance, EventSearchBreakerPerformance, EventSearchCapBankAnalyticOverview,
@@ -68,7 +68,7 @@ interface IProps {
 }
 
 const WidgetRouter: React.FC<IProps> = (props: IProps) => {
-    const Widget = React.useMemo(() => allWidgets.find(item => item.Name === props.Widget.Type), [props.Widget.ID]);
+    const Widget = React.useMemo(() => AllWidgets.find(item => item.Name === props.Widget.Type), [props.Widget.ID]);
 
     const Settings = React.useMemo(() => {
         if (props.Widget.setting == null)
@@ -152,5 +152,5 @@ class ErrorBoundary extends React.Component<{Widget: string}, IError> {
     }
 }
 
-
+export { AllWidgets }
 export default WidgetRouter;
