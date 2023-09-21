@@ -45,6 +45,7 @@ import EventSearchCapBankAnalyticOverview from './Widget/CapBankAnalyticOverview
 import AssetHistoryStats from './Widget/AssetHistoryStats'
 import AssetHistoryTable from './Widget/AssetHistoryTable'
 import MatlabAnalyticResults from './Widget/MatlabAnalyticResults';
+import { IWigetStore } from './Store';
 
 const AllWidgets: EventWidget.IWidget<any>[] = [LineParameters , 
     EventSearchOpenSEE, ESRIMap, FaultInfo, EventSearchAssetFaultSegments,
@@ -61,6 +62,7 @@ interface IProps {
     StartTime: number,
     HomePath: string,
     Roles: string[],
+    Store: IWigetStore
 }
 
 const WidgetRouter: React.FC<IProps> = (props: IProps) => {
@@ -100,6 +102,7 @@ const WidgetRouter: React.FC<IProps> = (props: IProps) => {
                 DisturbanceID={props.DisturbanceID}
                 FaultID={props.FaultID}
                 Name={props.Widget.Name}
+                Store={props.Store}
             />
         </ErrorBoundary>}
     </>
