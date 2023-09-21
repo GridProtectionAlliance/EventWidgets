@@ -25,15 +25,25 @@ import React from 'react';
 import moment from 'moment';
 import { EventWidget } from '../global';
 import Table from '@gpa-gemstone/react-table';
-import { Select } from '@gpa-gemstone/react-forms';
+import { Select, Input } from '@gpa-gemstone/react-forms';
 
-const AssetHistoryTable: EventWidget.IWidget<{}> = {
+interface ISetting { OpenSeeUrl: string}
+const AssetHistoryTable: EventWidget.IWidget<ISetting> = {
     Name: 'AssetHistoryTable',
-    DefaultSettings: { },
-    Settings: () => {
-        return <></>
+    DefaultSettings: { OpenSeeUrl: 'http://opensee.demo.gridprotectionalliance.org'},
+    Settings: (props) => {
+        return <div className="row">
+            <div className="col">
+                <Input<ISetting>
+                    Record={props.Settings}
+                    Field={'OpenSeeUrl'}
+                    Setter={(record) => props.SetSettings(record)}
+                    Valid={() => true}
+                    Label={'OpenSEE URL'} />
+            </div>
+        </div>
     },
-    Widget: (props: EventWidget.IWidgetProps<{}>) => {
+    Widget: (props: EventWidget.IWidgetProps<ISetting>) => {
         const [historyData, setHistoryData] = React.useState<Array<any>>([]);
         const [count, setCount] = React.useState<number>(10);
         const [assetName, setAssetName] = React.useState<string>('');
@@ -88,7 +98,7 @@ const AssetHistoryTable: EventWidget.IWidget<{}> = {
                         cols={[
                             { key: 'EventType', field: 'EventType', label: 'Event Type' },
                             { key: 'Date', field: 'StartTime', label: 'Date', content: (d) => moment(d.StartTime).format('MM/DD/YYYY HH:mm:ss.SSS') },
-                            { key: 'Link', field: 'ID', label: '', content: (d) => <a href={openSEEInstance + '?eventid=' + d.ID} target="_blank">View in OpenSEE</a> },
+                            { key: 'Link', field: 'ID', label: '', content: (d) => <a href={props.Settings.OpenSeeUrl + '?eventid=' + d.ID} target="_blank">View in OpenSEE</a> },
                         ]}
                         data={historyData}
                         onSort={() => {/*Do Nothing*/ }}

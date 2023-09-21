@@ -23,7 +23,6 @@
 
 import React from 'react';
 import { EventWidget } from '../global';
-import { AssetNoteSlice, EventNoteSlice, LocationNoteSlice, MeterNoteSlice } from '../../../Scripts/TSX/Store';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { Note } from '@gpa-gemstone/common-pages';
 import { MultiCheckBoxSelect, Select } from '@gpa-gemstone/react-forms';
@@ -155,13 +154,13 @@ const NoteWidget: EventWidget.IWidget<ISetting> = {
         if (ids == null || noteType == null)
             return null;
         if (noteType.Name == 'Event')
-            slice = EventNoteSlice;
+            slice = props.Store.EventNoteSlice;
         else if (noteType.Name == 'Meter')
-            slice = MeterNoteSlice;
+            slice = props.Store.MeterNoteSlice;
         else if (noteType.Name == 'Asset')
-            slice = AssetNoteSlice;
+            slice = props.Store.AssetNoteSlice;
         else if (noteType.Name == 'Location')
-            slice = LocationNoteSlice;
+            slice = props.Store.LocationNoteSlice;
         else
             return null;
         let id;

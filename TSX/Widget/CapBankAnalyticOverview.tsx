@@ -22,7 +22,6 @@
 //******************************************************************************************************
 
 import React from 'react';
-import OpenSEEService from '../../../Scripts/TS/Services/OpenSEE';
 import { EventWidget } from '../global';
 import Table from '@gpa-gemstone/react-table';
 
@@ -45,7 +44,6 @@ const EventSearchCapBankAnalyticOverview: EventWidget.IWidget<{}> = {
     },
     Widget: (props: EventWidget.IWidgetProps<{}>) => {
         const [data, setData] = React.useState<ICapBankAnalytic[]>([]);
-        const service = new OpenSEEService();
 
         let capBankAnalyticHandle;
         function getCapBankAnalytics() {

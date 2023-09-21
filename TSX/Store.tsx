@@ -1,5 +1,5 @@
 ﻿//******************************************************************************************************
-//  global.tsx - Gbtc
+//  Store.tsx - Gbtc
 //
 //  Copyright © 2023, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -16,47 +16,16 @@
 //
 //  Code Modification History:
 //  ----------------------------------------------------------------------------------------------------
-//  08/07/2023 - C Lackner
+//  09/21/2023 - C Lackner
 //       Generated original version of source code.
 //
 //******************************************************************************************************
-import React from 'react';
-import { IWigetStore } from './Store';
+import { OpenXDA } from '@gpa-gemstone/application-typings';
+import { GenericSlice } from '@gpa-gemstone/react-interactive';
 
-export namespace EventWidget {
-
-    export interface IWidgetView {
-        ID: number,
-        CategoryID: number,
-        Name: string,
-        Type: string,
-        setting: object,
-        Enabled: boolean
-    }
-
-    export interface IWidgetProps<T> {
-        Settings: T,
-        EventID: number,
-        MaxHeight?: number,
-        DisturbanceID?: number,
-        FaultID?: number,
-        StartTime?: number,
-        HomePath: string,
-        Roles: string[],
-        Name: string,
-        Store: IWigetStore
-    }
-
-    export interface IWidgetSettingsProps<T> {
-        Settings: T,
-        SetSettings: (settings: T) => void,
-    }
-
-    export interface IWidget<T>  {
-        Widget: React.FC<IWidgetProps<T>>,
-        Settings: React.FC<IWidgetSettingsProps<T>>,
-        DefaultSettings: T,
-        Name: string,
-    }
-
+export interface IWigetStore {
+    EventNoteSlice: GenericSlice<OpenXDA.Types.Note>,
+    AssetNoteSlice: GenericSlice<OpenXDA.Types.Note>,
+    LocationNoteSlice: GenericSlice<OpenXDA.Types.Note>,
+    MeterNoteSlice: GenericSlice<OpenXDA.Types.Note>
 }

@@ -45,8 +45,9 @@ import EventSearchCapBankAnalyticOverview from './Widget/CapBankAnalyticOverview
 import AssetHistoryStats from './Widget/AssetHistoryStats'
 import AssetHistoryTable from './Widget/AssetHistoryTable'
 import MatlabAnalyticResults from './Widget/MatlabAnalyticResults';
+import { IWigetStore } from './Store';
 
-const allWidgets: EventWidget.IWidget<any>[] = [LineParameters , 
+const AllWidgets: EventWidget.IWidget<any>[] = [LineParameters , 
     EventSearchOpenSEE, ESRIMap, FaultInfo, EventSearchAssetFaultSegments,
     AssetVoltageDisturbances, EventSearchCorrelatedSags, SOE, EventSearchPQI, Lightning, EventSearchFileInfo, EventSearchNoteWindow,
     StructureInfo, PQICurve, InterruptionReport, EventSearchRelayPerformance, EventSearchBreakerPerformance, EventSearchCapBankAnalyticOverview,
@@ -61,14 +62,11 @@ interface IProps {
     StartTime: number,
     HomePath: string,
     Roles: string[],
-    Date?: string,
-    Time?: string,
-    TimeWindowUnits?: number,
-    WindowSize?: number
+    Store: IWigetStore
 }
 
 const WidgetRouter: React.FC<IProps> = (props: IProps) => {
-    const Widget = React.useMemo(() => allWidgets.find(item => item.Name === props.Widget.Type), [props.Widget.ID]);
+    const Widget = React.useMemo(() => AllWidgets.find(item => item.Name === props.Widget.Type), [props.Widget.ID]);
 
     const Settings = React.useMemo(() => {
         if (props.Widget.setting == null)
@@ -94,21 +92,19 @@ const WidgetRouter: React.FC<IProps> = (props: IProps) => {
             </div>
              </div>
         : <ErrorBoundary Widget={props.Widget.Name}>
-        <Widget.Widget
-            Settings={Settings}
-            StartTime={props.StartTime}
-            EventID={props.EventID}
-            HomePath={props.HomePath}
-            MaxHeight={props.Height - 37.5}
-            Roles={props.Roles}
-            DisturbanceID={props.DisturbanceID}
-            FaultID={props.FaultID}
-            Date={props.Date}
-            Time={props.Time}
-            TimeWindowUnits={props.TimeWindowUnits}
-            WindowSize={props.WindowSize}
-        />
-    </ErrorBoundary>}
+            <Widget.Widget
+                Settings={Settings}
+                StartTime={props.StartTime}
+                EventID={props.EventID}
+                HomePath={props.HomePath}
+                MaxHeight={props.Height - 37.5}
+                Roles={props.Roles}
+                DisturbanceID={props.DisturbanceID}
+                FaultID={props.FaultID}
+                Name={props.Widget.Name}
+                Store={props.Store}
+            />
+        </ErrorBoundary>}
     </>
 }
 
@@ -152,5 +148,5 @@ class ErrorBoundary extends React.Component<{Widget: string}, IError> {
     }
 }
 
-
+export { AllWidgets }
 export default WidgetRouter;

@@ -23,6 +23,7 @@
 import { Line, Plot } from '@gpa-gemstone/react-graph';
 import React from 'react';
 import { EventWidget } from '../global';
+import { Input } from '@gpa-gemstone/react-forms';
 
 interface ISeries { label: string, color: string, data: [number, number][] }
 interface IPartialOpenseeSettings {
@@ -42,15 +43,24 @@ interface IPartialOpenseeSettings {
         random: string
     }
 }
-
-const EventSearchOpenSEE: EventWidget.IWidget<{}> = {
+interface ISetting { OpenSeeUrl: string }
+const EventSearchOpenSEE: EventWidget.IWidget<ISetting> = {
 
     Name: 'EventSearchOpenSEE',
-    DefaultSettings: {},
-    Settings: () => {
-        return <></>
+    DefaultSettings: { OpenSeeUrl: 'http://opensee.demo.gridprotectionalliance.org' },
+    Settings: (props) => {
+        return <div className="row">
+            <div className="col">
+                <Input<ISetting>
+                    Record={props.Settings}
+                    Field={'OpenSeeUrl'}
+                    Setter={(record) => props.SetSettings(record)}
+                    Valid={() => true}
+                    Label={'OpenSEE URL'} />
+            </div>
+        </div>
     },
-    Widget: (props: EventWidget.IWidgetProps<{}>) => {
+    Widget: (props: EventWidget.IWidgetProps<ISetting>) => {
         const divref = React.useRef(null);
 
         const [VData, setVData] = React.useState<ISeries[]>([]);
@@ -184,7 +194,7 @@ const EventSearchOpenSEE: EventWidget.IWidget<{}> = {
 
         return (
             <div className="card">
-                <div className="card-header"><a href={openSEEInstance + '?eventid=' + props.EventID} target="_blank">View in OpenSEE</a></div>
+                <div className="card-header"><a href={props.Settings.OpenSeeUrl + '?eventid=' + props.EventID} target="_blank">View in OpenSEE</a></div>
                 <div className="card-body" ref={divref}>
                     {VData.length > 0 ? < Plot height={250} width={Width} showBorder={false}
                         legendWidth={150}

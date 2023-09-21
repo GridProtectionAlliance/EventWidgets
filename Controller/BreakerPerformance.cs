@@ -45,34 +45,24 @@ namespace Widgets.Controllers
         {
             Dictionary<string, string> query = Request.QueryParameters();
             int eventID;
-            if (string.IsNullOrEmpty(query["date"]) || string.IsNullOrEmpty(query["time"]))
-            {
-                return new DataTable();
-            }
-
-            DateTime dateTime = DateTime.ParseExact(query["date"] + " " + query["time"], "MM/dd/yyyy HH:mm:ss.fff", new CultureInfo("en-US"));
-            string timeWindowUnits = ((TimeWindowUnits)int.Parse(query["timeWindowUnits"])).GetDescription();
-            int windowSize = int.Parse(query["windowSize"]);
-
+           
             try { eventID = int.Parse(query["eventID"]); }
             catch { eventID = -1; }
             if (eventID <= 0) return new DataTable();
             using (AdoDataConnection connection = new(SettingsCategory))
             {
                 Event evt = new TableOperations<Event>(connection).QueryRecordWhere("ID = {0}", eventID);
-                return RelayHistoryTable(dateTime, windowSize, timeWindowUnits, evt.AssetID);
+                return RelayHistoryTable(evt.AssetID);
             }
         }
 
-        private DataTable RelayHistoryTable(DateTime dateTime, int windowSize, string timeWindowUnits, int assetID)
+        private DataTable RelayHistoryTable(int assetID)
         {
             DataTable dataTable;
 
-            string timeRestriction = $"TripInitiate Between DATEADD({timeWindowUnits}, {(-1 * windowSize)}, '{dateTime}') AND DATEADD({timeWindowUnits}, {(windowSize)},  '{dateTime}')";
-
-            using (AdoDataConnection connection = new("systemSettings"))
+            using (AdoDataConnection connection = new(SettingsCategory))
             {
-                dataTable = connection.RetrieveData($"SELECT * FROM BreakerHistory WHERE BreakerId = {{0}} AND {timeRestriction}", assetID);
+                dataTable = connection.RetrieveData($"SELECT * FROM BreakerHistory WHERE BreakerId = {{0}}", assetID);
             }
             return dataTable;
         }

@@ -22,7 +22,6 @@
 //******************************************************************************************************
 
 import React from 'react';
-import SEBrowserService from '../../../Scripts/TS/Services/SEBrowser';
 import moment from 'moment';
 import { EventWidget } from '../global';
 import Table from '@gpa-gemstone/react-table';

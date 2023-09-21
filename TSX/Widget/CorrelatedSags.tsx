@@ -25,6 +25,7 @@ import React from 'react';
 import moment from 'moment';
 import { EventWidget } from '../global';
 import Table from '@gpa-gemstone/react-table';
+import { Input } from '@gpa-gemstone/react-forms';
 
 interface ITimeCorrelatedSags {
     EventID: number;
@@ -36,14 +37,24 @@ interface ITimeCorrelatedSags {
     MeterName: string;
     AssetName: string;
 }
+interface ISetting { OpenSeeUrl: string }
 
-const EventSearchCorrelatedSags: EventWidget.IWidget<{} > = {
+const EventSearchCorrelatedSags: EventWidget.IWidget<ISetting> = {
     Name: 'EventSearchCorrelatedSags',
-    DefaultSettings: {},
-    Settings: () => {
-        return <></>
+    DefaultSettings: { OpenSeeUrl: 'http://opensee.demo.gridprotectionalliance.org' },
+    Settings: (props) => {
+        return <div className="row">
+            <div className="col">
+                <Input<ISetting>
+                    Record={props.Settings}
+                    Field={'OpenSeeUrl'}
+                    Setter={(record) => props.SetSettings(record)}
+                    Valid={() => true}
+                    Label={'OpenSEE URL'} />
+            </div>
+        </div>
     },
-    Widget: (props: EventWidget.IWidgetProps<{}>) => {
+    Widget: (props: EventWidget.IWidgetProps<ISetting>) => {
         const [data, setData] = React.useState<ITimeCorrelatedSags[]>([]);
 
         let correlatedSagsHandle;
@@ -79,7 +90,7 @@ const EventSearchCorrelatedSags: EventWidget.IWidget<{} > = {
                 <div className="card-body" >
                     <Table
                         cols={[
-                            { key: 'EventID', field: 'EventID', label: 'Event ID', content: (d: ITimeCorrelatedSags) => <a id="eventLink" href={openSEEInstance + '?eventid=' + d.EventID} target='_blank'><div style={{ width: '100%', height: '100%' }}>{d.EventID}</div></a> },
+                            { key: 'EventID', field: 'EventID', label: 'Event ID', content: (d: ITimeCorrelatedSags) => <a id="eventLink" href={props.Settings.OpenSeeUrl + '?eventid=' + d.EventID} target='_blank'><div style={{ width: '100%', height: '100%' }}>{d.EventID}</div></a> },
                             { key: 'EventType', field: 'EventType', label: 'Event Type' },
                             { key: 'SagMagnitude', field: 'SagMagnitudePercent', label: 'Magnitude' },
                             { key: 'SagDuration', field: 'SagDurationMilliseconds', label: 'Duration', content: (d: ITimeCorrelatedSags) => `${d.SagDurationMilliseconds} ms (${d.SagDurationCycles} cycles)` },
