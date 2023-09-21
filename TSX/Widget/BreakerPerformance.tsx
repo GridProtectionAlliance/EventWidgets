@@ -26,7 +26,6 @@ import { LineWithThreshold, Plot } from '@gpa-gemstone/react-graph';
 import Table from '@gpa-gemstone/react-table';
 import { RandomColor } from '@gpa-gemstone/helper-functions';
 import { EventWidget } from '../global';
-import { findAppropriateUnit, getMoment, getStartEndTime } from '../../../Scripts/TSX/Components/EventSearch/TimeWindowUtils';
 
 interface IRelayPerformance {
     EventID: number,
@@ -72,10 +71,6 @@ const EventSearchBreakerPerformance: EventWidget.IWidget<{}> = {
         const [Width, SetWidth] = React.useState<number>(0);
 
         React.useEffect(() => {
-            getTimeLimits()
-        }, [props.WindowSize, props.TimeWindowUnits, props.Time, props.Date])
-
-        React.useEffect(() => {
 
             const handle = getRelayPerformance()
             handle.done((data) => {
@@ -87,16 +82,17 @@ const EventSearchBreakerPerformance: EventWidget.IWidget<{}> = {
 
         React.useLayoutEffect(() => { SetWidth(divref?.current?.offsetWidth ?? 0) });
 
+        React.useEffect(() => {
+            if (data.length == 0) return;
+            setTstart(moment.utc(data[0].TripInitiate).valueOf());
+            setTend(moment.utc(data[data.length - 1].TripInitiate).valueOf())
+        }, [data])
 
         function getRelayPerformance(): JQuery.jqXHR<IRelayPerformance[]> {
-            const adjustedTime = findAppropriateUnit(getMoment(props.Date, props.Time),
-                getStartEndTime(getMoment(props.Date, props.Time), props.WindowSize, props.TimeWindowUnits)[1],
-                props.TimeWindowUnits);
-
+          
             const h = $.ajax({
                 type: "GET",
-                url: `${homePath}api/BreakerPerformance?eventID=${props.EventID}&date=${props.Date}` +
-                    `&time=${props.Time}&timeWindowunits=${adjustedTime[0]}&windowSize=${adjustedTime[1]}`,
+                url: `${homePath}api/BreakerPerformance?eventID=${props.EventID}`,
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
                 cache: false,
@@ -105,13 +101,6 @@ const EventSearchBreakerPerformance: EventWidget.IWidget<{}> = {
 
             h.done((d: IRelayPerformance[]) => { if (d != null) setRelayPerformance(d); })
             return h;
-        }
-
-        function getTimeLimits() {
-            const [Tstart, Tend] = getStartEndTime(getMoment(props.Date, props.Time), props.WindowSize, props.TimeWindowUnits)
-            setTend(Tend.valueOf());
-            setTstart(Tstart.valueOf())
-
         }
 
         return (

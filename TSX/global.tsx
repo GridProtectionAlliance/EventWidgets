@@ -42,11 +42,7 @@ export namespace EventWidget {
         StartTime?: number,
         HomePath: string,
         Roles: string[],
-        Width?: number,
-        Date?: string,
-        Time?: string,
-        TimeWindowUnits?: number,
-        WindowSize?: number
+        Name: string
     }
 
     export interface IWidgetSettingsProps<T> {
