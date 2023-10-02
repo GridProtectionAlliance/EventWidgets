@@ -36,7 +36,7 @@ interface IDisturbanceData {
 }
 
 const AssetVoltageDisturbances: EventWidget.IWidget<{}> = {
-    Name: 'EventSearchAssetVoltageDisturbances',
+    Name: 'VoltageDisturbances',
     DefaultSettings: {},
     Settings: () => {
         return <></>

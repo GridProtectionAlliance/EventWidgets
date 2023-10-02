@@ -58,7 +58,7 @@ interface IRelayPerformanceTrend {
 }
 
 const EventSearchRelayPerformance: EventWidget.IWidget<{}> = {
-    Name: 'EventSearchRelayPerformance',
+    Name: 'RelayPerformance',
     DefaultSettings: {},
     Settings: () => {
         return <></>

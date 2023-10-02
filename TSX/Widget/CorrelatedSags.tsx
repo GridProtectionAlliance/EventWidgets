@@ -40,7 +40,7 @@ interface ITimeCorrelatedSags {
 interface ISetting { OpenSeeUrl: string }
 
 const EventSearchCorrelatedSags: EventWidget.IWidget<ISetting> = {
-    Name: 'EventSearchCorrelatedSags',
+    Name: 'CorrelatedSags',
     DefaultSettings: { OpenSeeUrl: 'http://opensee.demo.gridprotectionalliance.org' },
     Settings: (props) => {
         return <div className="row">

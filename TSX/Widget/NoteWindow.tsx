@@ -33,7 +33,7 @@ interface ISetting {
 }
 
 const NoteWidget: EventWidget.IWidget<ISetting> = {
-    Name: 'EventSearchNoteWindow',
+    Name: 'Notes',
     DefaultSettings: { NoteTags: [], NoteTypes: [] },
     Settings: () => {
         return <></>

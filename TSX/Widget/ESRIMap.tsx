@@ -45,7 +45,7 @@ interface ISettings {
 }
 
 const ESRIMap: EventWidget.IWidget<ISettings> = {
-    Name: 'TVAESRIMap',
+    Name: 'ESRIMap',
     DefaultSettings: {
         Center: [35, -85],
         Zoom: 7,

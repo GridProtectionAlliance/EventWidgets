@@ -39,7 +39,7 @@ interface IInterruption {
 }
 
 const InterruptionReport: EventWidget.IWidget<{}> = {
-    Name: 'HECCOIR',
+    Name: 'InterriptionReport',
     DefaultSettings: {},
     Settings: () => {
         return <></>

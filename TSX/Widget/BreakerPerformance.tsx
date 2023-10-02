@@ -57,7 +57,7 @@ interface IRelayPerformance {
 }
 
 const EventSearchBreakerPerformance: EventWidget.IWidget<{}> = {
-    Name: 'EventSearchBreakerPerformance',
+    Name: 'BreakerPerformance',
     DefaultSettings: {},
     Settings: () => {
         return <></>

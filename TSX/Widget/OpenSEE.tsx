@@ -46,7 +46,7 @@ interface IPartialOpenseeSettings {
 interface ISetting { OpenSeeUrl: string }
 const EventSearchOpenSEE: EventWidget.IWidget<ISetting> = {
 
-    Name: 'EventSearchOpenSEE',
+    Name: 'OpenSEE',
     DefaultSettings: { OpenSeeUrl: 'http://opensee.demo.gridprotectionalliance.org' },
     Settings: (props) => {
         return <div className="row">

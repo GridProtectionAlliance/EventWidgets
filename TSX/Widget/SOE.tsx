@@ -36,7 +36,7 @@ interface ISetting {
     FilterOut: string[]
 }
 const SOE: EventWidget.IWidget<ISetting> = {
-    Name: 'TVASOE',
+    Name: 'SOE',
     DefaultSettings: {
         FilterOut: ['abnormal', 'close', 'no', 'normal', 'received', 'start', 'trip', 'yes']
     },
