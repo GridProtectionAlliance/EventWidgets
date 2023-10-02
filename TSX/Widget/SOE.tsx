@@ -41,7 +41,14 @@ const SOE: EventWidget.IWidget<ISetting> = {
         FilterOut: ['abnormal', 'close', 'no', 'normal', 'received', 'start', 'trip', 'yes']
     },
     Settings: (props) => {
-        const val = React.useMemo(() => props.Settings.FilterOut.map(t => ({ Value: t })), [props.Settings.FilterOut])
+        const [val, setVal] = React.useState<{ Value: string }[]>([]);
+
+        React.useEffect(() => {
+            if (props.Settings.FilterOut == undefined)
+                return;
+            setVal(props.Settings.FilterOut.map(t => ({ Value: t })))
+        }, [props.Settings.FilterOut]);
+        
         return <>
             <div className="row">
                 {val.map((item,i) => <div className="col-4">
