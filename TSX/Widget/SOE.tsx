@@ -50,8 +50,10 @@ const SOE: EventWidget.IWidget<ISetting> = {
         }, [props.Settings.FilterOut]);
         
         return <>
-            <div className="row">
-                {val.map((item,i) => <div className="col-4">
+            
+            {val.map((item, i) => 
+                <div className="row"> 
+                <div className="col-6">
                     <Input<IValue>
                         Record={item}
                         Field={'Value'}
@@ -61,14 +63,16 @@ const SOE: EventWidget.IWidget<ISetting> = {
                             props.SetSettings({ FilterOut: u })
                         }}
                         Valid={() => true}
-                        Label={'Filter ' + i} />
+                            Label={'Filter ' + i} />
+                    </div>
+                    <div className="col-6">
                     <button className="btn btn-small btn-danger" onClick={() => {
                         const u = _.cloneDeep(props.Settings.FilterOut);
                         u.splice(i, 1);
                         props.SetSettings({ FilterOut: u })
                     }}>{TrashCan}</button>
-                </div>)}
-            </div>
+                </div> </div>)}
+            
             <div className="row">
                 <div className="col">
                     <button className="btn btn-primary" onClick={() => {
