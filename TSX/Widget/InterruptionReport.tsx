@@ -1,7 +1,7 @@
 //******************************************************************************************************
 //  InterruptionReport.tsx - Gbtc
 //
-//  Copyright © 2020, Grid Protection Alliance.  All Rights Reserved.
+//  Copyright Â© 2020, Grid Protection Alliance.  All Rights Reserved.
 //
 //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
 //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
@@ -39,7 +39,7 @@ interface IInterruption {
 }
 
 const InterruptionReport: EventWidget.IWidget<{}> = {
-    Name: 'HECCOIR',
+    Name: 'InterruptionReport',
     DefaultSettings: {},
     Settings: () => {
         return <></>

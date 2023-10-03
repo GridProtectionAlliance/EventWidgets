@@ -49,7 +49,7 @@ interface ILinks {
 }
 
 const FaultInfo: EventWidget.IWidget<{}> = {
-    Name: 'TVAFaultInfo',
+    Name: 'FaultInfo',
     DefaultSettings: {},
     Settings: () => {
         return <></>

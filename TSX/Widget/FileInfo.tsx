@@ -29,7 +29,7 @@ import { Input } from '@gpa-gemstone/react-forms';
 interface ISetting { SystemCenterUrl: string }
 
 const EventSearchFileInfo: EventWidget.IWidget<ISetting> = {
-    Name: 'EventSearchFileInfo',
+    Name: 'FileInfo',
     DefaultSettings: { SystemCenterUrl: 'https://systemCenter.demo.gridprotectionalliance.org' },
     Settings: (props) => {
         return <div className="row">

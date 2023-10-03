@@ -25,7 +25,7 @@ import React from 'react';
 import { EventWidget } from '../global';
 
 const StructureInfo: EventWidget.IWidget<{}> = {
-    Name: 'TVAStructureInfo',
+    Name: 'StructureInfo',
     DefaultSettings: {},
     Settings: () => {
         return <></>

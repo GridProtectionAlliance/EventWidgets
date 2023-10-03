@@ -37,7 +37,7 @@ interface ICapBankAnalytic {
 }
 
 const EventSearchCapBankAnalyticOverview: EventWidget.IWidget<{}> = {
-    Name: 'EventSearchCapBankAnalyticOverview',
+    Name: 'CapBankAnalyticOverview',
     DefaultSettings: {},
     Settings: () => {
         return <></>

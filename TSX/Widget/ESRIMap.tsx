@@ -1,7 +1,7 @@
 //******************************************************************************************************
 //  ESRIMap.tsx - Gbtc
 //
-//  Copyright © 2020, Grid Protection Alliance.  All Rights Reserved.
+//  Copyright Â© 2020, Grid Protection Alliance.  All Rights Reserved.
 //
 //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
 //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
@@ -37,7 +37,8 @@ interface ILightningStrike {
 }
 
 interface ISettings {
-    Center: [number, number],
+    CenterLat: number,
+    CenterLong: number,
     Zoom: number,
     transmissionLayerURL: string,
     safetyLayerURL: string,
@@ -45,16 +46,17 @@ interface ISettings {
 }
 
 const ESRIMap: EventWidget.IWidget<ISettings> = {
-    Name: 'TVAESRIMap',
+    Name: 'ESRIMap',
     DefaultSettings: {
-        Center: [35, -85],
+        CenterLong: 35,
+        CenterLat: -85,
         Zoom: 7,
         transmissionLayerURL: `http://pq/arcgisproxynew/proxy.ashx?https://gis.tva.gov/arcgis/rest/services/EGIS_Transmission/Transmission_Grid_Restricted_2/MapServer/`,
         safetyLayerURL: `http://pq/arcgisproxynew/proxy.ashx?https://gis.tva.gov/arcgis/rest/services/EGIS_Edit/safetyHazards/MapServer/`,
         lscLayerURL: `http://pq/arcgisproxynew/proxy.ashx?https://gis.tva.gov/arcgis/rest/services/EGIS_Transmission/Transmission_Station_Assets/MapServer/`
     },
     Settings: (props) => {
-        return (
+        return ( <>
          <div className="row">
             <div className="col">
                 <Input<ISettings>
@@ -65,6 +67,9 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
                     Valid={() => true}
                     Label={'Transmission layer URl'} />
                 </div>
+                 </div>
+                <div className="row">
+               
                 <div className="col">
                     <Input<ISettings>
                         Record={props.Settings}
@@ -74,6 +79,8 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
                         Valid={() => true}
                         Label={'Safety layer URl'} />
                 </div>
+            </div>
+            <div className="row">
                 <div className="col">
                     <Input<ISettings>
                         Record={props.Settings}
@@ -83,6 +90,8 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
                         Valid={() => true}
                         Label={'LSC layer URl'} />
                 </div>
+            </div>
+            <div className="row">
                 <div className="col">
                     <Input<ISettings>
                         Record={props.Settings}
@@ -92,16 +101,27 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
                         Valid={() => true}
                         Label={'Zoom setting'} />
                 </div>
+            </div>
+            <div className="row">
                 <div className="col">
                     <Input<ISettings>
                         Record={props.Settings}
-                        Field={'Center'}
-                        Help={'The Center setting for ESRIMap widget. ex: [35, -85]'}
+                        Field={'CenterLong'}
+                        Help={'The Center (Longitude) setting for ESRIMap widget.'}
                         Setter={(record) => props.SetSettings(record)}
                         Valid={() => true}
-                        Label={'Center setting'} />
+                        Label={'Center Longitude'} />
                 </div>
-         </div>
+                <div className="col">
+                    <Input<ISettings>
+                        Record={props.Settings}
+                        Field={'CenterLat'}
+                        Help={'The Center (Latitude) setting for ESRIMap widget.'}
+                        Setter={(record) => props.SetSettings(record)}
+                        Valid={() => true}
+                        Label={'Center Latitude'} />
+                </div>
+         </div> </>
         )
     },
     Widget: (props: EventWidget.IWidgetProps<ISettings>) => {
@@ -150,7 +170,7 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
         React.useEffect(() => {
             if (div == null) return;
             const setting: ISettings = props.Settings == undefined ? ESRIMap.DefaultSettings : props.Settings;
-            map.current = leaflet.map(div.current, { center: setting.Center, zoom: setting.Zoom, });
+            map.current = leaflet.map(div.current, { center: [setting.CenterLat, setting.CenterLong], zoom: setting.Zoom, });
             basemapLayer('Gray').addTo(map.current);
 
             const transmissionLayer = dynamicMapLayer({ url: '', opacity: 0.3, f: 'image' });
@@ -182,7 +202,7 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
                 format: 'image/png',
                 transparent: true,
                 opacity: 0.5,
-                attribution: "Weather data © 2016 IEM Nexrad",
+                attribution: "Weather data Â© 2016 IEM Nexrad",
             });
             map.current.addLayer(radar_current);
 
