@@ -119,7 +119,7 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
                         Help={'The Center (Latitude) setting for ESRIMap widget.'}
                         Setter={(record) => props.SetSettings(record)}
                         Valid={() => true}
-                        Label={'Center Lattitude'} />
+                        Label={'Center Latitude'} />
                 </div>
          </div> </>
         )
