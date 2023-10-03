@@ -1,7 +1,7 @@
 //******************************************************************************************************
 //  ESRIMap.tsx - Gbtc
 //
-//  Copyright © 2020, Grid Protection Alliance.  All Rights Reserved.
+//  Copyright Â© 2020, Grid Protection Alliance.  All Rights Reserved.
 //
 //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
 //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
@@ -116,7 +116,7 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
                     <Input<ISettings>
                         Record={props.Settings}
                         Field={'CenterLat'}
-                        Help={'The Center (Lattitude) setting for ESRIMap widget.'}
+                        Help={'The Center (Latitude) setting for ESRIMap widget.'}
                         Setter={(record) => props.SetSettings(record)}
                         Valid={() => true}
                         Label={'Center Lattitude'} />
@@ -202,7 +202,7 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
                 format: 'image/png',
                 transparent: true,
                 opacity: 0.5,
-                attribution: "Weather data © 2016 IEM Nexrad",
+                attribution: "Weather data Â© 2016 IEM Nexrad",
             });
             map.current.addLayer(radar_current);
 
