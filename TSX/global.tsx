@@ -30,7 +30,7 @@ export namespace EventWidget {
         CategoryID: number,
         Name: string,
         Type: string,
-        setting: object,
+        Setting: string,
         Enabled: boolean
     }
 

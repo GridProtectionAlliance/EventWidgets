@@ -69,15 +69,16 @@ const WidgetRouter: React.FC<IProps> = (props: IProps) => {
     const Widget = React.useMemo(() => AllWidgets.find(item => item.Name === props.Widget.Type), [props.Widget.ID]);
 
     const Settings = React.useMemo(() => {
-        if (props.Widget.setting == null)
+        if (props.Widget.Setting == null)
             return Widget?.DefaultSettings ?? {};
         const s = cloneDeep(Widget?.DefaultSettings ?? {});
+        const custom = JSON.parse(props.Widget.Setting);
         for (const [k, v] of Object.entries(Widget?.DefaultSettings ?? {})) {
-            if (props.Widget.setting.hasOwnProperty(k))
-                s[k] = cloneDeep(props.Widget.setting[k]);
+            if (custom.hasOwnProperty(k))
+                s[k] = cloneDeep(custom[k]);
         }
         return s;
-    }, [Widget, props.Widget.setting]);
+    }, [Widget, props.Widget.Setting]);
 
    
 
