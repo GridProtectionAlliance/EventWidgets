@@ -57,13 +57,24 @@ interface IRelayPerformanceTrend {
     EventType: number
 }
 
-const EventSearchRelayPerformance: EventWidget.IWidget<{}> = {
+interface ISetting { OpenSeeUrl: string }
+
+const EventSearchRelayPerformance: EventWidget.IWidget<ISetting> = {
     Name: 'RelayPerformance',
-    DefaultSettings: {},
-    Settings: () => {
-        return <></>
+   DefaultSettings: { OpenSeeUrl: 'http://opensee.demo.gridprotectionalliance.org' },
+   Settings: (props) => {
+    return <div className="row">
+        <div className="col">
+            <Input<ISetting>
+                Record={props.Settings}
+                Field={'OpenSeeUrl'}
+                Setter={(record) => props.SetSettings(record)}
+                Valid={() => true}
+                Label={'OpenSEE URL'} />
+        </div>
+    </div>
     },
-    Widget: (props: EventWidget.IWidgetProps<{}>) => {
+    Widget: (props: EventWidget.IWidgetProps<ISetting>) => {
         const [data, setData] = React.useState<IRelayPerformanceTrend[]>([]);
 
         function getRelayPerformanceData() {
@@ -93,7 +104,7 @@ const EventSearchRelayPerformance: EventWidget.IWidget<{}> = {
                     <Table
                         cols={[
                             {
-                                key: 'EventID', field: 'EventID', label: 'Event ID', content: (d) => (<a id="eventLink" target="_blank" href={homePath + 'Main/OpenSEE?eventid=' + d.EventID}>
+                                key: 'EventID', field: 'EventID', label: 'Event ID', content: (d) => (<a id="eventLink" target="_blank" href={props.Settings.OpenSeeUrl + '?eventid=' + d.EventID}>
                                     <div style={{ width: '100%', height: '100%' }}> {d.EventID} </div> </a>)
                             },
                             { key: 'TripInitiate', label: 'Trip Initiation Time', content: (d) => moment(d.TripInitiate).format('MM/DD/YY HH:mm:ss.SSSS') },
