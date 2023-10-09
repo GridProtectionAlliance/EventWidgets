@@ -184,7 +184,7 @@ const NoteWidget: EventWidget.IWidget<ISetting> = {
                                 OnChange={(evt, changed) => {
                                     setSelectedTags((st) => {
                                         const u = st.filter((t) => changed.findIndex(c => c.Value == t) == -1);
-                                        u.push(...changed.filter(t => !t.Selected).map(t => t.Value));
+                                        u.push(...changed.filter(t => !t.Selected).map(t => parseInt(t.Value.toString())));
                                         return u;
                                     })
                                 }}
