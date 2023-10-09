@@ -76,7 +76,7 @@ const NoteWidget: EventWidget.IWidget<ISetting> = {
         function getNoteType(): JQuery.jqXHR<OpenXDA.Types.NoteType[]> {
             const handle = $.ajax({
                 type: "GET",
-                url: `${homePath}api/Note/NoteType`,
+                url: `${props.HomePath}api/Note/NoteType`,
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
                 cache: true,
@@ -97,7 +97,7 @@ const NoteWidget: EventWidget.IWidget<ISetting> = {
         function getNoteApp(): JQuery.jqXHR<OpenXDA.Types.NoteApplication[]> {
             const handle = $.ajax({
                 type: "GET",
-                url: `${homePath}api/Note/NoteApp`,
+                url: `${props.HomePath}api/Note/NoteApp`,
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
                 cache: true,
@@ -115,7 +115,7 @@ const NoteWidget: EventWidget.IWidget<ISetting> = {
         function getNoteTag(): JQuery.jqXHR<OpenXDA.Types.NoteTag[]> {
             const handle = $.ajax({
                 type: "GET",
-                url: `${homePath}api/Note/NoteTag`,
+                url: `${props.HomePath}api/Note/NoteTag`,
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
                 cache: true,
@@ -135,7 +135,7 @@ const NoteWidget: EventWidget.IWidget<ISetting> = {
         function getIDs(): JQuery.jqXHR {
             const handle = $.ajax({
                 type: "GET",
-                url: `${homePath}api/Note/EventInformation/${props.EventID}`,
+                url: `${props.HomePath}api/Note/EventInformation/${props.EventID}`,
                 cache: true,
                 async: true,
             }).done((d) => {
@@ -184,7 +184,7 @@ const NoteWidget: EventWidget.IWidget<ISetting> = {
                                 OnChange={(evt, changed) => {
                                     setSelectedTags((st) => {
                                         const u = st.filter((t) => changed.findIndex(c => c.Value == t) == -1);
-                                        u.push(...changed.filter(t => !t.Selected).map(t => t.Value));
+                                        u.push(...changed.filter(t => !t.Selected).map(t => parseInt(t.Value.toString())));
                                         return u;
                                     })
                                 }}

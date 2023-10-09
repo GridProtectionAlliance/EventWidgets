@@ -1,7 +1,7 @@
 //******************************************************************************************************
 //  PQICurves.tsx - Gbtc
 //
-//  Copyright © 2023, Grid Protection Alliance.  All Rights Reserved.
+//  Copyright ï¿½ 2023, Grid Protection Alliance.  All Rights Reserved.
 //
 //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
 //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
@@ -56,7 +56,7 @@ const PQICurves: EventWidget.IWidget<{}> = {
         function GetData() {
             const handle = $.ajax({
                 type: "GET",
-                url: `${homePath}api/PQI/GetCurves/${props.EventID}`,
+                url: `${props.HomePath}api/PQI/GetCurves/${props.EventID}`,
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
                 cache: true,

@@ -1,7 +1,7 @@
 //******************************************************************************************************
 //  TVAESRIMap.tsx - Gbtc
 //
-//  Copyright © 2020, Grid Protection Alliance.  All Rights Reserved.
+//  Copyright ï¿½ 2020, Grid Protection Alliance.  All Rights Reserved.
 //
 //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
 //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
@@ -66,7 +66,7 @@ const FaultInfo: EventWidget.IWidget<{}> = {
         function GetData() {
             const handle = $.ajax({
                 type: "GET",
-                url: `${homePath}api/FaultInformation/${props.EventID}`,
+                url: `${props.HomePath}api/FaultInformation/${props.EventID}`,
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
                 cache: true,
@@ -75,7 +75,7 @@ const FaultInfo: EventWidget.IWidget<{}> = {
 
             const handle2 = $.ajax({
                 type: "GET",
-                url: `${homePath}api/FaultInformation/GetLinks/FaultInfo`,
+                url: `${props.HomePath}api/FaultInformation/GetLinks/FaultInfo`,
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
                 cache: true,

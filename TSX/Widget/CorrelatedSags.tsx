@@ -1,7 +1,7 @@
 //******************************************************************************************************
 //  EventSearchCorrelatedSags.tsx - Gbtc
 //
-//  Copyright © 2019, Grid Protection Alliance.  All Rights Reserved.
+//  Copyright ï¿½ 2019, Grid Protection Alliance.  All Rights Reserved.
 //
 //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
 //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
@@ -66,7 +66,7 @@ const EventSearchCorrelatedSags: EventWidget.IWidget<ISetting> = {
 
             correlatedSagsHandle = $.ajax({
                 type: 'GET',
-                url: `${homePath}api/CorrelatedSags?eventId=${props.EventID}`,
+                url: `${props.HomePath}api/CorrelatedSags?eventId=${props.EventID}`,
                 contentType: 'application/json; charset=utf-8',
                 dataType: 'json',
                 cache: true,

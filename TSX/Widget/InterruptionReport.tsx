@@ -57,7 +57,7 @@ const InterruptionReport: EventWidget.IWidget<{}> = {
 
             return $.ajax({
                 type: "GET",
-                url: `${homePath}api/InterruptionReport/GetEvents/${hours}/${props.EventID}`,
+                url: `${props.HomePath}api/InterruptionReport/GetEvents/${hours}/${props.EventID}`,
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
                 cache: true,

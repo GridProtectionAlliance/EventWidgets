@@ -1,7 +1,7 @@
 //******************************************************************************************************
 //  EventSearchFileInfo.tsx - Gbtc
 //
-//  Copyright © 2020, Grid Protection Alliance.  All Rights Reserved.
+//  Copyright ï¿½ 2020, Grid Protection Alliance.  All Rights Reserved.
 //
 //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
 //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
@@ -56,7 +56,7 @@ const EventSearchFileInfo: EventWidget.IWidget<ISetting> = {
         function GetData() {
             const handle = $.ajax({
                 type: "GET",
-                url: `${homePath}api/FileInfo/GetFileName/${props.EventID}`,
+                url: `${props.HomePath}api/FileInfo/GetFileName/${props.EventID}`,
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
                 cache: true,
@@ -67,7 +67,7 @@ const EventSearchFileInfo: EventWidget.IWidget<ISetting> = {
 
             const handle2 = $.ajax({
                 type: "GET",
-                url: `${homePath}api/FileInfo/GetMappedChannels/${props.EventID}`,
+                url: `${props.HomePath}api/FileInfo/GetMappedChannels/${props.EventID}`,
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
                 cache: true,
@@ -78,7 +78,7 @@ const EventSearchFileInfo: EventWidget.IWidget<ISetting> = {
 
             const handle3 = $.ajax({
                 type: "GET",
-                url: `${homePath}api/FileInfo/GetMeterConfiguration/${props.EventID}`,
+                url: `${props.HomePath}api/FileInfo/GetMeterConfiguration/${props.EventID}`,
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
                 cache: true,

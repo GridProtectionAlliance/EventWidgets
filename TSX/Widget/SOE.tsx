@@ -1,7 +1,7 @@
 //******************************************************************************************************
 //  SOE.tsx - Gbtc
 //
-//  Copyright © 2020, Grid Protection Alliance.  All Rights Reserved.
+//  Copyright ï¿½ 2020, Grid Protection Alliance.  All Rights Reserved.
 //
 //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
 //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
@@ -101,7 +101,7 @@ const SOE: EventWidget.IWidget<ISetting> = {
         function GetData() {
             const handle = $.ajax({
                 type: "GET",
-                url: `${homePath}api/SOE/${props.EventID}/${timeWindow}`,
+                url: `${props.HomePath}api/SOE/${props.EventID}/${timeWindow}`,
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
                 cache: true,

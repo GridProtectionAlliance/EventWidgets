@@ -1,7 +1,7 @@
 //******************************************************************************************************
 //  AssetHistoryStats.tsx - Gbtc
 //
-//  Copyright © 2023, Grid Protection Alliance.  All Rights Reserved.
+//  Copyright ï¿½ 2023, Grid Protection Alliance.  All Rights Reserved.
 //
 //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
 //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
@@ -58,7 +58,7 @@ const AssetHistoryStats: EventWidget.IWidget<{}> = {
         function getStatsData(time: string) {
             if (time === '1' || time === '12') {
                 $.ajax({
-                    url: `${homePath}api/AssetHistoryStats/${props.EventID}/${time}`,
+                    url: `${props.HomePath}api/AssetHistoryStats/${props.EventID}/${time}`,
                     method: 'GET',
                     dataType: 'json',
                     success: (data) => {
@@ -71,7 +71,7 @@ const AssetHistoryStats: EventWidget.IWidget<{}> = {
             }
             else {
                 $.ajax({
-                    url: `${homePath}api/AssetHistoryStats/${props.EventID}`,
+                    url: `${props.HomePath}api/AssetHistoryStats/${props.EventID}`,
                     method: 'GET',
                     dataType: 'json',
                     success: (data) => {

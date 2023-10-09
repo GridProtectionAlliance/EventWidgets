@@ -1,7 +1,7 @@
 //******************************************************************************************************
 //  EventSearchRelayPerformance.tsx - Gbtc
 //
-//  Copyright © 2019, Grid Protection Alliance.  All Rights Reserved.
+//  Copyright ï¿½ 2019, Grid Protection Alliance.  All Rights Reserved.
 //
 //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
 //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
@@ -25,6 +25,7 @@ import React from 'react';
 import moment from 'moment';
 import { EventWidget } from '../global';
 import Table from '@gpa-gemstone/react-table';
+import { Input } from '@gpa-gemstone/react-forms';
 
 interface IRelayPerformanceTrend {
     BreakerID: number,
@@ -57,19 +58,30 @@ interface IRelayPerformanceTrend {
     EventType: number
 }
 
-const EventSearchRelayPerformance: EventWidget.IWidget<{}> = {
+interface ISetting { OpenSeeUrl: string }
+
+const EventSearchRelayPerformance: EventWidget.IWidget<ISetting> = {
     Name: 'RelayPerformance',
-    DefaultSettings: {},
-    Settings: () => {
-        return <></>
+   DefaultSettings: { OpenSeeUrl: 'http://opensee.demo.gridprotectionalliance.org' },
+   Settings: (props) => {
+    return <div className="row">
+        <div className="col">
+            <Input<ISetting>
+                Record={props.Settings}
+                Field={'OpenSeeUrl'}
+                Setter={(record) => props.SetSettings(record)}
+                Valid={() => true}
+                Label={'OpenSEE URL'} />
+        </div>
+    </div>
     },
-    Widget: (props: EventWidget.IWidgetProps<{}>) => {
+    Widget: (props: EventWidget.IWidgetProps<ISetting>) => {
         const [data, setData] = React.useState<IRelayPerformanceTrend[]>([]);
 
         function getRelayPerformanceData() {
             return $.ajax({
                 type: "GET",
-                url: `${homePath}api/RelayPerformance?eventId=${props.EventID}`,
+                url: `${props.HomePath}api/RelayPerformance?eventId=${props.EventID}`,
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
                 cache: true,
@@ -93,7 +105,7 @@ const EventSearchRelayPerformance: EventWidget.IWidget<{}> = {
                     <Table
                         cols={[
                             {
-                                key: 'EventID', field: 'EventID', label: 'Event ID', content: (d) => (<a id="eventLink" target="_blank" href={homePath + 'Main/OpenSEE?eventid=' + d.EventID}>
+                                key: 'EventID', field: 'EventID', label: 'Event ID', content: (d) => (<a id="eventLink" target="_blank" href={props.Settings.OpenSeeUrl + '?eventid=' + d.EventID}>
                                     <div style={{ width: '100%', height: '100%' }}> {d.EventID} </div> </a>)
                             },
                             { key: 'TripInitiate', label: 'Trip Initiation Time', content: (d) => moment(d.TripInitiate).format('MM/DD/YY HH:mm:ss.SSSS') },
