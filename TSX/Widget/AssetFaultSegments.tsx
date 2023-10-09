@@ -51,7 +51,7 @@ const EventSearchAssetFaultSegments: EventWidget.IWidget<{}> = {
 
             assetFaultHandle = $.ajax({
                 type: "GET",
-                url: `${props.homePath}api/AssetFaultSegment?EventID=${props.EventID}`,
+                url: `${props.HomePath}api/AssetFaultSegment?EventID=${props.EventID}`,
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
                 cache: true,
