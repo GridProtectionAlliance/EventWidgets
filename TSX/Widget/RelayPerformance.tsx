@@ -25,6 +25,7 @@ import React from 'react';
 import moment from 'moment';
 import { EventWidget } from '../global';
 import Table from '@gpa-gemstone/react-table';
+import { Input } from '@gpa-gemstone/react-forms';
 
 interface IRelayPerformanceTrend {
     BreakerID: number,
