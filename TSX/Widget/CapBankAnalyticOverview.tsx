@@ -1,7 +1,7 @@
 //******************************************************************************************************
 //  EventSearchCapBankAnalyticOverview.tsx - Gbtc
 //
-//  Copyright © 2019, Grid Protection Alliance.  All Rights Reserved.
+//  Copyright ï¿½ 2019, Grid Protection Alliance.  All Rights Reserved.
 //
 //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
 //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
@@ -53,7 +53,7 @@ const EventSearchCapBankAnalyticOverview: EventWidget.IWidget<{}> = {
 
                 capBankAnalyticHandle = $.ajax({
                     type: "GET",
-                    url: `${homePath}api/OpenXDA/getCapBankAnalytic?eventId=${props.EventID}`,
+                    url: `${props.HomePath}api/OpenXDA/getCapBankAnalytic?eventId=${props.EventID}`,
                     contentType: "application/json; charset=utf-8",
                     dataType: 'json',
                     cache: true,

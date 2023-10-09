@@ -1,7 +1,7 @@
 //******************************************************************************************************
 //  AssetHistoryTable.tsx - Gbtc
 //
-//  Copyright © 2023, Grid Protection Alliance.  All Rights Reserved.
+//  Copyright ï¿½ 2023, Grid Protection Alliance.  All Rights Reserved.
 //
 //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
 //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
@@ -64,7 +64,7 @@ const AssetHistoryTable: EventWidget.IWidget<ISetting> = {
         function getHistoryData() {
             return $.ajax({
                 type: "GET",
-                url: `${homePath}api/AssetHistoryTable/${props.EventID}/${count}`,
+                url: `${props.HomePath}api/AssetHistoryTable/${props.EventID}/${count}`,
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
                 cache: true,

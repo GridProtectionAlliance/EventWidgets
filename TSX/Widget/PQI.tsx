@@ -1,7 +1,7 @@
 //******************************************************************************************************
 //  EventSearchPQI.tsx - Gbtc
 //
-//  Copyright © 2022, Grid Protection Alliance.  All Rights Reserved.
+//  Copyright ï¿½ 2022, Grid Protection Alliance.  All Rights Reserved.
 //
 //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
 //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
@@ -44,7 +44,7 @@ const EventSearchPQI: EventWidget.IWidget<{}> = {
 
             return $.ajax({
                 type: "GET",
-                url: `${homePath}api/PQI/GetEquipment/${props.EventID}`,
+                url: `${props.HomePath}api/PQI/GetEquipment/${props.EventID}`,
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
                 cache: true,

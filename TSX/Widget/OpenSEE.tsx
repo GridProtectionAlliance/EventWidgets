@@ -1,7 +1,7 @@
 //******************************************************************************************************
 //  EventSearchOpenSEE.tsx - Gbtc
 //
-//  Copyright © 2020, Grid Protection Alliance.  All Rights Reserved.
+//  Copyright ï¿½ 2020, Grid Protection Alliance.  All Rights Reserved.
 //
 //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
 //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
@@ -125,7 +125,7 @@ const EventSearchOpenSEE: EventWidget.IWidget<ISetting> = {
         function GetData(type: ('Voltage' | 'Current' | 'TripCoilCurrent'), datasetter: (d: ISeries[]) => void) {
             return $.ajax({
                 type: "GET",
-                url: `${homePath}api/OpenSEE/GetData?eventId=${props.EventID}` +
+                url: `${props.HomePath}api/OpenSEE/GetData?eventId=${props.EventID}` +
                     `&pixels=${1200}` +
                     `&type=${type}` +
                     `&dataType=Time`,

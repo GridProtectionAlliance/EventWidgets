@@ -138,7 +138,7 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
             setStatus("loading");
             const handle = $.ajax({
                 type: "GET",
-                url: `${homePath}api/ESRIMap/GetLightningInfo/${props.EventID}/${window}`,
+                url: `${props.HomePath}api/ESRIMap/GetLightningInfo/${props.EventID}/${window}`,
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
                 cache: true,
@@ -151,7 +151,7 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
         React.useEffect(() => {
             const handle = $.ajax({
                 type: "GET",
-                url: `${homePath}api/FaultInformation/${props.EventID}`,
+                url: `${props.HomePath}api/FaultInformation/${props.EventID}`,
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
                 cache: true,
@@ -220,7 +220,7 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
             if (lightningInfo.length == 0) return;
 
             const lightningIcon = leaflet.icon({
-                iconUrl: homePath + 'Images/lightning.png',
+                iconUrl: props.HomePath + 'Images/lightning.png',
                 iconSize: [20, 25]
             });
 
