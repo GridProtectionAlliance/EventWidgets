@@ -1,5 +1,5 @@
 ﻿//******************************************************************************************************
-//  AssetVoltageDisturbances.cs - Gbtc
+//  InterruptionReport.cs - Gbtc
 //
 //  Copyright © 2023, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -21,101 +21,96 @@
 //
 //******************************************************************************************************
 
-
-using GSF.Data;
-using System.Collections.Generic;
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Web.Http;
+using GSF.Data;
 
 namespace Widgets.Controllers
 {
     [RoutePrefix("api/InterruptionReport")]
     public class InterruptionReportController : ApiController
     {
-        protected string SettingsCategory => "systemSettings";
+        protected string SettingsCategory => "interruptionReport";
 
-            public class Interruption
+        public class Interruption
+        {
+            public DateTime? TimeOut { get; set; }
+            public DateTime? TimeIn { get; set; }
+            public string Class { get; set; }
+            public string Area { get; set; }
+            public int ReportNumber { get; set; }
+            public string Explanation { get; set; }
+            public string CircuitInfo { get; set; }
+        }
+
+        [Route("GetEvents/{hour:int}/{eventID:int}"), HttpGet]
+        public IHttpActionResult GetData(int hour, int eventID)
+        {
+            try
             {
-                public DateTime? TimeOut { get; set; }
-                public DateTime? TimeIn { get; set; }
-                public string Class { get; set; }
-                public string Area { get; set; }
-                public int ReportNumber { get; set; }
-                public string Explanation { get; set; }
-                public string CircuitInfo { get; set; }
-            }
+                DateTime start = DateTime.UtcNow;
+                using (AdoDataConnection connection = new("systemSettings"))
+                    start = connection.ExecuteScalar<DateTime>("SELECT StartTime FROM Event WHERE ID = {0} ", eventID);
 
-            [Route("GetEvents/{hour:int}/{eventID:int}"), HttpGet]
-            public IHttpActionResult GetData(int hour, int eventID)
-            {
-
-                try
+                List<Interruption> result = new();
+                DataSet ds = new();
+                using (AdoDataConnection connection = new(SettingsCategory))
                 {
-                    DateTime start = DateTime.UtcNow;
-                    using (AdoDataConnection connection = new("systemSettings"))
-                        start = connection.ExecuteScalar<DateTime>("SELECT StartTime FROM Event WHERE ID = {0} ", eventID);
-
-                    List<Interruption> result = new();
-                    DataSet ds = new();
-                    using (AdoDataConnection connection = new(SettingsCategory))
+                    using (SqlCommand command = ((SqlConnection)connection.Connection).CreateCommand())
                     {
-                        using (SqlCommand command = ((SqlConnection)connection.Connection).CreateCommand())
+                        using (SqlDataAdapter sda = new(command))
                         {
-                            using (SqlDataAdapter sda = new(command))
-                            {
-                                command.CommandType = System.Data.CommandType.StoredProcedure;
-                                command.CommandText = "iradmin.GetIncidentsByDateTimeRange";
-                                command.Parameters.AddWithValue("@startDateTime", start.AddHours(-hour));
-                                command.Parameters.AddWithValue("@endDateTime", start.AddHours(hour));
+                            command.CommandType = System.Data.CommandType.StoredProcedure;
+                            command.CommandText = "iradmin.GetIncidentsByDateTimeRange";
+                            command.Parameters.AddWithValue("@startDateTime", start.AddHours(-hour));
+                            command.Parameters.AddWithValue("@endDateTime", start.AddHours(hour));
 
-                                sda.Fill(ds);
-                            }
+                            sda.Fill(ds);
                         }
                     }
-
-                    foreach (DataRow dr in ds.Tables[0].Rows)
-                    {
-                        int recordNumber = int.Parse(dr["ReportNumber"].ToString());
-
-
-                        DataRow[] children = ds.Tables[1].Select($"ReportNumber = {recordNumber}");
-
-                        Interruption interruption = new()
-                        {
-                            TimeOut = DateTime.Parse(dr["TimeOut"].ToString()),
-                            Class = dr["ClassType"].ToString(),
-                            Area = dr["Area"].ToString(),
-                            ReportNumber = recordNumber,
-                            Explanation = dr["Explanation"].ToString(),
-                            CircuitInfo = dr["CircuitInfo"].ToString(),
-                            TimeIn = null
-                        };
-
-                        result.Add(interruption);
-                        result.AddRange(children.Select((r) => new Interruption()
-                        {
-                            TimeOut = DateTime.Parse(dr["TimeOut"].ToString()),
-                            Class = "",
-                            Area = r["Area"].ToString(),
-                            ReportNumber = recordNumber,
-                            Explanation = "",
-                            CircuitInfo = "",
-                            TimeIn = DateTime.Parse(r["TimeIn"].ToString())
-                        }));
-                    }
-
-                    return Ok(result);
                 }
 
-                catch (Exception ex)
+                foreach (DataRow dr in ds.Tables[0].Rows)
                 {
-                    return InternalServerError(ex);
+                    int recordNumber = int.Parse(dr["ReportNumber"].ToString());
+
+
+                    DataRow[] children = ds.Tables[1].Select($"ReportNumber = {recordNumber}");
+
+                    Interruption interruption = new()
+                    {
+                        TimeOut = DateTime.Parse(dr["TimeOut"].ToString()),
+                        Class = dr["ClassType"].ToString(),
+                        Area = dr["Area"].ToString(),
+                        ReportNumber = recordNumber,
+                        Explanation = dr["Explanation"].ToString(),
+                        CircuitInfo = dr["CircuitInfo"].ToString(),
+                        TimeIn = null
+                    };
+
+                    result.Add(interruption);
+                    result.AddRange(children.Select((r) => new Interruption()
+                    {
+                        TimeOut = DateTime.Parse(dr["TimeOut"].ToString()),
+                        Class = "",
+                        Area = r["Area"].ToString(),
+                        ReportNumber = recordNumber,
+                        Explanation = "",
+                        CircuitInfo = "",
+                        TimeIn = DateTime.Parse(r["TimeIn"].ToString())
+                    }));
                 }
 
+                return Ok(result);
             }
-
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
         }
+    }
 }
