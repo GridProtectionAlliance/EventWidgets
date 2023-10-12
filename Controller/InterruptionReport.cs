@@ -34,7 +34,7 @@ namespace Widgets.Controllers
     [RoutePrefix("api/InterruptionReport")]
     public class InterruptionReportController : ApiController
     {
-        protected string SettingsCategory => "systemSettings";
+        protected string SettingsCategory => "interruptionReport";
 
         public class Interruption
         {
