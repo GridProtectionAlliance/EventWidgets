@@ -62,7 +62,7 @@ const EventSearchCorrelatedSags: EventWidget.IWidget<ISetting> = {
                     Type={'number'}
                     Setter={(record) => props.SetSettings(record)}
                     Valid={() => true}
-                    Label={'OverlappingWindow'} />
+                    Label={'Window (s)'} />
             </div>
         </div>
         </>
