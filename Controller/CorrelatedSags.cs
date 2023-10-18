@@ -80,15 +80,19 @@ namespace Widgets.Controllers
 
             Dictionary<string, string> query = Request.QueryParameters();
             int eventID = int.Parse(query["eventId"]);
+            string timeTolerance;
+            if (!query.TryGetValue("timeTolerance", out timeTolerance))
+                 timeTolerance = "2.0";
+            double tolerance = double.Parse(timeTolerance);
 
             if (eventID <= 0) return new DataTable();
             using (AdoDataConnection connection = new(SettingsCategory))
             {
-                double timeTolerance = connection.ExecuteScalar<double>("SELECT Value FROM Setting WHERE Name = 'TimeTolerance'");
+                
                 DateTime startTime = connection.ExecuteScalar<DateTime>("SELECT StartTime FROM Event WHERE ID = {0}", eventID);
                 DateTime endTime = connection.ExecuteScalar<DateTime>("SELECT EndTime FROM Event WHERE ID = {0}", eventID);
-                DateTime adjustedStartTime = startTime.AddSeconds(-timeTolerance);
-                DateTime adjustedEndTime = endTime.AddSeconds(timeTolerance);
+                DateTime adjustedStartTime = startTime.AddSeconds(-tolerance);
+                DateTime adjustedEndTime = endTime.AddSeconds(tolerance);
                 DataTable dataTable = connection.RetrieveData(TimeCorrelatedSagsSQL, adjustedStartTime, adjustedEndTime);
                 return dataTable;
             }

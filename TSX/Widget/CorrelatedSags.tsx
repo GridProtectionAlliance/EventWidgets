@@ -37,13 +37,14 @@ interface ITimeCorrelatedSags {
     MeterName: string;
     AssetName: string;
 }
-interface ISetting { OpenSeeUrl: string }
+interface ISetting { OpenSeeUrl: string, OverlappingWindow: number }
 
 const EventSearchCorrelatedSags: EventWidget.IWidget<ISetting> = {
     Name: 'CorrelatedSags',
-    DefaultSettings: { OpenSeeUrl: 'http://opensee.demo.gridprotectionalliance.org' },
+    DefaultSettings: { OpenSeeUrl: 'http://opensee.demo.gridprotectionalliance.org', OverlappingWindow: 2 },
     Settings: (props) => {
-        return <div className="row">
+        return <>
+        <div className="row">
             <div className="col">
                 <Input<ISetting>
                     Record={props.Settings}
@@ -53,6 +54,18 @@ const EventSearchCorrelatedSags: EventWidget.IWidget<ISetting> = {
                     Label={'OpenSEE URL'} />
             </div>
         </div>
+        <div className="row">
+            <div className="col">
+                <Input<ISetting>
+                    Record={props.Settings}
+                    Field={'OpenSeeUrl'}
+                    Type={'number'}
+                    Setter={(record) => props.SetSettings(record)}
+                    Valid={() => true}
+                    Label={'Window (s)'} />
+            </div>
+        </div>
+        </>
     },
     Widget: (props: EventWidget.IWidgetProps<ISetting>) => {
         const [data, setData] = React.useState<ITimeCorrelatedSags[]>([]);
@@ -66,7 +79,7 @@ const EventSearchCorrelatedSags: EventWidget.IWidget<ISetting> = {
 
             correlatedSagsHandle = $.ajax({
                 type: 'GET',
-                url: `${props.HomePath}api/CorrelatedSags?eventId=${props.EventID}`,
+                url: `${props.HomePath}api/CorrelatedSags?eventId=${props.EventID}&timeTolerance=${props.Settings.OverlappingWindow}`,
                 contentType: 'application/json; charset=utf-8',
                 dataType: 'json',
                 cache: true,
@@ -86,7 +99,7 @@ const EventSearchCorrelatedSags: EventWidget.IWidget<ISetting> = {
 
         return (
             <div className="card">
-                <div className="card-header">Correlated Sags:</div>
+                <div className="card-header">Correlated Sags (within {props.Settings.OverlappingWindow} seconds):</div>
                 <div className="card-body" >
                     <Table
                         cols={[
