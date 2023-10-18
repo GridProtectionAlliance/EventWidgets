@@ -59,7 +59,7 @@ const EventSearchCorrelatedSags: EventWidget.IWidget<ISetting> = {
                 <Input<ISetting>
                     Record={props.Settings}
                     Field={'OpenSeeUrl'}
-                    Type={'integer'}
+                    Type={'number'}
                     Setter={(record) => props.SetSettings(record)}
                     Valid={() => true}
                     Label={'OverlappingWindow'} />
@@ -79,7 +79,7 @@ const EventSearchCorrelatedSags: EventWidget.IWidget<ISetting> = {
 
             correlatedSagsHandle = $.ajax({
                 type: 'GET',
-                url: `${props.HomePath}api/CorrelatedSags?eventId=${props.EventID}`,
+                url: `${props.HomePath}api/CorrelatedSags?eventId=${props.EventID}&timeTolerance=${props.Settings.OverlappingWindow}`,
                 contentType: 'application/json; charset=utf-8',
                 dataType: 'json',
                 cache: true,
