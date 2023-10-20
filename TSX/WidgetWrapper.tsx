@@ -72,7 +72,16 @@ const WidgetRouter: React.FC<IProps> = (props: IProps) => {
         if (props.Widget.Setting == null)
             return Widget?.DefaultSettings ?? {};
         const s = cloneDeep(Widget?.DefaultSettings ?? {});
-        const custom = JSON.parse(props.Widget.Setting);
+        let custom = {};
+        if (props.Widget.Setting != null && props.Widget.Setting.length > 2) {
+            try {
+                custom = JSON.parse(props.Widget.Setting); 
+            } catch {
+                custom = {};
+                console.warn(`Widget ${props.Widget.Name} does not have a valid settings string`);
+            }
+        }
+
         for (const [k, v] of Object.entries(Widget?.DefaultSettings ?? {})) {
             if (custom.hasOwnProperty(k))
                 s[k] = cloneDeep(custom[k]);
