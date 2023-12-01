@@ -29,8 +29,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import { TrashCan } from '@gpa-gemstone/gpa-symbols';
 import _ from 'lodash';
 
-interface ISOEFilters { abnormal: boolean, close: boolean, no: boolean, normal: boolean, received: boolean, start: boolean, trip: boolean, yes: boolean }
-interface IValue {Value: string }
+interface IValue { Value: string }
 interface SOEInfo { Time: string, Alarm: string, Status: string }
 interface ISetting {
     FilterOut: string[]
@@ -95,6 +94,9 @@ const SOE: EventWidget.IWidget<ISetting> = {
         }, [props.Settings.FilterOut]);
 
         React.useEffect(() => {
+            setFilterOptions((d) => d.map(f => ({ ...f, Selected: statusFilter.includes(f.Text) })));
+        }, [statusFilter])
+        React.useEffect(() => {
             return GetData();
         }, [props.EventID, timeWindow, statusFilter]);
 
@@ -141,8 +143,8 @@ const SOE: EventWidget.IWidget<ISetting> = {
                                 Label={'Filter Out: '}
                                 OnChange={(evt, options) => {
                                     const filters = cloneDeep(statusFilter)
-                                    const remove = options.filter(o => !o.Selected).map(o => o.Text)
-                                    const add = options.filter(o => o.Selected).map(o => o.Text);
+                                    const remove = options.filter(o => o.Selected).map(o => o.Text)
+                                    const add = options.filter(o => !o.Selected).map(o => o.Text);
                                     setStatusFilter(filters.filter(t => !remove.includes(t)).concat(add))
                                 }} />
                         </div>
