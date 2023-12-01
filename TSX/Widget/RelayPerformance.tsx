@@ -100,7 +100,9 @@ const EventSearchRelayPerformance: EventWidget.IWidget<ISetting> = {
 
         return (
             <div className="card">
-                <div className="card-header">Breaker Performance:</div>
+                <div className="card-header fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>
+                    Breaker Performance:
+                </div>
                 <div className="card-body">
                     <Table
                         cols={[

@@ -65,7 +65,8 @@ const AssetVoltageDisturbances: EventWidget.IWidget<{}> = {
 
         return (
             <div className="card">
-                <div className="card-header">Voltage Disturbance in Waveform:</div>
+                <div className="card-header fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>
+                    Voltage Disturbance in Waveform:</div>
                 <div className="card-body">
                     <Table
                         cols={[

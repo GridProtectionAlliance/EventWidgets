@@ -78,7 +78,9 @@ const PQICurves: EventWidget.IWidget<{}> = {
         }, [curves]);
         return (
             <div className="card">
-                <div className="card-header">PQI Impacted Curves:</div>
+                <div className="card-header fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>
+                    PQI Impacted Curves:
+                </div>
                 <div className="card-body" ref={card} >
                     <Plot height={props.MaxHeight - 100} width={w} showBorder={false}
                         defaultTdomain={[0.00001, 1000]}

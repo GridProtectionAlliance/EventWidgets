@@ -187,7 +187,7 @@ const TVALightningChart: EventWidget.IWidget<{}> = {
 
         return (
             <div className="card" hidden={hidden} ref={divref}>
-            <div className="card-header">30 Day Lightning History:</div>
+                <div className="card-header fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>30 Day Lightning History:</div>
             <div className="card-body">
                 <svg width={svgWidth} height={svgHeight} onMouseOver={handleMouseOver} onMouseMove={handleMouseOver} onMouseOut={() => setTooltipX(svgWidth + 1)}>
                     <path stroke='red' d={`M0,0V0,${height}`} transform={`translate(${tooltipX},0)`}></path>

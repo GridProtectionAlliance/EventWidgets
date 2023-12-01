@@ -51,7 +51,7 @@ const SOE: EventWidget.IWidget<ISetting> = {
         return <>
             
             {val.map((item, i) => 
-                <div className="row"> 
+                <div className="row fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}> 
                 <div className="col-6">
                     <Input<IValue>
                         Record={item}

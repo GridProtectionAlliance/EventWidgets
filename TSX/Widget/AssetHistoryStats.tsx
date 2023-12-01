@@ -86,7 +86,8 @@ const AssetHistoryStats: EventWidget.IWidget<{}> = {
 
         return (
             <div className="card">
-                <div className="card-header">Stats for {statsData['AssetName']}:
+                <div className="card-header fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>
+                    Stats for {statsData['AssetName']}:
                 <div className='pull-right'>
                     <div className="form-inline">
                         <Select

@@ -99,7 +99,9 @@ const EventSearchCorrelatedSags: EventWidget.IWidget<ISetting> = {
 
         return (
             <div className="card">
-                <div className="card-header">Correlated Sags (within {props.Settings.OverlappingWindow} seconds):</div>
+                <div className="card-header fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>
+                    Correlated Sags (within {props.Settings.OverlappingWindow} seconds):
+                </div>
                 <div className="card-body" >
                     <Table
                         cols={[
