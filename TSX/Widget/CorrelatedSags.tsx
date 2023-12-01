@@ -58,7 +58,7 @@ const EventSearchCorrelatedSags: EventWidget.IWidget<ISetting> = {
             <div className="col">
                 <Input<ISetting>
                     Record={props.Settings}
-                    Field={'OpenSeeUrl'}
+                    Field={'OverlappingWindow'}
                     Type={'number'}
                     Setter={(record) => props.SetSettings(record)}
                     Valid={() => true}
