@@ -31,32 +31,32 @@ namespace Widget.Controllers
     [RoutePrefix("api/SOE")]
     public class SOEController : ApiController
     {
-        const string SettingsCategory = "dbSOE";
+        const string SOECategory = "dbSOE";
+        const string SettingsCategory = "systemSettings";
 
         [Route("{eventID:int}/{timeWindow:int}"), HttpGet]
         public IHttpActionResult Get(int eventID, int timeWindow)
         {
-            try
+            DateTime eventTime;
+            using (AdoDataConnection connection = new(SettingsCategory))
             {
-                using (AdoDataConnection connection = new(SettingsCategory))
-                {
+                eventTime = connection.ExecuteScalar<DateTime>("SELECT StartTime FROM Event WHERE ID = {0}", eventID);
+            }
 
-                    DateTime eventTime = connection.ExecuteScalar<DateTime>("SELECT StartTime FROM Event WHERE ID = {0}", eventID);
-                    DataTable table = connection.RetrieveData(@"
-                        SELECT  
-                            alarmdatetime as Time,
-                            stationname + ' ' + alarmpoint as Alarm,
-                            alarmstatus as Status 
-                        FROM soealarmdetails 
-                        WHERE alarmdatetime between {0} and {1}
-                    ", eventTime.AddSeconds(-1 * timeWindow), eventTime.AddSeconds(timeWindow));
-                    return Ok(table);
-                }
-            }
-            catch (Exception ex)
+            using (AdoDataConnection connection = new(SOECategory))
             {
-                return InternalServerError(ex);
+
+                DataTable table = connection.RetrieveData(@"
+                    SELECT  
+                        alarmdatetime as Time,
+                        stationname + ' ' + alarmpoint as Alarm,
+                        alarmstatus as Status 
+                    FROM soealarmdetails 
+                    WHERE alarmdatetime between {0} and {1}
+                ", eventTime.AddSeconds(-1 * timeWindow), eventTime.AddSeconds(timeWindow));
+                return Ok(table);
             }
+           
         }
 
     }
