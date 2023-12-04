@@ -352,8 +352,8 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
 
         return (
             <div className="card" style={{ maxHeight: props.MaxHeight ?? '50vh' }}>
-                <div className="card" style={{ position: 'sticky', top: 0, zIndex: 2, backgroundColor: '#f5f5f5' }}>
-                    <div className="card-header" >ESRI Map
+                <div className="card-header fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>
+                    ESRI Map
                         <div className='pull-right'>
                             <div className="form-inline">
                                 <Select
@@ -405,7 +405,6 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
                         </div>
                     </div>
                 </div>
-            </div>
         );
     }
 }

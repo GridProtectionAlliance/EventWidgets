@@ -174,8 +174,8 @@ const NoteWidget: EventWidget.IWidget<ISetting> = {
             id = ids.LocationID;
 
         return (
-            <div className='card' style={{ maxHeight: props.MaxHeight ?? 500, overflowY: 'auto' }}>
-                <div className='card-header'>Notes:</div>
+            <div className='card' style={{ maxHeight: props.MaxHeight ?? 500}}>
+                <div className='card-header fixed-top' style={{ position: 'sticky', background: '#f7f7f7' }}>Notes:</div>
                 <div className='card-body'>
                     <div className='row'>
                         <div className='col'>

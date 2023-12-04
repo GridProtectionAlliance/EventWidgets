@@ -74,7 +74,8 @@ const AssetHistoryTable: EventWidget.IWidget<ISetting> = {
 
         return (
             <div className="card">
-                <div className="card-header">Event History for {assetName}:
+                <div className="card-header fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>
+                    Event History for {assetName}:
                     <div className='pull-right'>
                         <div className="form-inline">
                             <Select

@@ -66,7 +66,7 @@ const MatlabAnalyticResults: EventWidget.IWidget<{}> = {
 
         return (
             <div className="card">
-                <div className="card-header">Matlab Analytic Results</div>
+                <div className="card-header fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>Matlab Analytic Results</div>
                 <div className="card-body">
                     <Table
                         cols={[

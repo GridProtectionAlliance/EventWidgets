@@ -55,7 +55,9 @@ const EventSearchPQI: EventWidget.IWidget<{}> = {
 
         return (
             <div className="card">
-                <div className="card-header">Power Quality Investigator:</div>
+                <div className="card-header fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>
+                    Power Quality Investigator:
+                </div>
                 <div className="card-body">
                     <div className='row'>
                         <div className='col'>

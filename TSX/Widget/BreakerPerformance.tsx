@@ -106,7 +106,9 @@ const EventSearchBreakerPerformance: EventWidget.IWidget<{}> = {
         return (
             <>
                 <div className="card">
-                    <div className="card-header">Historic Breaker Performance:</div>
+                    <div className="card-header fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>
+                        Historic Breaker Performance:
+                    </div>
                     <div className="card-body" ref={divref}>
                         {relayPeformance.length > 0 ? <div>
                             <Plot height={400} width={Width - 100} showBorder={false} defaultTdomain={[Tstart, Tend]} legend={'bottom'} Tlabel={'Time'}

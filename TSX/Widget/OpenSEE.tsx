@@ -194,7 +194,9 @@ const EventSearchOpenSEE: EventWidget.IWidget<ISetting> = {
 
         return (
             <div className="card">
-                <div className="card-header"><a href={props.Settings.OpenSeeUrl + '?eventid=' + props.EventID} target="_blank">View in OpenSEE</a></div>
+                <div className="card-header fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>
+                    <a href={props.Settings.OpenSeeUrl + '?eventid=' + props.EventID} target="_blank">View in OpenSEE</a>
+                </div>
                 <div className="card-body" ref={divref}>
                     {VData.length > 0 ? < Plot height={250} width={Width} showBorder={false}
                         legendWidth={150}

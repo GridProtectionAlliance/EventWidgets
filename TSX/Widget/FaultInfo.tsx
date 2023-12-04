@@ -106,7 +106,7 @@ const FaultInfo: EventWidget.IWidget<{}> = {
 
         return (
             <div className="card" hidden={hidden}>
-                <div className="card-header">Fault Information:</div>
+                <div className="card-header fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>Fault Information:</div>
                 <div className="card-body">
                     <Table
                         cols={[

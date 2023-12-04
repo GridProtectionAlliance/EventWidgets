@@ -58,7 +58,7 @@ const EventSearchCorrelatedSags: EventWidget.IWidget<ISetting> = {
             <div className="col">
                 <Input<ISetting>
                     Record={props.Settings}
-                    Field={'OpenSeeUrl'}
+                    Field={'OverlappingWindow'}
                     Type={'number'}
                     Setter={(record) => props.SetSettings(record)}
                     Valid={() => true}
@@ -99,7 +99,9 @@ const EventSearchCorrelatedSags: EventWidget.IWidget<ISetting> = {
 
         return (
             <div className="card">
-                <div className="card-header">Correlated Sags (within {props.Settings.OverlappingWindow} seconds):</div>
+                <div className="card-header fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>
+                    Correlated Sags (within {props.Settings.OverlappingWindow} seconds):
+                </div>
                 <div className="card-body" >
                     <Table
                         cols={[

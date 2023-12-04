@@ -79,7 +79,7 @@ const InterruptionReport: EventWidget.IWidget<{}> = {
         }
         return (
             <div className="card">
-                <div className="card-header">Interruption Report:
+                <div className="card-header fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>Interruption Report:
                     <div className='pull-right'>
                         <div className="form-inline">
                             <Select

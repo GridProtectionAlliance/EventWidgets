@@ -101,7 +101,8 @@ const EventSearchFileInfo: EventWidget.IWidget<ISetting> = {
 
         return (
             <div className="card">
-                <div className="card-header">File Info:
+                <div className="card-header fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>
+                    File Info:
                     <a className="pull-right" target="_blank" href={props.Settings.SystemCenterUrl + `?name=ConfigurationHistory&MeterKey=${meterKey}&MeterConfigurationID=${meterConfigurationID}`}>Meter Configuration Via System Center</a>
                 </div>
 

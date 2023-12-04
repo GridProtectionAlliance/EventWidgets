@@ -73,7 +73,9 @@ const EventSearchCapBankAnalyticOverview: EventWidget.IWidget<{}> = {
 
         return (
             <div className="card">
-                <div className="card-header">EPRI Capacitor Bank Analytic:</div>
+                <div className="card-header fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>
+                    EPRI Capacitor Bank Analytic:
+                </div>
                 <div className="card-body">
                     <Table
                         cols={[

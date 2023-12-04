@@ -77,7 +77,7 @@ const StructureInfo: EventWidget.IWidget<{}> = {
 
         return (
             <div className="card">
-                <div className="card-header">
+                <div className="card-header fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>
                     Structure Info
                     <select style={{ width: 100, position: "absolute", zIndex: 1000, top: 10, right: 10 }} value={selectedIndex} onChange={handleSelectedIndexChanged}>
                         {structureInfo.map((si, index) => <option value={index}>{si.StrNumber}</option>)}

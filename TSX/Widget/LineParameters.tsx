@@ -122,7 +122,7 @@ const LineParameters: EventWidget.IWidget<ISetting> = {
 
         return (
             <div className="card">
-                <div className="card-header">Line Parameters:
+                <div className="card-header fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>Line Parameters:
                     <a className="pull-right" target="_blank"
                         href={`${props.Settings.SystemCenterURL}?name=Asset&AssetID=${lineParameters.ID}`}
                     >Line Configuration Via System Center</a>

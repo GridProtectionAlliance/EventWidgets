@@ -80,7 +80,7 @@ const EventSearchAssetFaultSegments: EventWidget.IWidget<{}> = {
 
         return (
             <div className="card" style={{ display: count > 0 ? 'block' : 'none' }}>
-                <div className="card-header">Fault Evolution Summary:</div>
+                <div className="card-header fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>Fault Evolution Summary:</div>
                 <div className="card-body">
                     <Table<IFaultSegment>
                         cols={[
