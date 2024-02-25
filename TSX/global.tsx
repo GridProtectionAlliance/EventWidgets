@@ -31,7 +31,6 @@ export namespace EventWidget {
         Name: string,
         Type: string,
         Setting: string,
-        Enabled: boolean
     }
 
     export interface IWidgetProps<T> {
