@@ -28,10 +28,10 @@ import DateTimePicker from '@gpa-gemstone/react-forms/lib/DatePicker';
 import { LoadingIcon, Modal } from '@gpa-gemstone/react-interactive';
 import * as React from 'react';
 import { EventWidget } from '../global';
-import { useAppSelector, useAppDispatch } from '../../../Scripts/TSX/hooks';
 import moment from 'moment';
 import _ from 'lodash';
 import { ReactTable } from '@gpa-gemstone/react-table';
+import { useDispatch, useSelector } from 'react-redux';
 
 interface IEventInfo {
     EventID: number;
@@ -70,10 +70,10 @@ const EventInfo: EventWidget.IWidget<{}> = {
         const [loading, setLoading] = React.useState<boolean>(false);
         const [forceUpdate, setForceUpdate] = React.useState<boolean>(false);
 
-        const eventTypeStatus = useAppSelector(props.Store.EventTypeSlice.Status);
-        const eventType = useAppSelector(props.Store.EventTypeSlice.Data);
+        const eventTypeStatus = useSelector(props.Store.EventTypeSlice.Status);
+        const eventType = useSelector(props.Store.EventTypeSlice.Data);
 
-        const dispatch = useAppDispatch();
+        const dispatch = useDispatch<Dispatch<any>>();
 
         React.useEffect(() => {
             if (eventTypeStatus === 'unintiated' || eventTypeStatus == 'changed')
