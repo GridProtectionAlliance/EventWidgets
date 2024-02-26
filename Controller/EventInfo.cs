@@ -21,12 +21,12 @@
 //
 //******************************************************************************************************
 
-using GSF.Data;
-using GSF.Data.Model;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Data;
 using System.Web.Http;
+using GSF.Data;
+using GSF.Data.Model;
+using Newtonsoft.Json.Linq;
 
 namespace Widgets.Controllers
 {
