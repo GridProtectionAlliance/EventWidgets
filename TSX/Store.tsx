@@ -27,5 +27,6 @@ export interface IWigetStore {
     EventNoteSlice: GenericSlice<OpenXDA.Types.Note>,
     AssetNoteSlice: GenericSlice<OpenXDA.Types.Note>,
     LocationNoteSlice: GenericSlice<OpenXDA.Types.Note>,
-    MeterNoteSlice: GenericSlice<OpenXDA.Types.Note>
+    MeterNoteSlice: GenericSlice<OpenXDA.Types.Note>,
+    EventTypeSlice: GenericSlice<OpenXDA.Types.EventType>
 }

@@ -46,12 +46,13 @@ import AssetHistoryStats from './Widget/AssetHistoryStats'
 import AssetHistoryTable from './Widget/AssetHistoryTable'
 import MatlabAnalyticResults from './Widget/MatlabAnalyticResults';
 import { IWigetStore } from './Store';
+import EventInfo from './Widget/EventInfo';
 
 const AllWidgets: EventWidget.IWidget<any>[] = [LineParameters , 
     EventSearchOpenSEE, ESRIMap, FaultInfo, EventSearchAssetFaultSegments,
     AssetVoltageDisturbances, EventSearchCorrelatedSags, SOE, EventSearchPQI, Lightning, EventSearchFileInfo, EventSearchNoteWindow,
     StructureInfo, PQICurve, InterruptionReport, EventSearchRelayPerformance, EventSearchBreakerPerformance, EventSearchCapBankAnalyticOverview,
-    AssetHistoryStats, AssetHistoryTable, MatlabAnalyticResults];
+    AssetHistoryStats, AssetHistoryTable, MatlabAnalyticResults, EventInfo];
 
 interface IProps {
     Widget: EventWidget.IWidgetView,
