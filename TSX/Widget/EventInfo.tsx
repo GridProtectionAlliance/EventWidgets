@@ -32,6 +32,7 @@ import moment from 'moment';
 import _ from 'lodash';
 import { ReactTable } from '@gpa-gemstone/react-table';
 import { useDispatch, useSelector } from 'react-redux';
+import { Dispatch } from '@reduxjs/toolkit';
 
 interface IEventInfo {
     EventID: number;
