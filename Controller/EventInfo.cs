@@ -43,27 +43,26 @@ namespace Widgets.Controllers
             {
                 DataTable table = connection.RetrieveData(@"
                     SELECT
-                        Event.ID as EventID,
-						Meter.Name as MeterName,
-						AssetName as AssetName,
-                        EventType.Name as EventType,
-						Event.StartTime as StartTime,
+                        Event.ID AS EventID,
+                        Meter.Name AS MeterName,
+                        Asset.AssetName AS AssetName,
+                        EventType.Name AS EventType,
+                        Event.StartTime AS StartTime,
+                        Event.EndTime AS EndTime,
                         Event.EventTypeID AS EventTypeID,
-						Event.EndTime as EndTime,
-                        Event.UpdatedBy as LastUpdatedBy
-   
+                        Event.UpdatedBy AS LastUpdatedBy
+
                     FROM
-                        Event JOIN 
-						Asset ON Event.AssetID = Asset.ID JOIN 
-						Meter ON Event.MeterID = Meter.ID JOIN 
-						EventType ON Event.EventTypeID = EventType.ID
-                        
+                        Event JOIN
+                        Asset ON Event.AssetID = Asset.ID JOIN
+                        Meter ON Event.MeterID = Meter.ID JOIN
+                        EventType ON Event.EventTypeID = EventType.ID
+
                     WHERE
                         Event.ID = {0}
                 ", EventID);
 
                 return Ok(table);
-
             }
         }
 
@@ -80,9 +79,8 @@ namespace Widgets.Controllers
                 evt.EndTime = (DateTime)record["EndTime"];
                 tbl.UpdateRecord(evt);
             }
+
             return Ok(1);
         }
-
-
     }
 }
