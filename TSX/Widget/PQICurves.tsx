@@ -94,7 +94,7 @@ const PQICurves: EventWidget.IWidget<{}> = {
                         Ylabel={'Magnitude (pu)'}
                         showMouse={false}
                         showGrid={true}
-                        zoomMode={'Rect'}
+                        yDomain={'Manual'}
                         zoom={true} pan={true}
                         useMetricFactors={false}
                         XAxisType={'log'}
