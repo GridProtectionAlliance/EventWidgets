@@ -199,6 +199,7 @@ const EventSearchOpenSEE: EventWidget.IWidget<ISetting> = {
                 </div>
                 <div className="card-body" ref={divref}>
                     {VData.length > 0 ? < Plot height={250} width={Width} showBorder={false}
+                        yDomain={'AutoValue'}
                         legendWidth={150}
                         defaultTdomain={VLim}
                         legend={'right'}
@@ -208,6 +209,7 @@ const EventSearchOpenSEE: EventWidget.IWidget<ISetting> = {
                     </Plot> : null}
                     {IData.length > 0 ? < Plot height={250} width={Width} showBorder={false}
                         defaultTdomain={ILim}
+                        yDomain={'AutoValue'}
                         legendWidth={150}
                         legend={'right'}
                         Tlabel={'Time'}
@@ -217,6 +219,7 @@ const EventSearchOpenSEE: EventWidget.IWidget<ISetting> = {
                     {TCEData.length > 0 ? < Plot height={250} width={Width} showBorder={false}
                         defaultTdomain={TCELim}
                         legendWidth={150}
+                        yDomain={'AutoValue'}
                         legend={'right'}
                         Tlabel={'Time'}
                         Ylabel={'Trip Coil Current (A)'} showMouse={false} zoom={false} pan={false} useMetricFactors={false}>
