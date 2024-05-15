@@ -40,12 +40,13 @@ namespace Widgets.Controllers
         {
             const string TimeCorrelatedSagsSQL = @"
             SELECT Disturbance.* 
-                INTO #sag
+            INTO #sag
             FROM 
-                Disturbance JOIN EventType DisturbanceType ON
+                Disturbance JOIN
+                EventType DisturbanceType ON
                     Disturbance.EventTypeID = DisturbanceType.ID AND
-                    DisturbanceType.Name = 'Sag' 
-                JOIN Phase ON
+                    DisturbanceType.Name = 'Sag' JOIN
+                Phase ON
                     Disturbance.PhaseID = Phase.ID AND
                     Phase.Name = 'Worst'
             WHERE
@@ -81,9 +82,7 @@ namespace Widgets.Controllers
             WHERE Event.ID IN (SELECT EventID FROM #sag)
             ORDER BY
                 Event.StartTime,
-                Sag.PerUnitMagnitude
-
-            DROP TABLE #sag";
+                Sag.PerUnitMagnitude";
             
             Dictionary<string, string> query = Request.QueryParameters();
             int eventID = int.Parse(query["eventId"]);
