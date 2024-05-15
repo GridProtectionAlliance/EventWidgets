@@ -38,46 +38,53 @@ namespace Widgets.Controllers
 
         public DataTable GetCorrelatedSags()
         {
-            const string TimeCorrelatedSagsSQL =
-                "SELECT " +
-                "    Event.ID AS EventID, " +
-                "    EventType.Name AS EventType, " +
-                "    FORMAT(Sag.PerUnitMagnitude * 100.0, '0.#') AS SagMagnitudePercent, " +
-                "    FORMAT(Sag.DurationSeconds * 1000.0, '0') AS SagDurationMilliseconds, " +
-                "    FORMAT(Sag.DurationCycles, '0.##') AS SagDurationCycles, " +
-                "    Event.StartTime, " +
-                "    Meter.Name AS MeterName, " +
-                "    Asset.AssetName " +
-                "FROM " +
-                "    Event JOIN " +
-                "    EventType ON Event.EventTypeID = EventType.ID JOIN " +
-                "    Meter ON Event.MeterID = Meter.ID JOIN " +
-                "    MeterAsset ON " +
-                "        Event.MeterID = MeterAsset.MeterID AND " +
-                "        Event.AssetID = MeterAsset.AssetID JOIN" +
-                "   Asset ON Asset.ID = MeterAsset.AssetID  CROSS APPLY " +
-                "    ( " +
-                "        SELECT TOP 1 " +
-                "            Disturbance.PerUnitMagnitude, " +
-                "            Disturbance.DurationSeconds, " +
-                "            Disturbance.DurationCycles " +
-                "        FROM " +
-                "            Disturbance JOIN " +
-                "            EventType DisturbanceType ON Disturbance.EventTypeID = DisturbanceType.ID JOIN " +
-                "            Phase ON " +
-                "                Disturbance.PhaseID = Phase.ID AND " +
-                "                Phase.Name = 'Worst' " +
-                "        WHERE " +
-                "            Disturbance.EventID = Event.ID AND " +
-                "            DisturbanceType.Name = 'Sag' AND " +
-                "            Disturbance.StartTime <= {1} AND " +
-                "            Disturbance.EndTime >= {0} " +
-                "        ORDER BY PerUnitMagnitude DESC " +
-                "    ) Sag " +
-                "ORDER BY " +
-                "    Event.StartTime, " +
-                "    Sag.PerUnitMagnitude";
+            const string TimeCorrelatedSagsSQL = @"
+            SELECT Disturbance.* 
+                INTO #sag
+            FROM 
+                Disturbance JOIN EventType DisturbanceType ON
+                    Disturbance.EventTypeID = DisturbanceType.ID AND
+                    DisturbanceType.Name = 'Sag' 
+                JOIN Phase ON
+                    Disturbance.PhaseID = Phase.ID AND
+                    Phase.Name = 'Worst'
+            WHERE
+                Disturbance.StartTime <= {1} AND
+                Disturbance.EndTime >= {0}
 
+            SELECT
+                Event.ID AS EventID,
+                EventType.Name AS EventType,
+                FORMAT(Sag.PerUnitMagnitude * 100.0, '0.#') AS SagMagnitudePercent,
+                FORMAT(Sag.DurationSeconds * 1000.0, '0') AS SagDurationMilliseconds,
+                FORMAT(Sag.DurationCycles, '0.##') AS SagDurationCycles,
+                Event.StartTime,
+                Meter.Name AS MeterName,
+                Asset.AssetName
+            FROM
+                Event JOIN
+                EventType ON Event.EventTypeID = EventType.ID JOIN
+                Meter ON Event.MeterID = Meter.ID JOIN
+                MeterAsset ON
+                    Event.MeterID = MeterAsset.MeterID AND
+                    Event.AssetID = MeterAsset.AssetID JOIN
+                Asset ON Asset.ID = MeterAsset.AssetID CROSS APPLY
+                (
+                    SELECT TOP 1
+                        PerUnitMagnitude,
+                        DurationSeconds,
+                        DurationCycles
+                    FROM #sag
+                    WHERE EventID = Event.ID
+                    ORDER BY PerUnitMagnitude DESC
+                ) Sag
+            WHERE Event.ID IN (SELECT EventID FROM #sag)
+            ORDER BY
+                Event.StartTime,
+                Sag.PerUnitMagnitude
+
+            DROP TABLE #sag";
+            
             Dictionary<string, string> query = Request.QueryParameters();
             int eventID = int.Parse(query["eventId"]);
             string timeTolerance;
