@@ -23,7 +23,7 @@
 
 import React from 'react';
 import { EventWidget } from '../global';
-import Table from '@gpa-gemstone/react-table';
+import { ReactTable } from '@gpa-gemstone/react-table';
 import { Input } from '@gpa-gemstone/react-forms';
 
 interface ISetting { SystemCenterUrl: string }
@@ -108,20 +108,17 @@ const EventSearchFileInfo: EventWidget.IWidget<ISetting> = {
 
                 <div className="card-body">
                     <p>{fileName}</p>
-                    <Table
-                        cols={[
-                            { key: 'channel', field: 'Channel', label: 'Channel' },
-                            { key: 'mapping', field: 'Mapping', label: 'Mapping' },
-                        ]}
-                        data={mappedChannels}
-                        onClick={() => { /* Do Nothing */ }}
-                        onSort={() => { /* Do Nothing */ }}
-                        sortKey={''}
-                        ascending={true}
-                        tableClass="table"
-                        theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        tbodyStyle={{ display: 'block', overflowY: 'scroll', width: '100%', maxHeight: props.MaxHeight ?? 500 }}
-                        rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                    <ReactTable.Table
+                        Data={mappedChannels}
+                        OnClick={() => { /* Do Nothing */ }}
+                        OnSort={() => { /* Do Nothing */ }}
+                        SortKey={''}
+                        KeySelector={() => { return 1 } }
+                        Ascending={true}
+                        TableClass="table"
+                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        TbodyStyle={{ display: 'block', overflowY: 'scroll', width: '100%', maxHeight: props.MaxHeight ?? 500 }}
+                        RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                     />
                 </div>
             </div>
