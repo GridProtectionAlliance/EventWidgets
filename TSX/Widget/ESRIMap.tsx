@@ -27,13 +27,17 @@ import { basemapLayer, dynamicMapLayer } from 'esri-leaflet';
 import moment from 'moment';
 import { EventWidget } from '../global';
 import { Application } from '@gpa-gemstone/application-typings';
-import Table from '@gpa-gemstone/react-table';
+import { ReactTable } from '@gpa-gemstone/react-table';
 import { Select } from '@gpa-gemstone/react-forms';
 import { Input } from '@gpa-gemstone/react-forms';
 
 require("leaflet_css");
 interface ILightningStrike {
-    Service: string, DisplayTime: string, Amplitude: number, Latitude: number, Longitude: number
+    Service: string,
+    DisplayTime: string,
+    Amplitude: number,
+    Latitude: number,
+    Longitude: number
 }
 
 interface ISettings {
@@ -384,23 +388,17 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
                             {(status == 'loading' ? <span>Searching...</span> : null)}
                             {(status == 'error' ? <span>An error occurred</span> : null)}
                             {(lightningInfo.length == 0 ? <span>No Lightning Records Found</span> : null)}
-                            <Table<ILightningStrike>
-                                cols={[
-                                    { field: "Service", key: "Service", label: "Service" },
-                                    { field: "DisplayTime", key: "DisplayTime", label: "Time" },
-                                    { field: "Amplitude", key: "Amplitude", label: "Amplitude" },
-                                    { field: "Latitude", key: "Latitude", label: "Latitude" },
-                                    { field: "Longitude", key: "Longitude", label: "Longitude" },
-                                ]}
-                                tableClass="table table-hover"
-                                data={lightningInfo}
-                                sortKey={''}
-                                ascending={true}
-                                onSort={() => {/*Do Nothing*/ }}
-                                theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                                tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: props.MaxHeight ?? 500 }}
-                                rowStyle={{ display: 'table', tableLayout: 'fixed', width: 'calc(100%)' }}
-                                selected={() => false}
+                            <ReactTable.Table<ILightningStrike>
+                                TableClass="table table-hover"
+                                KeySelector={() => { return 1 }}
+                                Data={lightningInfo}
+                                SortKey={''}
+                                Ascending={true}
+                                OnSort={() => {/*Do Nothing*/ }}
+                                TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                                TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: props.MaxHeight ?? 500 }}
+                                RowStyle={{ display: 'table', tableLayout: 'fixed', width: 'calc(100%)' }}
+                                Selected={() => false}
                             />
                         </div>
                     </div>
