@@ -22,7 +22,7 @@
 //******************************************************************************************************
 
 import React from 'react';
-import Table from '@gpa-gemstone/react-table';
+import { ReactTable } from '@gpa-gemstone/react-table';
 import { PQI } from '@gpa-gemstone/application-typings';
 import { EventWidget } from '../global';
 
@@ -61,24 +61,16 @@ const EventSearchPQI: EventWidget.IWidget<{}> = {
                 <div className="card-body">
                     <div className='row'>
                         <div className='col'>
-                            <Table<PQI.Types.Equipment>
-                                cols={[
-                                    { key: 'Customer', field: 'Facility', label: 'Customer' },
-                                    { key: 'Area', field: 'Area', label: 'Area' },
-                                    { key: 'SectionTitle', field: 'SectionTitle', label: 'Section' },
-                                    { key: 'ComponentModel', field: 'ComponentModel', label: 'Component Model' },
-                                    { key: 'Manufacturer', field: 'Manufacturer', label: 'Manufacturer' },
-                                    { key: 'Series', field: 'Series', label: 'Series' },
-                                    { key: 'ComponentType', field: 'ComponentType', label: 'Component Type' }
-                                ]}
-                                data={data}
-                                onSort={() => {/*Do Nothing*/ }}
-                                sortKey={''}
-                                ascending={true}
-                                tableClass="table"
-                                theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', height: 50 }}
-                                tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: props.MaxHeight ?? 500, width: '100%' }}
-                                rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                            <ReactTable.Table<PQI.Types.Equipment>
+                                Data={data}
+                                OnSort={() => {/*Do Nothing*/ }}
+                                SortKey={''}
+                                KeySelector={() => { return 1 } }
+                                Ascending={true}
+                                TableClass="table"
+                                TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', height: 50 }}
+                                TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: props.MaxHeight ?? 500, width: '100%' }}
+                                RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                             />
                         </div>
                     </div>
