@@ -24,7 +24,7 @@
 import React from 'react';
 import moment from 'moment';
 import { EventWidget } from '../global';
-import Table from '@gpa-gemstone/react-table';
+import { ReactTable } from '@gpa-gemstone/react-table';
 
 interface IFaultInfo {
     FaultTime?: string,
@@ -41,7 +41,7 @@ interface IFaultInfo {
     Value: string
 }
 
-interface ILinks {
+interface ILinks { //?
     ID: number,
     Name: string,
     Display: string,
@@ -108,20 +108,17 @@ const FaultInfo: EventWidget.IWidget<{}> = {
             <div className="card" hidden={hidden}>
                 <div className="card-header fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>Fault Information:</div>
                 <div className="card-body">
-                    <Table
-                        cols={[
-                            { key: 'Key', field: 'Key', label: '' },
-                            { key: 'Value', field: 'Value', label: '' }
-                        ]}
-                        data={faultInfo}
-                        onClick={() => { /* Do Nothing */ }}
-                        onSort={() => { /* Do Nothing */ }}
-                        sortKey={''}
-                        ascending={true}
-                        tableClass="table"
-                        theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        tbodyStyle={{ display: 'block', overflowY: 'scroll', width: '100%', maxHeight: props.MaxHeight ?? 500 }}
-                        rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                    <ReactTable.Table
+                        Data={faultInfo}
+                        KeySelector={(item) => item.Key}
+                        OnClick={() => { /* Do Nothing */ }}
+                        OnSort={() => { /* Do Nothing */ }}
+                        SortKey={''}
+                        Ascending={true}
+                        TableClass="table"
+                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        TbodyStyle={{ display: 'block', overflowY: 'scroll', width: '100%', maxHeight: props.MaxHeight ?? 500 }}
+                        RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                     />
                 </div>
             </div>
