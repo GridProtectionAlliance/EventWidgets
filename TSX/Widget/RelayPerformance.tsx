@@ -24,7 +24,7 @@
 import React from 'react';
 import moment from 'moment';
 import { EventWidget } from '../global';
-import Table from '@gpa-gemstone/react-table';
+import { ReactTable } from '@gpa-gemstone/react-table';
 import { Input } from '@gpa-gemstone/react-forms';
 
 interface IRelayPerformanceTrend {
@@ -104,29 +104,17 @@ const EventSearchRelayPerformance: EventWidget.IWidget<ISetting> = {
                     Breaker Performance:
                 </div>
                 <div className="card-body">
-                    <Table
-                        cols={[
-                            {
-                                key: 'EventID', field: 'EventID', label: 'Event ID', content: (d) => (<a id="eventLink" target="_blank" href={props.Settings.OpenSeeUrl + '?eventid=' + d.EventID}>
-                                    <div style={{ width: '100%', height: '100%' }}> {d.EventID} </div> </a>)
-                            },
-                            { key: 'TripInitiate', label: 'Trip Initiation Time', content: (d) => moment(d.TripInitiate).format('MM/DD/YY HH:mm:ss.SSSS') },
-                            { key: 'TripTime', label: 'Trip Time', content: (d) => `${d.TripTime} micros` },
-                            { key: 'PickupTime', label: 'Pickup Time', content: (d) => `${d.PickupTime} micros` },
-                            { key: 'ExtinctionTime', field: 'ExtinctionTimeA', label: 'Extinction Time', content: () => `micros` },
-                            { key: 'TripCoilCondition', field: 'TripCoilCondition', label: 'Trip Coil Condition', content: (d) => `${d.TripCoilCondition.toFixed(2)} A/s` },
-                            { key: 'L1', field: 'Imax1', label: 'L1', content: (d) => `${d.Imax1.toFixed(3)} A` },
-                            { key: 'L2', field: 'Imax2', label: 'L2', content: (d) => `${d.Imax2.toFixed(3)} A` },
-                        ]}
-                        data={data}
-                        onClick={() => { /* Do Nothing */ }}
-                        onSort={() => { /* Do Nothing */ }}
-                        sortKey={''}
-                        ascending={true}
-                        tableClass="table"
-                        theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', height: 50 }}
-                        tbodyStyle={{ display: 'block', overflowY: 'scroll', width: '100%', maxHeight: props.MaxHeight ?? 500 }}
-                        rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                    <ReactTable.Table
+                        Data={data}
+                        OnClick={() => { /* Do Nothing */ }}
+                        OnSort={() => { /* Do Nothing */ }}
+                        SortKey={''}
+                        KeySelector={item => item.EventID }
+                        Ascending={true}
+                        TableClass="table"
+                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', height: 50 }}
+                        TbodyStyle={{ display: 'block', overflowY: 'scroll', width: '100%', maxHeight: props.MaxHeight ?? 500 }}
+                        RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                     />
                 </div>
             </div>
