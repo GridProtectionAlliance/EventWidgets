@@ -22,7 +22,7 @@
 //******************************************************************************************************
 
 import React from 'react';
-import Table from '@gpa-gemstone/react-table';
+import { ReactTable } from '@gpa-gemstone/react-table';
 import { Input } from '@gpa-gemstone/react-forms';
 import { EventWidget } from '../global';
 
@@ -128,26 +128,17 @@ const LineParameters: EventWidget.IWidget<ISetting> = {
                     >Line Configuration Via System Center</a>
                 </div>
                 <div className="card-body">
-                    <Table<ILoopImpedance>
-                        cols={[
-                            { key: 'Length', field: 'Length', label: 'Length (mi)' },
-                            { key: 'ZS', field: 'ZS', label: 'ZS (Ohm)' },
-                            { key: 'Ang', field: 'Ang', label: 'Ang (Deg)' },
-                            { key: 'RS', field: 'RS', label: 'RS (Ohm)' },
-                            { key: 'XS', field: 'XS', label: 'XS (Ohm)' },
-                            { key: 'PerMileZS', field: 'PerMileZS', label: 'Per Mile ZS' },
-                            { key: 'PerMileRS', field: 'PerMileRS', label: 'Per Mile RS' },
-                            { key: 'PerMileXS', field: 'PerMileXS', label: 'Per Mile XS' }
-                        ]}
-                        data={loopParameters}
-                        onClick={() => { /* Do Nothing */ }}
-                        onSort={() => { /* Do Nothing */ }}
-                        sortKey={''}
-                        ascending={true}
-                        tableClass="table"
-                        theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', height: 50 }}
-                        tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: props.MaxHeight - 60, width: '100%' }}
-                        rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                    <ReactTable.Table<ILoopImpedance>
+                        KeySelector={() => { return 1 }}
+                        Data={loopParameters}
+                        OnClick={() => { /* Do Nothing */ }}
+                        OnSort={() => { /* Do Nothing */ }}
+                        SortKey={''}
+                        Ascending={true}
+                        TableClass="table"
+                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', height: 50 }}
+                        TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: props.MaxHeight - 60, width: '100%' }}
+                        RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                     />
                 </div>
             </div>

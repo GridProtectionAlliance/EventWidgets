@@ -163,7 +163,7 @@ const EventInfo: EventWidget.IWidget<{}> = {
                         RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
                         Selected={() => false}
                         KeySelector={(item) => item.Stat}
-                        OnSort={(d) => {}}
+                        OnSort={() => { /* Nothing */ } }
                     >
                         <ReactTable.Column<IStat>
                             Key={'Stat'}
