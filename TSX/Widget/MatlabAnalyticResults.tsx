@@ -23,7 +23,8 @@
 
 import React from 'react';
 import { EventWidget } from '../global';
-import Table from '@gpa-gemstone/react-table';
+import { ReactTable } from '@gpa-gemstone/react-table';
+
 
 interface IMatlabAnalytics {
     TagName: string,
@@ -68,18 +69,16 @@ const MatlabAnalyticResults: EventWidget.IWidget<{}> = {
             <div className="card">
                 <div className="card-header fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>Matlab Analytic Results</div>
                 <div className="card-body">
-                    <Table
-                        cols={[
-                            { key: 'TagName', field: 'TagName', label: 'Tag Name' },
-                        ]}
-                        data={data}
-                        onSort={() => {/*Do Nothing*/ }}
-                        sortKey={''}
-                        ascending={true}
-                        tableClass="table"
-                        theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', height: 50 }}
-                        tbodyStyle={{ display: 'block', overflowY: 'scroll', width: '100%', maxHeight: props.MaxHeight ?? 500 }}
-                        rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                    <ReactTable.Table
+                        Data={data}
+                        KeySelector={item => item.EventTagID}
+                        OnSort={() => {/*Do Nothing*/ }}
+                        SortKey={''}
+                        Ascending={true}
+                        TableClass="table"
+                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', height: 50 }}
+                        TbodyStyle={{ display: 'block', overflowY: 'scroll', width: '100%', maxHeight: props.MaxHeight ?? 500 }}
+                        RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                     />
                 </div>
             </div>
