@@ -24,7 +24,7 @@
 import React from 'react';
 import moment from 'moment';
 import { EventWidget } from '../global';
-import Table from '@gpa-gemstone/react-table';
+import { ReactTable } from '@gpa-gemstone/react-table';
 import { Input } from '@gpa-gemstone/react-forms';
 
 interface ITimeCorrelatedSags {
@@ -103,26 +103,18 @@ const EventSearchCorrelatedSags: EventWidget.IWidget<ISetting> = {
                     Correlated Sags (within {props.Settings.OverlappingWindow} seconds):
                 </div>
                 <div className="card-body" >
-                    <Table
-                        cols={[
-                            { key: 'EventID', field: 'EventID', label: 'Event ID', content: (d: ITimeCorrelatedSags) => <a id="eventLink" href={props.Settings.OpenSeeUrl + '?eventid=' + d.EventID} target='_blank'><div style={{ width: '100%', height: '100%' }}>{d.EventID}</div></a> },
-                            { key: 'EventType', field: 'EventType', label: 'Event Type' },
-                            { key: 'SagMagnitude', field: 'SagMagnitudePercent', label: 'Magnitude' },
-                            { key: 'SagDuration', field: 'SagDurationMilliseconds', label: 'Duration', content: (d: ITimeCorrelatedSags) => `${d.SagDurationMilliseconds} ms (${d.SagDurationCycles} cycles)` },
-                            { key: 'StartTime', field: 'StartTime', label: 'Start Time', content: (d: ITimeCorrelatedSags) => moment(d.StartTime).format('HH:mm:ss.SSS') },
-                            { key: 'MeterName', field: 'MeterName', label: 'Meter Name' },
-                            { key: 'AssetName', field: 'AssetName', label: 'Asset Name' }
-                        ]}
-                        data={data}
-                        onClick={() => { /* Do Nothing */ }}
-                        onSort={() => { /* Do Nothing */ }}
-                        sortKey={''}
-                        ascending={true}
-                        tableClass="table"
-                        theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', height: 50 }}
-                        tbodyStyle={{ display: 'block', overflowY: 'scroll', width: '100%', maxHeight: props.MaxHeight ?? 500 }}
-                        rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        selected={(d: ITimeCorrelatedSags) => d.EventID === props.EventID}
+                    <ReactTable.Table
+                        Data={data}
+                        KeySelector={item => item.EventID }
+                        OnClick={() => { /* Do Nothing */ }}
+                        OnSort={() => { /* Do Nothing */ }}
+                        SortKey={''}
+                        Ascending={true}
+                        TableClass="table"
+                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', height: 50 }}
+                        TbodyStyle={{ display: 'block', overflowY: 'scroll', width: '100%', maxHeight: props.MaxHeight ?? 500 }}
+                        RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        Selected={(d: ITimeCorrelatedSags) => d.EventID === props.EventID}
                     />
                 </div>
             </div>
