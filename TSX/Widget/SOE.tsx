@@ -24,16 +24,23 @@
 import React from 'react';
 import { EventWidget } from '../global';
 import { Input, MultiCheckBoxSelect, Select } from '@gpa-gemstone/react-forms';
-import Table from '@gpa-gemstone/react-table';
+import { ReactTable }  from '@gpa-gemstone/react-table';
 import cloneDeep from 'lodash/cloneDeep';
 import { TrashCan } from '@gpa-gemstone/gpa-symbols';
 import _ from 'lodash';
 
-interface IValue { Value: string }
-interface SOEInfo { Time: string, Alarm: string, Status: string }
+interface IValue {
+    Value: string
+}
+interface SOEInfo {
+    Time: string,
+    Alarm: string,
+    Status: string
+}
 interface ISetting {
     FilterOut: string[]
 }
+
 const SOE: EventWidget.IWidget<ISetting> = {
     Name: 'SOE',
     DefaultSettings: {
@@ -151,21 +158,16 @@ const SOE: EventWidget.IWidget<ISetting> = {
 
                     </div>
                     <div style={{ maxHeight: 200, overflowY: 'auto' }}>
-                        <Table
-                            cols={[
-                                { key: "Time", label: "Time", field: "Time" },
-                                { key: "Alarm", label: "Alarm", field: "Alarm" },
-                                { key: "Status", label: "Status", field: "Status" }
-                            ]}
-                            data={soeInfo}
-                            onSort={() => { /*Do Nothing*/ }}
-                            sortKey={''}
-                            ascending={true}
-                            tableClass="table"
-                            keySelector={data => data.Time}
-                            theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', height: 50 }}
-                            tbodyStyle={{ display: 'block', overflowY: 'scroll', width: '100%', maxHeight: props.MaxHeight ?? 500 }}
-                            rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        <ReactTable.Table
+                            Data={soeInfo}
+                            OnSort={() => { /*Do Nothing*/ }}
+                            SortKey={''}
+                            Ascending={true}
+                            TableClass="table"
+                            KeySelector={data => data.Time}
+                            TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', height: 50 }}
+                            TbodyStyle={{ display: 'block', overflowY: 'scroll', width: '100%', maxHeight: props.MaxHeight ?? 500 }}
+                            RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                         />
                     </div>
                 </div>
