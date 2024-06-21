@@ -21,7 +21,7 @@
 //
 //******************************************************************************************************
 
-import Table from '@gpa-gemstone/react-table';
+import { ReactTable } from '@gpa-gemstone/react-table';
 import { Select } from '@gpa-gemstone/react-forms';
 import moment from 'moment';
 import React from 'react';
@@ -100,34 +100,16 @@ const InterruptionReport: EventWidget.IWidget<{}> = {
                     </div>
                 </div>
                 <div className="card-body">
-                    <Table<IInterruption>
-                        cols={[
-                            { key: 'CircuitInfo', field: 'CircuitInfo', label: 'Substation Ckt' },
-                            {
-                                key: 'TimeOut', field: 'TimeOut', label: 'Time Out',
-                                content: (record) => (record.TimeIn == null && record.TimeOut != null ? moment(record.TimeOut).format("HH:mm") : null)
-                            },
-                            {
-                                key: 'TimeIn', field: 'TimeIn', label: 'Time In',
-                                content: (record) => (record.TimeIn == null ? null : moment(record.TimeIn).format("HH:mm"))
-                            },
-                            {
-                                key: 'TotalTime', field: 'TimeIn', label: 'Total Time',
-                                content: (record) => (record.TimeOut == null || record.TimeIn == null ? null : formatDif(record.TimeOut, record.TimeIn))
-                            },
-                            { key: 'Class', field: 'Class', label: 'Class Type' },
-                            { key: 'Area', field: 'Area', label: 'Affected Area/District' },
-                            { key: 'ReportNumber', field: 'ReportNumber', label: 'Report' },
-                            { key: 'Explanation', field: 'Explanation', label: 'Explanation' }
-                        ]}
-                        data={data}
-                        onSort={() => {/*Do Nothing*/ }}
-                        sortKey={''}
-                        ascending={true}
-                        tableClass="table"
-                        theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', height: 50 }}
-                        tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: props.MaxHeight ?? 500, width: '100%' }}
-                        rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                    <ReactTable.Table<IInterruption>
+                        KeySelector={item => item.ReportNumber}
+                        Data={data}
+                        OnSort={() => {/*Do Nothing*/ }}
+                        SortKey={''}
+                        Ascending={true}
+                        TableClass="table"
+                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', height: 50 }}
+                        TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: props.MaxHeight ?? 500, width: '100%' }}
+                        RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                     />
                 </div>
             </div>
