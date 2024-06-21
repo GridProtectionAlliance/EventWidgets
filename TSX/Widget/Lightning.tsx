@@ -25,7 +25,7 @@ import React from 'react';
 import { scaleLinear, line, extent, select, axisLeft } from 'd3';
 import moment from 'moment';
 import { EventWidget } from '../global';
-import Table from '@gpa-gemstone/react-table';
+import { ReactTable } from '@gpa-gemstone/react-table';
 
 const TVALightningChart: EventWidget.IWidget<{}> = {
     Name: 'Lightning',
@@ -215,13 +215,8 @@ const TVALightningChart: EventWidget.IWidget<{}> = {
                     </g>
 
                 </svg>
-                <Table
-                    cols={[
-                        { key: 'service', label: 'Service', field: 'service' },
-                        { key: 'date', label: moment.unix(xcoord).format('MM/DD'), field: 'date' },
-                        { key: 'totals', label: 'Totals', field: 'totals' }
-                    ]}
-                    data={Object.keys(tableData).filter(key => key != 'Day').map((key, index) => {
+                <ReactTable.Table
+                    Data={Object.keys(tableData).filter(key => key != 'Day').map((key, index) => {
                         return {
                             service: <><span onClick={(evt) => {
                                 tableData[key].Show = !tableData[key].Show
@@ -232,14 +227,15 @@ const TVALightningChart: EventWidget.IWidget<{}> = {
                             totals: tableData[key].Data.reduce((a, b) => a + b)
                         };
                     })}
-                    onClick={() => { /* Do Nothing */ }}
-                    onSort={() => { /* Do Nothing */ }}
-                    sortKey={''}
-                    ascending={true}
-                    tableClass="table"
-                    theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', height: 50 }}
-                    tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: props.MaxHeight ?? 500, width: '100%' }}
-                    rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                    KeySelector={() => { return 1 } }
+                    OnClick={() => { /* Do Nothing */ }}
+                    OnSort={() => { /* Do Nothing */ }}
+                    SortKey={''}
+                    Ascending={true}
+                    TableClass="table"
+                    TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', height: 50 }}
+                    TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: props.MaxHeight ?? 500, width: '100%' }}
+                    RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                 />
             </div>
         </div>
