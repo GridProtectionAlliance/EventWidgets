@@ -79,7 +79,7 @@ const EventSearchCapBankAnalyticOverview: EventWidget.IWidget<{}> = {
                 <div className="card-body">
                     <ReactTable.Table
                         Data={data}
-                        KeySelector={item => item.ID}
+                        KeySelector={item => item.ID }
                         OnClick={() => { /* Do Nothing */ }}
                         OnSort={() => { /* Do Nothing */ }}
                         SortKey={''}
