@@ -113,7 +113,7 @@ const EventSearchFileInfo: EventWidget.IWidget<ISetting> = {
                         OnClick={() => { /* Do Nothing */ }}
                         OnSort={() => { /* Do Nothing */ }}
                         SortKey={''}
-                        KeySelector={() => { return 1 } }
+                        KeySelector={(item) => item.Channel }
                         Ascending={true}
                         TableClass="table"
                         TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}

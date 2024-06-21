@@ -51,11 +51,8 @@ interface IStat {
     IsTime: boolean;
 }
 
-
-
 const momentDateFormat = "MM/DD/YYYY";
 const momentTimeFormat = "HH:mm:ss.SSS";
-
 
 const EventInfo: EventWidget.IWidget<{}> = {
     Name: 'EventInfo',
