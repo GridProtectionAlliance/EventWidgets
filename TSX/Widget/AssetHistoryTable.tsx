@@ -98,7 +98,7 @@ const AssetHistoryTable: EventWidget.IWidget<ISetting> = {
                     <ReactTable.Table
                         Data={historyData}
                         OnSort={() => {/*Do Nothing*/ }}
-                        KeySelector={() => 1 }
+                        KeySelector={() => 1}
                         SortKey={''}
                         Ascending={true}
                         TableClass="table"
