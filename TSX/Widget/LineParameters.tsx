@@ -27,7 +27,7 @@ import { Input } from '@gpa-gemstone/react-forms';
 import { EventWidget } from '../global';
 
 interface ILineParameters {
-    ID?: number,
+    ID: number,
     Length?: number,
     X0?: number,
     X1?: number,
@@ -106,6 +106,7 @@ const LineParameters: EventWidget.IWidget<ISetting> = {
             const angS = Math.atan(xs / rs) * 180 / Math.PI;
 
             setLoopParemeters([{
+                ID: lineParameters.ID,
                 Length: lineParameters.Length,
                 ZS: zs.toFixed(3),
                 Ang: angS.toFixed(3),
@@ -129,7 +130,7 @@ const LineParameters: EventWidget.IWidget<ISetting> = {
                 </div>
                 <div className="card-body">
                     <ReactTable.Table<ILoopImpedance>
-                        KeySelector={() => { return 1 }}
+                        KeySelector={(item) => item.ID }
                         Data={loopParameters}
                         OnClick={() => { /* Do Nothing */ }}
                         OnSort={() => { /* Do Nothing */ }}
@@ -142,7 +143,7 @@ const LineParameters: EventWidget.IWidget<ISetting> = {
                     >
                         <ReactTable.Column<ILoopImpedance>
                             Key={'Length'}
-                            AllowSort={true}
+                            AllowSort={false}
                             Field={'Length'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
@@ -150,7 +151,7 @@ const LineParameters: EventWidget.IWidget<ISetting> = {
                         </ReactTable.Column>
                         <ReactTable.Column<ILoopImpedance>
                             Key={'ZS'}
-                            AllowSort={true}
+                            AllowSort={false}
                             Field={'ZS'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
@@ -158,7 +159,7 @@ const LineParameters: EventWidget.IWidget<ISetting> = {
                         </ReactTable.Column>
                         <ReactTable.Column<ILoopImpedance>
                             Key={'Ang'}
-                            AllowSort={true}
+                            AllowSort={false}
                             Field={'Ang'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
@@ -166,7 +167,7 @@ const LineParameters: EventWidget.IWidget<ISetting> = {
                         </ReactTable.Column>
                         <ReactTable.Column<ILoopImpedance>
                             Key={'RS'}
-                            AllowSort={true}
+                            AllowSort={false}
                             Field={'RS'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
@@ -174,7 +175,7 @@ const LineParameters: EventWidget.IWidget<ISetting> = {
                         </ReactTable.Column>
                         <ReactTable.Column<ILoopImpedance>
                             Key={'XS'}
-                            AllowSort={true}
+                            AllowSort={false}
                             Field={'XS'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
@@ -182,7 +183,7 @@ const LineParameters: EventWidget.IWidget<ISetting> = {
                         </ReactTable.Column>
                         <ReactTable.Column<ILoopImpedance>
                             Key={'PerMileZS'}
-                            AllowSort={true}
+                            AllowSort={false}
                             Field={'PerMileZS'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
@@ -190,7 +191,7 @@ const LineParameters: EventWidget.IWidget<ISetting> = {
                         </ReactTable.Column>
                         <ReactTable.Column<ILoopImpedance>
                             Key={'PerMileRS'}
-                            AllowSort={true}
+                            AllowSort={false}
                             Field={'PerMileRS'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
@@ -198,7 +199,7 @@ const LineParameters: EventWidget.IWidget<ISetting> = {
                         </ReactTable.Column>
                         <ReactTable.Column<ILoopImpedance>
                             Key={'PerMileXS'}
-                            AllowSort={true}
+                            AllowSort={false}
                             Field={'PerMileXS'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}

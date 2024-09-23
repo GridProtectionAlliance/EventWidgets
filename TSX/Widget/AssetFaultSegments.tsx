@@ -27,6 +27,7 @@ import { EventWidget } from '../global';
 import { ReactTable } from '@gpa-gemstone/react-table';
 
 interface IFaultSegment {
+    ID: number;
     SegmentType: string;
     StartTime: string;
     EndTime: string;
@@ -84,7 +85,7 @@ const EventSearchAssetFaultSegments: EventWidget.IWidget<{}> = {
                 <div className="card-body">
                     <ReactTable.Table<IFaultSegment>
                         Data={data}
-                        KeySelector={item => item.SegmentType }
+                        KeySelector={item => item.ID }
                         OnClick={() => { /* Do Nothing */ }}
                         OnSort={() => { /* Do Nothing */ }}
                         SortKey={''}

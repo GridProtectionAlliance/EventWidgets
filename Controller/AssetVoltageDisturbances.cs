@@ -43,6 +43,7 @@ namespace Widgets.Controllers
                     SELECT 
                         EventType.Name as EventType,
                         Phase.Name as Phase,
+                        Disturbance.ID,
                         Disturbance.PerUnitMagnitude,
                         Disturbance.DurationSeconds,
                         Disturbance.StartTime,

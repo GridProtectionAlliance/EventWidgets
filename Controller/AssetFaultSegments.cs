@@ -44,6 +44,7 @@ namespace Widgets.Controllers
 
                 DataTable table = connection.RetrieveData(@" 
                     SELECT
+	                    SegmentType.ID, 
 	                    SegmentType.Name as SegmentType, 
 	                    FaultSegment.StartTime,
 	                    FaultSegment.EndTime

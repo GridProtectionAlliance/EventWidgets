@@ -33,6 +33,7 @@ import { Input } from '@gpa-gemstone/react-forms';
 
 require("leaflet_css");
 interface ILightningStrike {
+    ID: number,
     Service: string,
     DisplayTime: string,
     Amplitude: number,
@@ -390,7 +391,7 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
                         {(lightningInfo.length == 0 ? <span>No Lightning Records Found</span> : null)}
                         <ReactTable.Table<ILightningStrike>
                             TableClass="table table-hover"
-                            KeySelector={() => { return 1 }}
+                            KeySelector={(item) => item.ID}
                             Data={lightningInfo}
                             SortKey={''}
                             Ascending={true}

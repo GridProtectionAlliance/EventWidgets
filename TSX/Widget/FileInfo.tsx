@@ -28,6 +28,12 @@ import { Input } from '@gpa-gemstone/react-forms';
 
 interface ISetting { SystemCenterUrl: string }
 
+interface IMappedChannel {
+    ID: number,
+    Channel: string,
+    Mapping: string
+}
+
 const EventSearchFileInfo: EventWidget.IWidget<ISetting> = {
     Name: 'FileInfo',
     DefaultSettings: { SystemCenterUrl: 'https://systemCenter.demo.gridprotectionalliance.org' },
@@ -45,7 +51,7 @@ const EventSearchFileInfo: EventWidget.IWidget<ISetting> = {
     },
     Widget: (props: EventWidget.IWidgetProps<ISetting>) => {
         const [fileName, setFileName] = React.useState<string>('');
-        const [mappedChannels, setMappedChannels] = React.useState<Array<{ Channel: string, Mapping: string }>>([]);
+        const [mappedChannels, setMappedChannels] = React.useState<Array<IMappedChannel>>([]);
         const [meterKey, setMeterKey] = React.useState<string>('');
         const [meterConfigurationID, setMeterConfigurationID] = React.useState<number>(0);
 
@@ -108,12 +114,12 @@ const EventSearchFileInfo: EventWidget.IWidget<ISetting> = {
 
                 <div className="card-body">
                     <p>{fileName}</p>
-                    <ReactTable.Table
+                    <ReactTable.Table<IMappedChannel>
                         Data={mappedChannels}
                         OnClick={() => { /* Do Nothing */ }}
                         OnSort={() => { /* Do Nothing */ }}
                         SortKey={''}
-                        KeySelector={(item) => item.Channel }
+                        KeySelector={(item) => item.ID }
                         Ascending={true}
                         TableClass="table"
                         TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}

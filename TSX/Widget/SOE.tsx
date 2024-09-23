@@ -164,7 +164,7 @@ const SOE: EventWidget.IWidget<ISetting> = {
                             SortKey={''}
                             Ascending={true}
                             TableClass="table"
-                            KeySelector={data => data.Time}
+                            KeySelector={data => { return data.Time; /* Todo: Time might not be unique and generate errors, ensure it is or try to use something else */ }}
                             TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', height: 50 }}
                             TbodyStyle={{ display: 'block', overflowY: 'scroll', width: '100%', maxHeight: props.MaxHeight ?? 500 }}
                             RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}

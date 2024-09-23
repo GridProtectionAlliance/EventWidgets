@@ -65,7 +65,7 @@ const EventSearchPQI: EventWidget.IWidget<{}> = {
                                 Data={data}
                                 OnSort={() => {/*Do Nothing*/ }}
                                 SortKey={''}
-                                KeySelector={() => { return 1 } }
+                                KeySelector={(_item, index) => { return index; /* Note: index isn't a good key, but we have no better options at time of writing */} }
                                 Ascending={true}
                                 TableClass="table"
                                 TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', height: 50 }}

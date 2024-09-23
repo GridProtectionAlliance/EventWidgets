@@ -55,6 +55,7 @@ namespace Widgets.Controllers
             {
                 const string SQL = @"
                     SELECT
+                        Channel.ID,
 	                    Channel.Name as Channel,
 	                    Series.SourceIndexes as Mapping
                     FROM

@@ -26,6 +26,7 @@ import { ReactTable } from '@gpa-gemstone/react-table';
 import { EventWidget } from '../global';
 
 interface IDisturbanceData {
+    ID: number;
     EventType: string;
     Phase: string;
     PerUnitMagnitude: number;
@@ -70,7 +71,7 @@ const AssetVoltageDisturbances: EventWidget.IWidget<{}> = {
                 <div className="card-body">
                     <ReactTable.Table<IDisturbanceData>
                         Data={data}
-                        KeySelector={() => { return 1 } }
+                        KeySelector={(item) => item.ID }
                         OnSort={() => {/*Do Nothing*/ }}
                         SortKey={''}
                         Ascending={true}

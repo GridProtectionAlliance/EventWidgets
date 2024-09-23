@@ -109,7 +109,7 @@ const EventSearchRelayPerformance: EventWidget.IWidget<ISetting> = {
                         OnClick={() => { /* Do Nothing */ }}
                         OnSort={() => { /* Do Nothing */ }}
                         SortKey={''}
-                        KeySelector={item => item.EventID }
+                        KeySelector={(_item, index) => { return index; /* Todo: View SQL side should be edited to have a unique id for each instead of using index here */ }}
                         Ascending={true}
                         TableClass="table"
                         TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', height: 50 }}

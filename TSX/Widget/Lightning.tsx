@@ -216,8 +216,9 @@ const TVALightningChart: EventWidget.IWidget<{}> = {
 
                     </svg>
                     <ReactTable.Table
-                        Data={Object.keys(tableData).filter(key => key != 'Day').map((key, index) => {
+                        Data={Object.keys(tableData).filter(key => key != 'Day').map((key) => {
                             return {
+                                key: key,
                                 service: <><span onClick={(evt) => {
                                     tableData[key].Show = !tableData[key].Show
                                     setTableData(tableData);
@@ -227,7 +228,7 @@ const TVALightningChart: EventWidget.IWidget<{}> = {
                                 totals: tableData[key].Data.reduce((a, b) => a + b)
                             };
                         })}
-                        KeySelector={() => { return 1 } }
+                        KeySelector={(item) => item.key }
                         OnClick={() => { /* Do Nothing */ }}
                         OnSort={() => { /* Do Nothing */ }}
                         SortKey={''}
