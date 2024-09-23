@@ -41,7 +41,7 @@ interface IFaultInfo {
     Value: string
 }
 
-interface ILinks { //?
+interface ILinks {
     ID: number,
     Name: string,
     Display: string,
