@@ -36,6 +36,7 @@ interface ILineParameters {
 }
 
 interface ILoopImpedance {
+    ID: number,
     Length: number,
     ZS: string,
     Ang: string,
@@ -75,7 +76,7 @@ const LineParameters: EventWidget.IWidget<ISetting> = {
         React.useEffect(() => {
             const handle = $.ajax({
                 type: "GET",
-                url: `${props.HomePath}/LineParameter/${props.EventID}`,
+                url: `${props.HomePath}LineParameter/${props.EventID}`,
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
                 cache: true,
