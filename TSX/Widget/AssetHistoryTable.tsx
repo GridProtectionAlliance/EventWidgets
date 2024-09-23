@@ -105,7 +105,34 @@ const AssetHistoryTable: EventWidget.IWidget<ISetting> = {
                         TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', height: 50 }}
                         TbodyStyle={{ display: 'block', overflowY: 'scroll', width: '100%', maxHeight: props.MaxHeight ?? 500 }}
                         RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    />
+                    >
+                        <ReactTable.Column
+                            Key={'EventType'}
+                            AllowSort={true}
+                            Field={'EventType'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Event Type
+                        </ReactTable.Column>
+                        <ReactTable.Column
+                            Key={'StartTime'}
+                            AllowSort={true}
+                            Field={'StartTime'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                            Content={row => moment(row.item.StartTime).format('MM/DD/YYYY HH:mm:ss.SSS')}
+                        > Date
+                        </ReactTable.Column>
+                        <ReactTable.Column
+                            Key={'ID'}
+                            AllowSort={true}
+                            Field={'ID'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                            Content={row => <a href={props.Settings.OpenSeeUrl + '?eventid=' + row.item.ID} target="_blank">View in OpenSEE</a>}
+                        > &nbsp
+                        </ReactTable.Column>
+                    </ReactTable.Table>
                 </div>
             </div>
         );

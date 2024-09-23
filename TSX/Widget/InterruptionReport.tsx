@@ -110,7 +110,75 @@ const InterruptionReport: EventWidget.IWidget<{}> = {
                         TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', height: 50 }}
                         TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: props.MaxHeight ?? 500, width: '100%' }}
                         RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    />
+                    >
+                        <ReactTable.Column<IInterruption>
+                            Key={'CircuitInfo'}
+                            AllowSort={true}
+                            Field={'CircuitInfo'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Substation Ckt
+                        </ReactTable.Column>
+                        <ReactTable.Column<IInterruption>
+                            Key={'TimeOut'}
+                            AllowSort={true}
+                            Field={'TimeOut'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                            Content={row => (row.item.TimeIn == null && row.item.TimeOut != null ? moment(row.item.TimeOut).format("HH:mm") : null)}
+                        > Time Out
+                        </ReactTable.Column>
+                        <ReactTable.Column<IInterruption>
+                            Key={'TimeIn'}
+                            AllowSort={true}
+                            Field={'TimeIn'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                            Content={row => (row.item.TimeIn == null ? null : moment(row.item.TimeIn).format("HH:mm"))}
+                        > Time In
+                        </ReactTable.Column>
+                        <ReactTable.Column<IInterruption>
+                            Key={'TotalTime'}
+                            AllowSort={true}
+                            Field={'TimeIn'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                            Content={row => (row.item.TimeOut == null || row.item.TimeIn == null ? null : formatDif(row.item.TimeOut, row.item.TimeIn))}
+                        > Total Time
+                        </ReactTable.Column>
+                        <ReactTable.Column<IInterruption>
+                            Key={'Class'}
+                            AllowSort={true}
+                            Field={'Class'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Class Type
+                        </ReactTable.Column>
+                        <ReactTable.Column<IInterruption>
+                            Key={'Area'}
+                            AllowSort={true}
+                            Field={'Area'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Affected Area/District
+                        </ReactTable.Column>
+                        <ReactTable.Column<IInterruption>
+                            Key={'ReportNumber'}
+                            AllowSort={true}
+                            Field={'ReportNumber'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Report
+                        </ReactTable.Column>
+                        <ReactTable.Column<IInterruption>
+                            Key={'Explanation'}
+                            AllowSort={true}
+                            Field={'Explanation'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Explanation
+                        </ReactTable.Column>
+                    </ReactTable.Table>
                 </div>
             </div>
         );

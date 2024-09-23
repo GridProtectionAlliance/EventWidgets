@@ -139,7 +139,72 @@ const LineParameters: EventWidget.IWidget<ISetting> = {
                         TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', height: 50 }}
                         TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: props.MaxHeight - 60, width: '100%' }}
                         RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    />
+                    >
+                        <ReactTable.Column<ILoopImpedance>
+                            Key={'Length'}
+                            AllowSort={true}
+                            Field={'Length'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Length (mi)
+                        </ReactTable.Column>
+                        <ReactTable.Column<ILoopImpedance>
+                            Key={'ZS'}
+                            AllowSort={true}
+                            Field={'ZS'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > ZS (Ohm)
+                        </ReactTable.Column>
+                        <ReactTable.Column<ILoopImpedance>
+                            Key={'Ang'}
+                            AllowSort={true}
+                            Field={'Ang'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Ang (Deg)
+                        </ReactTable.Column>
+                        <ReactTable.Column<ILoopImpedance>
+                            Key={'RS'}
+                            AllowSort={true}
+                            Field={'RS'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > RS (Ohm)
+                        </ReactTable.Column>
+                        <ReactTable.Column<ILoopImpedance>
+                            Key={'XS'}
+                            AllowSort={true}
+                            Field={'XS'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > XS (Ohm)
+                        </ReactTable.Column>
+                        <ReactTable.Column<ILoopImpedance>
+                            Key={'PerMileZS'}
+                            AllowSort={true}
+                            Field={'PerMileZS'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Per Mile ZS
+                        </ReactTable.Column>
+                        <ReactTable.Column<ILoopImpedance>
+                            Key={'PerMileRS'}
+                            AllowSort={true}
+                            Field={'PerMileRS'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Per Mile RS
+                        </ReactTable.Column>
+                        <ReactTable.Column<ILoopImpedance>
+                            Key={'PerMileXS'}
+                            AllowSort={true}
+                            Field={'PerMileXS'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Per Mile XS
+                        </ReactTable.Column>
+                    </ReactTable.Table>
                 </div>
             </div>
         );

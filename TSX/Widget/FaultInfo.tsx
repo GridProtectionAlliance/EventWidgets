@@ -108,7 +108,7 @@ const FaultInfo: EventWidget.IWidget<{}> = {
             <div className="card" hidden={hidden}>
                 <div className="card-header fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>Fault Information:</div>
                 <div className="card-body">
-                    <ReactTable.Table
+                    <ReactTable.Table<IFaultInfo>
                         Data={faultInfo}
                         KeySelector={(item) => item.Key}
                         OnClick={() => { /* Do Nothing */ }}
@@ -119,7 +119,24 @@ const FaultInfo: EventWidget.IWidget<{}> = {
                         TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                         TbodyStyle={{ display: 'block', overflowY: 'scroll', width: '100%', maxHeight: props.MaxHeight ?? 500 }}
                         RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    />
+                    >
+                        <ReactTable.Column<IFaultInfo>
+                            Key={'Key'}
+                            AllowSort={true}
+                            Field={'Key'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > &nbsp
+                        </ReactTable.Column>
+                        <ReactTable.Column<IFaultInfo>
+                            Key={'Value'}
+                            AllowSort={true}
+                            Field={'Value'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > &nbsp
+                        </ReactTable.Column>
+                    </ReactTable.Table>
                 </div>
             </div>
         );

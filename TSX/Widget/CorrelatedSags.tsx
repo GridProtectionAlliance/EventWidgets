@@ -103,7 +103,7 @@ const EventSearchCorrelatedSags: EventWidget.IWidget<ISetting> = {
                     Correlated Sags (within {props.Settings.OverlappingWindow} seconds):
                 </div>
                 <div className="card-body" >
-                    <ReactTable.Table
+                    <ReactTable.Table<ITimeCorrelatedSags>
                         Data={data}
                         KeySelector={item => item.EventID }
                         OnClick={() => { /* Do Nothing */ }}
@@ -115,12 +115,74 @@ const EventSearchCorrelatedSags: EventWidget.IWidget<ISetting> = {
                         TbodyStyle={{ display: 'block', overflowY: 'scroll', width: '100%', maxHeight: props.MaxHeight ?? 500 }}
                         RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                         Selected={(d: ITimeCorrelatedSags) => d.EventID === props.EventID}
-                    />
+                    >
+                        <ReactTable.Column<ITimeCorrelatedSags>
+                            Key={'EventID'}
+                            AllowSort={true}
+                            Field={'EventID'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                            Content={row => 
+                                (<a id="eventLink" href={props.Settings.OpenSeeUrl + '?eventid=' + row.item.EventID} target='_blank'>
+                                    <div style={{ width: '100%', height: '100%' }}>{row.item.EventID}</div>
+                                </a>)}
+                        > Event ID
+                        </ReactTable.Column>
+                        <ReactTable.Column<ITimeCorrelatedSags>
+                            Key={'EventType'}
+                            AllowSort={true}
+                            Field={'EventType'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Event Type
+                        </ReactTable.Column>
+                        <ReactTable.Column<ITimeCorrelatedSags>
+                            Key={'SagMagnitudePercent'}
+                            AllowSort={true}
+                            Field={'SagMagnitudePercent'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Magnitude
+                        </ReactTable.Column>
+                        <ReactTable.Column<ITimeCorrelatedSags>
+                            Key={'SagDurationMilliseconds'}
+                            AllowSort={true}
+                            Field={'SagDurationMilliseconds'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                            Content={row => `${row.item.SagDurationMilliseconds} ms (${row.item.SagDurationCycles} cycles)`}
+                        > Duration
+                        </ReactTable.Column>
+                        <ReactTable.Column<ITimeCorrelatedSags>
+                            Key={'StartTime'}
+                            AllowSort={true}
+                            Field={'StartTime'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                            Content={row => moment(row.item.StartTime).format('HH:mm:ss.SSS')}
+                        > Start Time
+                        </ReactTable.Column>
+                        <ReactTable.Column<ITimeCorrelatedSags>
+                            Key={'MeterName'}
+                            AllowSort={true}
+                            Field={'MeterName'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Meter Name
+                        </ReactTable.Column>
+                        <ReactTable.Column<ITimeCorrelatedSags>
+                            Key={'AssetName'}
+                            AllowSort={true}
+                            Field={'AssetName'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Asset Name
+                        </ReactTable.Column>
+                    </ReactTable.Table>
                 </div>
             </div>
         );
     }
 };
-
 
 export default EventSearchCorrelatedSags;

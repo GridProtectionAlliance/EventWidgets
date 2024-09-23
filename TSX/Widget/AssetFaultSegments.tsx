@@ -93,7 +93,42 @@ const EventSearchAssetFaultSegments: EventWidget.IWidget<{}> = {
                         TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', height: 50 }}
                         TbodyStyle={{ display: 'block', overflowY: 'scroll', width: '100%', maxHeight: props.MaxHeight ?? 500 }}
                         RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    />
+                    >
+                        <ReactTable.Column<IFaultSegment>
+                            Key={'SegmentType'}
+                            AllowSort={true}
+                            Field={'SegmentType'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Evolution
+                        </ReactTable.Column>
+                        <ReactTable.Column<IFaultSegment>
+                            Key={'StartTime'}
+                            AllowSort={true}
+                            Field={'StartTime'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                            Content={row => moment(row.item.StartTime).format('HH:mm:ss.SSS')}
+                        > Inception
+                        </ReactTable.Column>
+                        <ReactTable.Column<IFaultSegment>
+                            Key={'EndTime'}
+                            AllowSort={true}
+                            Field={'EndTime'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                            Content={row => moment(row.item.EndTime).format('HH:mm:ss.SSS')}
+                        > End
+                        </ReactTable.Column>
+                        <ReactTable.Column<IFaultSegment>
+                            Key={'Duration'}
+                            AllowSort={false}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                            Content={row => ((moment(row.item.EndTime).diff(moment(row.item.StartTime)) / 16.66667).toFixed(1))}
+                        > Duration (c)
+                        </ReactTable.Column>
+                    </ReactTable.Table>
                 </div>
             </div>
         );

@@ -115,7 +115,24 @@ const AssetHistoryStats: EventWidget.IWidget<{}> = {
                         TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                         TbodyStyle={{ display: 'block', overflowY: 'scroll', width: '100%', maxHeight: props.MaxHeight ?? 500 }}
                         RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    />
+                    >
+                        <ReactTable.Column
+                            Key={'Stat'}
+                            AllowSort={true}
+                            Field={'Stat'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Stat
+                        </ReactTable.Column>
+                        <ReactTable.Column
+                            Key={'Value'}
+                            AllowSort={true}
+                            Field={'Value'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Value
+                        </ReactTable.Column>
+                    </ReactTable.Table>
                 </div>
             </div>
         );

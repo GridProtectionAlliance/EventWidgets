@@ -158,7 +158,7 @@ const SOE: EventWidget.IWidget<ISetting> = {
 
                     </div>
                     <div style={{ maxHeight: 200, overflowY: 'auto' }}>
-                        <ReactTable.Table
+                        <ReactTable.Table<SOEInfo>
                             Data={soeInfo}
                             OnSort={() => { /*Do Nothing*/ }}
                             SortKey={''}
@@ -168,7 +168,32 @@ const SOE: EventWidget.IWidget<ISetting> = {
                             TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', height: 50 }}
                             TbodyStyle={{ display: 'block', overflowY: 'scroll', width: '100%', maxHeight: props.MaxHeight ?? 500 }}
                             RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        />
+                        >
+                            <ReactTable.Column<SOEInfo>
+                                Key={'Time'}
+                                AllowSort={true}
+                                Field={'Time'}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                            > Time
+                            </ReactTable.Column>
+                            <ReactTable.Column<SOEInfo>
+                                Key={'Alarm'}
+                                AllowSort={true}
+                                Field={'Alarm'}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                            > Alarm
+                            </ReactTable.Column>
+                            <ReactTable.Column<SOEInfo>
+                                Key={'Status'}
+                                AllowSort={true}
+                                Field={'Status'}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                            > Status
+                            </ReactTable.Column>
+                        </ReactTable.Table>
                     </div>
                 </div>
             </div>

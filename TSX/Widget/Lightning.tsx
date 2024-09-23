@@ -188,58 +188,83 @@ const TVALightningChart: EventWidget.IWidget<{}> = {
         return (
             <div className="card" hidden={hidden} ref={divref}>
                 <div className="card-header fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>30 Day Lightning History:</div>
-            <div className="card-body">
-                <svg width={svgWidth} height={svgHeight} onMouseOver={handleMouseOver} onMouseMove={handleMouseOver} onMouseOut={() => setTooltipX(svgWidth + 1)}>
-                    <path stroke='red' d={`M0,0V0,${height}`} transform={`translate(${tooltipX},0)`}></path>
+                <div className="card-body">
+                    <svg width={svgWidth} height={svgHeight} onMouseOver={handleMouseOver} onMouseMove={handleMouseOver} onMouseOut={() => setTooltipX(svgWidth + 1)}>
+                        <path stroke='red' d={`M0,0V0,${height}`} transform={`translate(${tooltipX},0)`}></path>
 
-                    <g id='yaxis' transform={`translate(${margin.left},0)`}>
-                        <path stroke='#000' d={`M0,0V0,${height}`}></path>
-                    </g>
-                    <g transform={`translate(${margin.left},0)`}>
-                        {paths}
-                    </g>
-                    <g id='xaxis' transform={`translate(${margin.left},${height})`}>
-                        <path stroke='#000' d={`M 0 0 h 0 ${width} v -${height} 0 h 0 -${width}`} fill='none'></path>
-                        {
-                            xaxis.map((a, i) => {
-                                const x = scaleLinear().rangeRound([0, width]).domain(extent(tableData.Day.Data));
+                        <g id='yaxis' transform={`translate(${margin.left},0)`}>
+                            <path stroke='#000' d={`M0,0V0,${height}`}></path>
+                        </g>
+                        <g transform={`translate(${margin.left},0)`}>
+                            {paths}
+                        </g>
+                        <g id='xaxis' transform={`translate(${margin.left},${height})`}>
+                            <path stroke='#000' d={`M 0 0 h 0 ${width} v -${height} 0 h 0 -${width}`} fill='none'></path>
+                            {
+                                xaxis.map((a, i) => {
+                                    const x = scaleLinear().rangeRound([0, width]).domain(extent(tableData.Day.Data));
 
-                                return (
-                                    <g key={i} className='tick' opacity='1' transform={`translate(${x(a)},0)`}>
-                                        <line stroke="#000" y2="6"></line>
-                                        <text fill="#000" y="9" dy="0.71em" fontFamily='sans-serif' fontSize='10'>{moment.unix(a).format('MM/DD')}</text>
-                                    </g>
-                                )
-                            })
-                        }
-                    </g>
+                                    return (
+                                        <g key={i} className='tick' opacity='1' transform={`translate(${x(a)},0)`}>
+                                            <line stroke="#000" y2="6"></line>
+                                            <text fill="#000" y="9" dy="0.71em" fontFamily='sans-serif' fontSize='10'>{moment.unix(a).format('MM/DD')}</text>
+                                        </g>
+                                    )
+                                })
+                            }
+                        </g>
 
-                </svg>
-                <ReactTable.Table
-                    Data={Object.keys(tableData).filter(key => key != 'Day').map((key, index) => {
-                        return {
-                            service: <><span onClick={(evt) => {
-                                tableData[key].Show = !tableData[key].Show
-                                setTableData(tableData);
-                                DrawChart(tableData);
-                            }} style={{ display: 'inline-block', marginRight: 10, height: 20, width: 20, backgroundColor: (tableData[key].Show ? getColor(key) : 'darkgray') }}></span>{key}</>,
-                            date: getValue(key),
-                            totals: tableData[key].Data.reduce((a, b) => a + b)
-                        };
-                    })}
-                    KeySelector={() => { return 1 } }
-                    OnClick={() => { /* Do Nothing */ }}
-                    OnSort={() => { /* Do Nothing */ }}
-                    SortKey={''}
-                    Ascending={true}
-                    TableClass="table"
-                    TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', height: 50 }}
-                    TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: props.MaxHeight ?? 500, width: '100%' }}
-                    RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                />
+                    </svg>
+                    <ReactTable.Table
+                        Data={Object.keys(tableData).filter(key => key != 'Day').map((key, index) => {
+                            return {
+                                service: <><span onClick={(evt) => {
+                                    tableData[key].Show = !tableData[key].Show
+                                    setTableData(tableData);
+                                    DrawChart(tableData);
+                                }} style={{ display: 'inline-block', marginRight: 10, height: 20, width: 20, backgroundColor: (tableData[key].Show ? getColor(key) : 'darkgray') }}></span>{key}</>,
+                                date: getValue(key),
+                                totals: tableData[key].Data.reduce((a, b) => a + b)
+                            };
+                        })}
+                        KeySelector={() => { return 1 } }
+                        OnClick={() => { /* Do Nothing */ }}
+                        OnSort={() => { /* Do Nothing */ }}
+                        SortKey={''}
+                        Ascending={true}
+                        TableClass="table"
+                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', height: 50 }}
+                        TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: props.MaxHeight ?? 500, width: '100%' }}
+                        RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                    >
+                        <ReactTable.Column
+                            Key={'service'}
+                            AllowSort={true}
+                            Field={'service'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Service
+                        </ReactTable.Column>
+                        <ReactTable.Column
+                            Key={'date'}
+                            AllowSort={true}
+                            Field={'date'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > {moment.unix(xcoord).format('MM/DD')}
+                        </ReactTable.Column>
+                        <ReactTable.Column
+                            Key={'totals'}
+                            AllowSort={true}
+                            Field={'totals'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Totals
+                        </ReactTable.Column>
+                    </ReactTable.Table>
+                </div>
             </div>
-        </div>
-);
+        );
     }
 }
 

@@ -104,7 +104,7 @@ const EventSearchRelayPerformance: EventWidget.IWidget<ISetting> = {
                     Breaker Performance:
                 </div>
                 <div className="card-body">
-                    <ReactTable.Table
+                    <ReactTable.Table<IRelayPerformanceTrend>
                         Data={data}
                         OnClick={() => { /* Do Nothing */ }}
                         OnSort={() => { /* Do Nothing */ }}
@@ -115,7 +115,84 @@ const EventSearchRelayPerformance: EventWidget.IWidget<ISetting> = {
                         TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', height: 50 }}
                         TbodyStyle={{ display: 'block', overflowY: 'scroll', width: '100%', maxHeight: props.MaxHeight ?? 500 }}
                         RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    />
+                    >
+                        <ReactTable.Column<IRelayPerformanceTrend>
+                            Key={'EventID'}
+                            AllowSort={true}
+                            Field={'EventID'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                            Content={row => (
+                                <a id="eventLink" target="_blank" href={props.Settings.OpenSeeUrl + '?eventid=' + row.item.EventID}>
+                                    <div style={{ width: '100%', height: '100%' }}> {row.item.EventID} </div>
+                                </a>
+                            )}
+                        > Event ID
+                        </ReactTable.Column>
+                        <ReactTable.Column<IRelayPerformanceTrend>
+                            Key={'TripInitiate'}
+                            AllowSort={true}
+                            Field={'TripInitiate'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                            Content={row => moment(row.item.TripInitiate).format('MM/DD/YY HH:mm:ss.SSSS')}
+                        > Trip Initiation Time
+                        </ReactTable.Column>
+                        <ReactTable.Column<IRelayPerformanceTrend>
+                            Key={'TripTime'}
+                            AllowSort={true}
+                            Field={'TripTime'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                            Content={row => `${row.item.TripTime} micros`}
+                        > Trip Time
+                        </ReactTable.Column>
+                        <ReactTable.Column<IRelayPerformanceTrend>
+                            Key={'PickupTime'}
+                            AllowSort={true}
+                            Field={'PickupTime'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                            Content={row => `${row.item.PickupTime} micros`}
+                        > Pickup Time
+                        </ReactTable.Column>
+                        <ReactTable.Column<IRelayPerformanceTrend>
+                            Key={'ExtinctionTimeA'}
+                            AllowSort={true}
+                            Field={'ExtinctionTimeA'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                            Content={row => `${row.item.ExtinctionTimeA} micros`}
+                        > Extinction Time
+                        </ReactTable.Column>
+                        <ReactTable.Column<IRelayPerformanceTrend>
+                            Key={'TripCoilCondition'}
+                            AllowSort={true}
+                            Field={'TripCoilCondition'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                            Content={row => `${row.item.TripCoilCondition.toFixed(2)} A/s`}
+                        > Trip Coil Condition
+                        </ReactTable.Column>
+                        <ReactTable.Column<IRelayPerformanceTrend>
+                            Key={'Imax1'}
+                            AllowSort={true}
+                            Field={'Imax1'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                            Content={row => `${row.item.Imax1.toFixed(3)} A`}
+                        > L1
+                        </ReactTable.Column>
+                        <ReactTable.Column<IRelayPerformanceTrend>
+                            Key={'Imax2'}
+                            AllowSort={true}
+                            Field={'Imax2'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                            Content={row => `${row.item.Imax2.toFixed(3)} A`}
+                        > L2
+                        </ReactTable.Column>
+                    </ReactTable.Table>
                 </div>
             </div>
         );

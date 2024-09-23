@@ -358,51 +358,92 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
             <div className="card" style={{ maxHeight: props.MaxHeight ?? '50vh' }}>
                 <div className="card-header fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>
                     ESRI Map
-                        <div className='pull-right'>
-                            <div className="form-inline">
-                                <Select
-                                    Record={{ window }}
-                                    Field='window'
-                                    Options={[
-                                        { Value: "2", Label: "+/- 2 sec" },
-                                        { Value: "5", Label: "+/- 5 sec" },
-                                        { Value: "10", Label: "+/- 10 sec" },
-                                        { Value: "20", Label: "+/- 20 sec" },
-                                        { Value: "30", Label: "+/- 30 sec" },
-                                        { Value: "60", Label: "+/- 60 sec" }
-                                    ]}
-                                    Setter={(record) => setWindow((record.window))}
-                                    Label="Time Window (secs)"
-                                />
-                            </div>
-                        </div>
-                    </div>
-                    <link rel="stylesheet" href="node_modules/leaflet/dist/leaflet.css" />
-                    <div className="row">
-                        <div className="col">
-                            <div ref={div} style={{ height: 400, padding: 5, border: 'solid 1px gray' }}></div>
-                        </div>
-                    </div>
-                    <div className="row">
-                        <div className="col">
-                            {(status == 'loading' ? <span>Searching...</span> : null)}
-                            {(status == 'error' ? <span>An error occurred</span> : null)}
-                            {(lightningInfo.length == 0 ? <span>No Lightning Records Found</span> : null)}
-                            <ReactTable.Table<ILightningStrike>
-                                TableClass="table table-hover"
-                                KeySelector={() => { return 1 }}
-                                Data={lightningInfo}
-                                SortKey={''}
-                                Ascending={true}
-                                OnSort={() => {/*Do Nothing*/ }}
-                                TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                                TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: props.MaxHeight ?? 500 }}
-                                RowStyle={{ display: 'table', tableLayout: 'fixed', width: 'calc(100%)' }}
-                                Selected={() => false}
+                    <div className='pull-right'>
+                        <div className="form-inline">
+                            <Select
+                                Record={{ window }}
+                                Field='window'
+                                Options={[
+                                    { Value: "2", Label: "+/- 2 sec" },
+                                    { Value: "5", Label: "+/- 5 sec" },
+                                    { Value: "10", Label: "+/- 10 sec" },
+                                    { Value: "20", Label: "+/- 20 sec" },
+                                    { Value: "30", Label: "+/- 30 sec" },
+                                    { Value: "60", Label: "+/- 60 sec" }
+                                ]}
+                                Setter={(record) => setWindow((record.window))}
+                                Label="Time Window (secs)"
                             />
                         </div>
                     </div>
                 </div>
+                <link rel="stylesheet" href="node_modules/leaflet/dist/leaflet.css" />
+                <div className="row">
+                    <div className="col">
+                        <div ref={div} style={{ height: 400, padding: 5, border: 'solid 1px gray' }}></div>
+                    </div>
+                </div>
+                <div className="row">
+                    <div className="col">
+                        {(status == 'loading' ? <span>Searching...</span> : null)}
+                        {(status == 'error' ? <span>An error occurred</span> : null)}
+                        {(lightningInfo.length == 0 ? <span>No Lightning Records Found</span> : null)}
+                        <ReactTable.Table<ILightningStrike>
+                            TableClass="table table-hover"
+                            KeySelector={() => { return 1 }}
+                            Data={lightningInfo}
+                            SortKey={''}
+                            Ascending={true}
+                            OnSort={() => {/*Do Nothing*/ }}
+                            TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                            TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: props.MaxHeight ?? 500 }}
+                            RowStyle={{ display: 'table', tableLayout: 'fixed', width: 'calc(100%)' }}
+                            Selected={() => false}
+                        >
+                            <ReactTable.Column<ILightningStrike>
+                                Key={'Service'}
+                                AllowSort={true}
+                                Field={'Service'}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                            > Service
+                            </ReactTable.Column>
+                            <ReactTable.Column<ILightningStrike>
+                                Key={'DisplayTime'}
+                                AllowSort={true}
+                                Field={'DisplayTime'}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                            > Time
+                            </ReactTable.Column>
+                            <ReactTable.Column<ILightningStrike>
+                                Key={'Amplitude'}
+                                AllowSort={true}
+                                Field={'Amplitude'}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                            > Amplitude
+                            </ReactTable.Column>
+                            <ReactTable.Column<ILightningStrike>
+                                Key={'Latitude'}
+                                AllowSort={true}
+                                Field={'Latitude'}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                            > Latitude
+                            </ReactTable.Column>
+                            <ReactTable.Column<ILightningStrike>
+                                Key={'Longitude'}
+                                AllowSort={true}
+                                Field={'Longitude'}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                            > Longitude
+                            </ReactTable.Column>
+                        </ReactTable.Table>
+                    </div>
+                </div>
+            </div>
         );
     }
 }

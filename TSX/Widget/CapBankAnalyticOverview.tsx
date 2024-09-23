@@ -77,7 +77,7 @@ const EventSearchCapBankAnalyticOverview: EventWidget.IWidget<{}> = {
                     EPRI Capacitor Bank Analytic:
                 </div>
                 <div className="card-body">
-                    <ReactTable.Table
+                    <ReactTable.Table<ICapBankAnalytic>
                         Data={data}
                         KeySelector={item => item.ID }
                         OnClick={() => { /* Do Nothing */ }}
@@ -88,7 +88,64 @@ const EventSearchCapBankAnalyticOverview: EventWidget.IWidget<{}> = {
                         TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', height: 50 }}
                         TbodyStyle={{ display: 'block', overflowY: 'scroll', width: '100%', maxHeight: props.MaxHeight ?? 500 }}
                         RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    />
+                    >
+                        <ReactTable.Column<ICapBankAnalytic>
+                            Key={'Phase'}
+                            AllowSort={true}
+                            Field={'Phase'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Phase
+                        </ReactTable.Column>
+                        <ReactTable.Column<ICapBankAnalytic>
+                            Key={'Status'}
+                            AllowSort={true}
+                            Field={'Status'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Analysis Status
+                        </ReactTable.Column>
+                        <ReactTable.Column<ICapBankAnalytic>
+                            Key={'Operation'}
+                            AllowSort={true}
+                            Field={'Operation'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Capacitor Bank Operation
+                        </ReactTable.Column>
+                        <ReactTable.Column<ICapBankAnalytic>
+                            Key={'Resonance'}
+                            AllowSort={true}
+                            Field={'Resonance'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Resonance
+                        </ReactTable.Column>
+                        <ReactTable.Column<ICapBankAnalytic>
+                            Key={'Health'}
+                            AllowSort={true}
+                            Field={'CapBankHealth'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Capacitor Bank Health
+                        </ReactTable.Column>
+                        <ReactTable.Column<ICapBankAnalytic>
+                            Key={'Restrike'}
+                            AllowSort={true}
+                            Field={'Restrike'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Restrike
+                        </ReactTable.Column>
+                        <ReactTable.Column<ICapBankAnalytic>
+                            Key={'PIS'}
+                            AllowSort={true}
+                            Field={'PreInsertionSwitch'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > PreInsertionSwitching Condition
+                        </ReactTable.Column>
+                    </ReactTable.Table>
                 </div>
             </div>
         );

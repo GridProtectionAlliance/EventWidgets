@@ -71,7 +71,64 @@ const EventSearchPQI: EventWidget.IWidget<{}> = {
                                 TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', height: 50 }}
                                 TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: props.MaxHeight ?? 500, width: '100%' }}
                                 RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                            />
+                            >
+                                <ReactTable.Column<PQI.Types.Equipment>
+                                    Key={'Facility'}
+                                    AllowSort={true}
+                                    Field={'Facility'}
+                                    HeaderStyle={{ width: 'auto' }}
+                                    RowStyle={{ width: 'auto' }}
+                                > Customer
+                                </ReactTable.Column>
+                                <ReactTable.Column<PQI.Types.Equipment>
+                                    Key={'Area'}
+                                    AllowSort={true}
+                                    Field={'Area'}
+                                    HeaderStyle={{ width: 'auto' }}
+                                    RowStyle={{ width: 'auto' }}
+                                > Area
+                                </ReactTable.Column>
+                                <ReactTable.Column<PQI.Types.Equipment>
+                                    Key={'SectionTitle'}
+                                    AllowSort={true}
+                                    Field={'SectionTitle'}
+                                    HeaderStyle={{ width: 'auto' }}
+                                    RowStyle={{ width: 'auto' }}
+                                > Section
+                                </ReactTable.Column>
+                                <ReactTable.Column<PQI.Types.Equipment>
+                                    Key={'ComponentModel'}
+                                    AllowSort={true}
+                                    Field={'ComponentModel'}
+                                    HeaderStyle={{ width: 'auto' }}
+                                    RowStyle={{ width: 'auto' }}
+                                > Component Model
+                                </ReactTable.Column>
+                                <ReactTable.Column<PQI.Types.Equipment>
+                                    Key={'Manufacturer'}
+                                    AllowSort={true}
+                                    Field={'Manufacturer'}
+                                    HeaderStyle={{ width: 'auto' }}
+                                    RowStyle={{ width: 'auto' }}
+                                > Manufacturer
+                                </ReactTable.Column>
+                                <ReactTable.Column<PQI.Types.Equipment>
+                                    Key={'Series'}
+                                    AllowSort={true}
+                                    Field={'Series'}
+                                    HeaderStyle={{ width: 'auto' }}
+                                    RowStyle={{ width: 'auto' }}
+                                > Series
+                                </ReactTable.Column>
+                                <ReactTable.Column<PQI.Types.Equipment>
+                                    Key={'ComponentType'}
+                                    AllowSort={true}
+                                    Field={'ComponentType'}
+                                    HeaderStyle={{ width: 'auto' }}
+                                    RowStyle={{ width: 'auto' }}
+                                > Component Type
+                                </ReactTable.Column>
+                            </ReactTable.Table>
                         </div>
                     </div>
                 </div>
@@ -79,6 +136,5 @@ const EventSearchPQI: EventWidget.IWidget<{}> = {
         );
     }
 }
-
 
 export default EventSearchPQI;

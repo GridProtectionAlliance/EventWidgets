@@ -69,7 +69,7 @@ const MatlabAnalyticResults: EventWidget.IWidget<{}> = {
             <div className="card">
                 <div className="card-header fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>Matlab Analytic Results</div>
                 <div className="card-body">
-                    <ReactTable.Table
+                    <ReactTable.Table<IMatlabAnalytics>
                         Data={data}
                         KeySelector={item => item.EventTagID}
                         OnSort={() => {/*Do Nothing*/ }}
@@ -79,7 +79,16 @@ const MatlabAnalyticResults: EventWidget.IWidget<{}> = {
                         TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', height: 50 }}
                         TbodyStyle={{ display: 'block', overflowY: 'scroll', width: '100%', maxHeight: props.MaxHeight ?? 500 }}
                         RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    />
+                    >
+                        <ReactTable.Column<IMatlabAnalytics>
+                            Key={'TagName'}
+                            AllowSort={true}
+                            Field={'TagName'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Tag Name
+                        </ReactTable.Column>
+                    </ReactTable.Table>
                 </div>
             </div>
         );

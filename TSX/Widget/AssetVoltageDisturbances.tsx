@@ -68,7 +68,7 @@ const AssetVoltageDisturbances: EventWidget.IWidget<{}> = {
                 <div className="card-header fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>
                     Voltage Disturbance in Waveform:</div>
                 <div className="card-body">
-                    <ReactTable.Table
+                    <ReactTable.Table<IDisturbanceData>
                         Data={data}
                         KeySelector={() => { return 1 } }
                         OnSort={() => {/*Do Nothing*/ }}
@@ -79,7 +79,59 @@ const AssetVoltageDisturbances: EventWidget.IWidget<{}> = {
                         TbodyStyle={{ display: 'block', overflowY: 'scroll', width: '100%', maxHeight: props.MaxHeight ?? 500 }}
                         RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                         Selected={(r) => r.IsWorstDisturbance}
-                    />
+                    >
+                        <ReactTable.Column<IDisturbanceData>
+                            Key={'EventType'}
+                            AllowSort={true}
+                            Field={'EventType'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Disturbance Type
+                        </ReactTable.Column>
+                        <ReactTable.Column<IDisturbanceData>
+                            Key={'Phase'}
+                            AllowSort={true}
+                            Field={'Phase'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Phase
+                        </ReactTable.Column>
+                        <ReactTable.Column<IDisturbanceData>
+                            Key={'PerUnitMagnitude'}
+                            AllowSort={true}
+                            Field={'PerUnitMagnitude'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                            Content={row => (row.item.PerUnitMagnitude * 100).toFixed(1)}
+                        > Magnitude (%)
+                        </ReactTable.Column>
+                        <ReactTable.Column<IDisturbanceData>
+                            Key={'DurationSeconds'}
+                            AllowSort={true}
+                            Field={'DurationSeconds'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                            Content={row => (row.item.DurationSeconds * 1000).toFixed(2)}
+                        > Duration (ms)
+                        </ReactTable.Column>
+                        <ReactTable.Column<IDisturbanceData>
+                            Key={'StartTime'}
+                            AllowSort={true}
+                            Field={'StartTime'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                            Content={row => moment(row.item.StartTime).format('HH:mm:ss.SSS')}
+                        > Start Time
+                        </ReactTable.Column>
+                        <ReactTable.Column<IDisturbanceData>
+                            Key={'SeverityCode'}
+                            AllowSort={true}
+                            Field={'SeverityCode'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Severity
+                        </ReactTable.Column>
+                    </ReactTable.Table>
                 </div>
             </div>
         );
