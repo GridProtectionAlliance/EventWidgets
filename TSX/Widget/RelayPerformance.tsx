@@ -118,7 +118,7 @@ const EventSearchRelayPerformance: EventWidget.IWidget<ISetting> = {
                     >
                         <ReactTable.Column<IRelayPerformanceTrend>
                             Key={'EventID'}
-                            AllowSort={true}
+                            AllowSort={false}
                             Field={'EventID'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
@@ -131,7 +131,7 @@ const EventSearchRelayPerformance: EventWidget.IWidget<ISetting> = {
                         </ReactTable.Column>
                         <ReactTable.Column<IRelayPerformanceTrend>
                             Key={'TripInitiate'}
-                            AllowSort={true}
+                            AllowSort={false}
                             Field={'TripInitiate'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
@@ -140,7 +140,7 @@ const EventSearchRelayPerformance: EventWidget.IWidget<ISetting> = {
                         </ReactTable.Column>
                         <ReactTable.Column<IRelayPerformanceTrend>
                             Key={'TripTime'}
-                            AllowSort={true}
+                            AllowSort={false}
                             Field={'TripTime'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
@@ -149,7 +149,7 @@ const EventSearchRelayPerformance: EventWidget.IWidget<ISetting> = {
                         </ReactTable.Column>
                         <ReactTable.Column<IRelayPerformanceTrend>
                             Key={'PickupTime'}
-                            AllowSort={true}
+                            AllowSort={false}
                             Field={'PickupTime'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
@@ -158,7 +158,7 @@ const EventSearchRelayPerformance: EventWidget.IWidget<ISetting> = {
                         </ReactTable.Column>
                         <ReactTable.Column<IRelayPerformanceTrend>
                             Key={'ExtinctionTimeA'}
-                            AllowSort={true}
+                            AllowSort={false}
                             Field={'ExtinctionTimeA'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
@@ -167,7 +167,7 @@ const EventSearchRelayPerformance: EventWidget.IWidget<ISetting> = {
                         </ReactTable.Column>
                         <ReactTable.Column<IRelayPerformanceTrend>
                             Key={'TripCoilCondition'}
-                            AllowSort={true}
+                            AllowSort={false}
                             Field={'TripCoilCondition'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
@@ -176,7 +176,7 @@ const EventSearchRelayPerformance: EventWidget.IWidget<ISetting> = {
                         </ReactTable.Column>
                         <ReactTable.Column<IRelayPerformanceTrend>
                             Key={'Imax1'}
-                            AllowSort={true}
+                            AllowSort={false}
                             Field={'Imax1'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
@@ -185,7 +185,7 @@ const EventSearchRelayPerformance: EventWidget.IWidget<ISetting> = {
                         </ReactTable.Column>
                         <ReactTable.Column<IRelayPerformanceTrend>
                             Key={'Imax2'}
-                            AllowSort={true}
+                            AllowSort={false}
                             Field={'Imax2'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}

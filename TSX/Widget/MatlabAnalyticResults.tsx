@@ -82,7 +82,7 @@ const MatlabAnalyticResults: EventWidget.IWidget<{}> = {
                     >
                         <ReactTable.Column<IMatlabAnalytics>
                             Key={'TagName'}
-                            AllowSort={true}
+                            AllowSort={false}
                             Field={'TagName'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}

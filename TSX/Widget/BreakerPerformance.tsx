@@ -144,7 +144,7 @@ const EventSearchBreakerPerformance: EventWidget.IWidget<{}> = {
                         >
                             <ReactTable.Column<IRelayPerformance>
                                 Key={'EventID'}
-                                AllowSort={true}
+                                AllowSort={false}
                                 Field={'EventID'}
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
@@ -152,7 +152,7 @@ const EventSearchBreakerPerformance: EventWidget.IWidget<{}> = {
                             </ReactTable.Column>
                             <ReactTable.Column<IRelayPerformance>
                                 Key={'EventType'}
-                                AllowSort={true}
+                                AllowSort={false}
                                 Field={'EventType'}
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
@@ -160,7 +160,7 @@ const EventSearchBreakerPerformance: EventWidget.IWidget<{}> = {
                             </ReactTable.Column>
                             <ReactTable.Column<IRelayPerformance>
                                 Key={'TripInitiate'}
-                                AllowSort={true}
+                                AllowSort={false}
                                 Field={'TripInitiate'}
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
@@ -169,7 +169,7 @@ const EventSearchBreakerPerformance: EventWidget.IWidget<{}> = {
                             </ReactTable.Column>
                             <ReactTable.Column<IRelayPerformance>
                                 Key={'TripCoilCondition'}
-                                AllowSort={true}
+                                AllowSort={false}
                                 Field={'TripCoilCondition'}
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
@@ -178,7 +178,7 @@ const EventSearchBreakerPerformance: EventWidget.IWidget<{}> = {
                             </ReactTable.Column>
                             <ReactTable.Column<IRelayPerformance>
                                 Key={'TripCoilConditionTime'}
-                                AllowSort={true}
+                                AllowSort={false}
                                 Field={'TripCoilConditionTime'}
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
@@ -187,7 +187,7 @@ const EventSearchBreakerPerformance: EventWidget.IWidget<{}> = {
                             </ReactTable.Column>
                             <ReactTable.Column<IRelayPerformance>
                                 Key={'Tend'}
-                                AllowSort={true}
+                                AllowSort={false}
                                 Field={'Tend'}
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
@@ -196,7 +196,7 @@ const EventSearchBreakerPerformance: EventWidget.IWidget<{}> = {
                             </ReactTable.Column>
                             <ReactTable.Column<IRelayPerformance>
                                 Key={'ExtinctionTimeA'}
-                                AllowSort={true}
+                                AllowSort={false}
                                 Field={'ExtinctionTimeA'}
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
@@ -205,7 +205,7 @@ const EventSearchBreakerPerformance: EventWidget.IWidget<{}> = {
                             </ReactTable.Column>
                             <ReactTable.Column<IRelayPerformance>
                                 Key={'ExtinctionTimeB'}
-                                AllowSort={true}
+                                AllowSort={false}
                                 Field={'ExtinctionTimeB'}
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
@@ -214,7 +214,7 @@ const EventSearchBreakerPerformance: EventWidget.IWidget<{}> = {
                             </ReactTable.Column>
                             <ReactTable.Column<IRelayPerformance>
                                 Key={'ExtinctionTimeC'}
-                                AllowSort={true}
+                                AllowSort={false}
                                 Field={'ExtinctionTimeC'}
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}

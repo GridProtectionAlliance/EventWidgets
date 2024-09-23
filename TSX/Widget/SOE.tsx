@@ -171,7 +171,7 @@ const SOE: EventWidget.IWidget<ISetting> = {
                         >
                             <ReactTable.Column<SOEInfo>
                                 Key={'Time'}
-                                AllowSort={true}
+                                AllowSort={false}
                                 Field={'Time'}
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
@@ -179,7 +179,7 @@ const SOE: EventWidget.IWidget<ISetting> = {
                             </ReactTable.Column>
                             <ReactTable.Column<SOEInfo>
                                 Key={'Alarm'}
-                                AllowSort={true}
+                                AllowSort={false}
                                 Field={'Alarm'}
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
@@ -187,7 +187,7 @@ const SOE: EventWidget.IWidget<ISetting> = {
                             </ReactTable.Column>
                             <ReactTable.Column<SOEInfo>
                                 Key={'Status'}
-                                AllowSort={true}
+                                AllowSort={false}
                                 Field={'Status'}
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}

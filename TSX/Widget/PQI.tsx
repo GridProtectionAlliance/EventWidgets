@@ -74,7 +74,7 @@ const EventSearchPQI: EventWidget.IWidget<{}> = {
                             >
                                 <ReactTable.Column<PQI.Types.Equipment>
                                     Key={'Facility'}
-                                    AllowSort={true}
+                                    AllowSort={false}
                                     Field={'Facility'}
                                     HeaderStyle={{ width: 'auto' }}
                                     RowStyle={{ width: 'auto' }}
@@ -82,7 +82,7 @@ const EventSearchPQI: EventWidget.IWidget<{}> = {
                                 </ReactTable.Column>
                                 <ReactTable.Column<PQI.Types.Equipment>
                                     Key={'Area'}
-                                    AllowSort={true}
+                                    AllowSort={false}
                                     Field={'Area'}
                                     HeaderStyle={{ width: 'auto' }}
                                     RowStyle={{ width: 'auto' }}
@@ -90,7 +90,7 @@ const EventSearchPQI: EventWidget.IWidget<{}> = {
                                 </ReactTable.Column>
                                 <ReactTable.Column<PQI.Types.Equipment>
                                     Key={'SectionTitle'}
-                                    AllowSort={true}
+                                    AllowSort={false}
                                     Field={'SectionTitle'}
                                     HeaderStyle={{ width: 'auto' }}
                                     RowStyle={{ width: 'auto' }}
@@ -98,7 +98,7 @@ const EventSearchPQI: EventWidget.IWidget<{}> = {
                                 </ReactTable.Column>
                                 <ReactTable.Column<PQI.Types.Equipment>
                                     Key={'ComponentModel'}
-                                    AllowSort={true}
+                                    AllowSort={false}
                                     Field={'ComponentModel'}
                                     HeaderStyle={{ width: 'auto' }}
                                     RowStyle={{ width: 'auto' }}
@@ -106,7 +106,7 @@ const EventSearchPQI: EventWidget.IWidget<{}> = {
                                 </ReactTable.Column>
                                 <ReactTable.Column<PQI.Types.Equipment>
                                     Key={'Manufacturer'}
-                                    AllowSort={true}
+                                    AllowSort={false}
                                     Field={'Manufacturer'}
                                     HeaderStyle={{ width: 'auto' }}
                                     RowStyle={{ width: 'auto' }}
@@ -114,7 +114,7 @@ const EventSearchPQI: EventWidget.IWidget<{}> = {
                                 </ReactTable.Column>
                                 <ReactTable.Column<PQI.Types.Equipment>
                                     Key={'Series'}
-                                    AllowSort={true}
+                                    AllowSort={false}
                                     Field={'Series'}
                                     HeaderStyle={{ width: 'auto' }}
                                     RowStyle={{ width: 'auto' }}
@@ -122,7 +122,7 @@ const EventSearchPQI: EventWidget.IWidget<{}> = {
                                 </ReactTable.Column>
                                 <ReactTable.Column<PQI.Types.Equipment>
                                     Key={'ComponentType'}
-                                    AllowSort={true}
+                                    AllowSort={false}
                                     Field={'ComponentType'}
                                     HeaderStyle={{ width: 'auto' }}
                                     RowStyle={{ width: 'auto' }}

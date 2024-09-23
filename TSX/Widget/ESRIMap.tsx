@@ -403,7 +403,7 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
                         >
                             <ReactTable.Column<ILightningStrike>
                                 Key={'Service'}
-                                AllowSort={true}
+                                AllowSort={false}
                                 Field={'Service'}
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
@@ -411,7 +411,7 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
                             </ReactTable.Column>
                             <ReactTable.Column<ILightningStrike>
                                 Key={'DisplayTime'}
-                                AllowSort={true}
+                                AllowSort={false}
                                 Field={'DisplayTime'}
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
@@ -419,7 +419,7 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
                             </ReactTable.Column>
                             <ReactTable.Column<ILightningStrike>
                                 Key={'Amplitude'}
-                                AllowSort={true}
+                                AllowSort={false}
                                 Field={'Amplitude'}
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
@@ -427,7 +427,7 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
                             </ReactTable.Column>
                             <ReactTable.Column<ILightningStrike>
                                 Key={'Latitude'}
-                                AllowSort={true}
+                                AllowSort={false}
                                 Field={'Latitude'}
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
@@ -435,7 +435,7 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
                             </ReactTable.Column>
                             <ReactTable.Column<ILightningStrike>
                                 Key={'Longitude'}
-                                AllowSort={true}
+                                AllowSort={false}
                                 Field={'Longitude'}
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}

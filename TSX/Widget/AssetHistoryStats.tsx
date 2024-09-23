@@ -118,7 +118,7 @@ const AssetHistoryStats: EventWidget.IWidget<{}> = {
                     >
                         <ReactTable.Column
                             Key={'Stat'}
-                            AllowSort={true}
+                            AllowSort={false}
                             Field={'Stat'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
@@ -126,7 +126,7 @@ const AssetHistoryStats: EventWidget.IWidget<{}> = {
                         </ReactTable.Column>
                         <ReactTable.Column
                             Key={'Value'}
-                            AllowSort={true}
+                            AllowSort={false}
                             Field={'Value'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}

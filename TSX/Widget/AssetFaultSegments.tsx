@@ -97,7 +97,7 @@ const EventSearchAssetFaultSegments: EventWidget.IWidget<{}> = {
                     >
                         <ReactTable.Column<IFaultSegment>
                             Key={'SegmentType'}
-                            AllowSort={true}
+                            AllowSort={false}
                             Field={'SegmentType'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
@@ -105,7 +105,7 @@ const EventSearchAssetFaultSegments: EventWidget.IWidget<{}> = {
                         </ReactTable.Column>
                         <ReactTable.Column<IFaultSegment>
                             Key={'StartTime'}
-                            AllowSort={true}
+                            AllowSort={false}
                             Field={'StartTime'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
@@ -114,7 +114,7 @@ const EventSearchAssetFaultSegments: EventWidget.IWidget<{}> = {
                         </ReactTable.Column>
                         <ReactTable.Column<IFaultSegment>
                             Key={'EndTime'}
-                            AllowSort={true}
+                            AllowSort={false}
                             Field={'EndTime'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}

@@ -83,7 +83,7 @@ const AssetVoltageDisturbances: EventWidget.IWidget<{}> = {
                     >
                         <ReactTable.Column<IDisturbanceData>
                             Key={'EventType'}
-                            AllowSort={true}
+                            AllowSort={false}
                             Field={'EventType'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
@@ -91,7 +91,7 @@ const AssetVoltageDisturbances: EventWidget.IWidget<{}> = {
                         </ReactTable.Column>
                         <ReactTable.Column<IDisturbanceData>
                             Key={'Phase'}
-                            AllowSort={true}
+                            AllowSort={false}
                             Field={'Phase'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
@@ -99,7 +99,7 @@ const AssetVoltageDisturbances: EventWidget.IWidget<{}> = {
                         </ReactTable.Column>
                         <ReactTable.Column<IDisturbanceData>
                             Key={'PerUnitMagnitude'}
-                            AllowSort={true}
+                            AllowSort={false}
                             Field={'PerUnitMagnitude'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
@@ -108,7 +108,7 @@ const AssetVoltageDisturbances: EventWidget.IWidget<{}> = {
                         </ReactTable.Column>
                         <ReactTable.Column<IDisturbanceData>
                             Key={'DurationSeconds'}
-                            AllowSort={true}
+                            AllowSort={false}
                             Field={'DurationSeconds'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
@@ -117,7 +117,7 @@ const AssetVoltageDisturbances: EventWidget.IWidget<{}> = {
                         </ReactTable.Column>
                         <ReactTable.Column<IDisturbanceData>
                             Key={'StartTime'}
-                            AllowSort={true}
+                            AllowSort={false}
                             Field={'StartTime'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
@@ -126,7 +126,7 @@ const AssetVoltageDisturbances: EventWidget.IWidget<{}> = {
                         </ReactTable.Column>
                         <ReactTable.Column<IDisturbanceData>
                             Key={'SeverityCode'}
-                            AllowSort={true}
+                            AllowSort={false}
                             Field={'SeverityCode'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}

@@ -126,17 +126,17 @@ const EventSearchFileInfo: EventWidget.IWidget<ISetting> = {
                         TbodyStyle={{ display: 'block', overflowY: 'scroll', width: '100%', maxHeight: props.MaxHeight ?? 500 }}
                         RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                     >
-                        <ReactTable.Column
+                        <ReactTable.Column<IMappedChannel>
                             Key={'Channel'}
-                            AllowSort={true}
+                            AllowSort={false}
                             Field={'Channel'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Channel
                         </ReactTable.Column>
-                        <ReactTable.Column
+                        <ReactTable.Column<IMappedChannel>
                             Key={'Mapping'}
-                            AllowSort={true}
+                            AllowSort={false}
                             Field={'Mapping'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}

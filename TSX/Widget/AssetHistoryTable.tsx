@@ -108,7 +108,7 @@ const AssetHistoryTable: EventWidget.IWidget<ISetting> = {
                     >
                         <ReactTable.Column
                             Key={'EventType'}
-                            AllowSort={true}
+                            AllowSort={false}
                             Field={'EventType'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
@@ -116,7 +116,7 @@ const AssetHistoryTable: EventWidget.IWidget<ISetting> = {
                         </ReactTable.Column>
                         <ReactTable.Column
                             Key={'StartTime'}
-                            AllowSort={true}
+                            AllowSort={false}
                             Field={'StartTime'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
@@ -125,7 +125,7 @@ const AssetHistoryTable: EventWidget.IWidget<ISetting> = {
                         </ReactTable.Column>
                         <ReactTable.Column
                             Key={'ID'}
-                            AllowSort={true}
+                            AllowSort={false}
                             Field={'ID'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}

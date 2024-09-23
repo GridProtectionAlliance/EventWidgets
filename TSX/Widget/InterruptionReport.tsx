@@ -113,7 +113,7 @@ const InterruptionReport: EventWidget.IWidget<{}> = {
                     >
                         <ReactTable.Column<IInterruption>
                             Key={'CircuitInfo'}
-                            AllowSort={true}
+                            AllowSort={false}
                             Field={'CircuitInfo'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
@@ -121,7 +121,7 @@ const InterruptionReport: EventWidget.IWidget<{}> = {
                         </ReactTable.Column>
                         <ReactTable.Column<IInterruption>
                             Key={'TimeOut'}
-                            AllowSort={true}
+                            AllowSort={false}
                             Field={'TimeOut'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
@@ -130,7 +130,7 @@ const InterruptionReport: EventWidget.IWidget<{}> = {
                         </ReactTable.Column>
                         <ReactTable.Column<IInterruption>
                             Key={'TimeIn'}
-                            AllowSort={true}
+                            AllowSort={false}
                             Field={'TimeIn'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
@@ -139,7 +139,7 @@ const InterruptionReport: EventWidget.IWidget<{}> = {
                         </ReactTable.Column>
                         <ReactTable.Column<IInterruption>
                             Key={'TotalTime'}
-                            AllowSort={true}
+                            AllowSort={false}
                             Field={'TimeIn'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
@@ -148,7 +148,7 @@ const InterruptionReport: EventWidget.IWidget<{}> = {
                         </ReactTable.Column>
                         <ReactTable.Column<IInterruption>
                             Key={'Class'}
-                            AllowSort={true}
+                            AllowSort={false}
                             Field={'Class'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
@@ -156,7 +156,7 @@ const InterruptionReport: EventWidget.IWidget<{}> = {
                         </ReactTable.Column>
                         <ReactTable.Column<IInterruption>
                             Key={'Area'}
-                            AllowSort={true}
+                            AllowSort={false}
                             Field={'Area'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
@@ -164,7 +164,7 @@ const InterruptionReport: EventWidget.IWidget<{}> = {
                         </ReactTable.Column>
                         <ReactTable.Column<IInterruption>
                             Key={'ReportNumber'}
-                            AllowSort={true}
+                            AllowSort={false}
                             Field={'ReportNumber'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
@@ -172,7 +172,7 @@ const InterruptionReport: EventWidget.IWidget<{}> = {
                         </ReactTable.Column>
                         <ReactTable.Column<IInterruption>
                             Key={'Explanation'}
-                            AllowSort={true}
+                            AllowSort={false}
                             Field={'Explanation'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}

@@ -240,7 +240,7 @@ const TVALightningChart: EventWidget.IWidget<{}> = {
                     >
                         <ReactTable.Column
                             Key={'service'}
-                            AllowSort={true}
+                            AllowSort={false}
                             Field={'service'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
@@ -248,7 +248,7 @@ const TVALightningChart: EventWidget.IWidget<{}> = {
                         </ReactTable.Column>
                         <ReactTable.Column
                             Key={'date'}
-                            AllowSort={true}
+                            AllowSort={false}
                             Field={'date'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
@@ -256,7 +256,7 @@ const TVALightningChart: EventWidget.IWidget<{}> = {
                         </ReactTable.Column>
                         <ReactTable.Column
                             Key={'totals'}
-                            AllowSort={true}
+                            AllowSort={false}
                             Field={'totals'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}

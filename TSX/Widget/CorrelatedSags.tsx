@@ -118,7 +118,7 @@ const EventSearchCorrelatedSags: EventWidget.IWidget<ISetting> = {
                     >
                         <ReactTable.Column<ITimeCorrelatedSags>
                             Key={'EventID'}
-                            AllowSort={true}
+                            AllowSort={false}
                             Field={'EventID'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
@@ -130,7 +130,7 @@ const EventSearchCorrelatedSags: EventWidget.IWidget<ISetting> = {
                         </ReactTable.Column>
                         <ReactTable.Column<ITimeCorrelatedSags>
                             Key={'EventType'}
-                            AllowSort={true}
+                            AllowSort={false}
                             Field={'EventType'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
@@ -138,7 +138,7 @@ const EventSearchCorrelatedSags: EventWidget.IWidget<ISetting> = {
                         </ReactTable.Column>
                         <ReactTable.Column<ITimeCorrelatedSags>
                             Key={'SagMagnitudePercent'}
-                            AllowSort={true}
+                            AllowSort={false}
                             Field={'SagMagnitudePercent'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
@@ -146,7 +146,7 @@ const EventSearchCorrelatedSags: EventWidget.IWidget<ISetting> = {
                         </ReactTable.Column>
                         <ReactTable.Column<ITimeCorrelatedSags>
                             Key={'SagDurationMilliseconds'}
-                            AllowSort={true}
+                            AllowSort={false}
                             Field={'SagDurationMilliseconds'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
@@ -155,7 +155,7 @@ const EventSearchCorrelatedSags: EventWidget.IWidget<ISetting> = {
                         </ReactTable.Column>
                         <ReactTable.Column<ITimeCorrelatedSags>
                             Key={'StartTime'}
-                            AllowSort={true}
+                            AllowSort={false}
                             Field={'StartTime'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
@@ -164,7 +164,7 @@ const EventSearchCorrelatedSags: EventWidget.IWidget<ISetting> = {
                         </ReactTable.Column>
                         <ReactTable.Column<ITimeCorrelatedSags>
                             Key={'MeterName'}
-                            AllowSort={true}
+                            AllowSort={false}
                             Field={'MeterName'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
@@ -172,7 +172,7 @@ const EventSearchCorrelatedSags: EventWidget.IWidget<ISetting> = {
                         </ReactTable.Column>
                         <ReactTable.Column<ITimeCorrelatedSags>
                             Key={'AssetName'}
-                            AllowSort={true}
+                            AllowSort={false}
                             Field={'AssetName'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}

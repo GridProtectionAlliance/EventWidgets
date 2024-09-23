@@ -91,7 +91,7 @@ const EventSearchCapBankAnalyticOverview: EventWidget.IWidget<{}> = {
                     >
                         <ReactTable.Column<ICapBankAnalytic>
                             Key={'Phase'}
-                            AllowSort={true}
+                            AllowSort={false}
                             Field={'Phase'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
@@ -99,7 +99,7 @@ const EventSearchCapBankAnalyticOverview: EventWidget.IWidget<{}> = {
                         </ReactTable.Column>
                         <ReactTable.Column<ICapBankAnalytic>
                             Key={'Status'}
-                            AllowSort={true}
+                            AllowSort={false}
                             Field={'Status'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
@@ -107,7 +107,7 @@ const EventSearchCapBankAnalyticOverview: EventWidget.IWidget<{}> = {
                         </ReactTable.Column>
                         <ReactTable.Column<ICapBankAnalytic>
                             Key={'Operation'}
-                            AllowSort={true}
+                            AllowSort={false}
                             Field={'Operation'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
@@ -115,7 +115,7 @@ const EventSearchCapBankAnalyticOverview: EventWidget.IWidget<{}> = {
                         </ReactTable.Column>
                         <ReactTable.Column<ICapBankAnalytic>
                             Key={'Resonance'}
-                            AllowSort={true}
+                            AllowSort={false}
                             Field={'Resonance'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
@@ -123,7 +123,7 @@ const EventSearchCapBankAnalyticOverview: EventWidget.IWidget<{}> = {
                         </ReactTable.Column>
                         <ReactTable.Column<ICapBankAnalytic>
                             Key={'Health'}
-                            AllowSort={true}
+                            AllowSort={false}
                             Field={'CapBankHealth'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
@@ -131,7 +131,7 @@ const EventSearchCapBankAnalyticOverview: EventWidget.IWidget<{}> = {
                         </ReactTable.Column>
                         <ReactTable.Column<ICapBankAnalytic>
                             Key={'Restrike'}
-                            AllowSort={true}
+                            AllowSort={false}
                             Field={'Restrike'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
@@ -139,7 +139,7 @@ const EventSearchCapBankAnalyticOverview: EventWidget.IWidget<{}> = {
                         </ReactTable.Column>
                         <ReactTable.Column<ICapBankAnalytic>
                             Key={'PIS'}
-                            AllowSort={true}
+                            AllowSort={false}
                             Field={'PreInsertionSwitch'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}

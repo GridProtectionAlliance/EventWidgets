@@ -122,7 +122,7 @@ const FaultInfo: EventWidget.IWidget<{}> = {
                     >
                         <ReactTable.Column<IFaultInfo>
                             Key={'Key'}
-                            AllowSort={true}
+                            AllowSort={false}
                             Field={'Key'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
@@ -130,7 +130,7 @@ const FaultInfo: EventWidget.IWidget<{}> = {
                         </ReactTable.Column>
                         <ReactTable.Column<IFaultInfo>
                             Key={'Value'}
-                            AllowSort={true}
+                            AllowSort={false}
                             Field={'Value'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
