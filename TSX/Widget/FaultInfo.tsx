@@ -126,7 +126,7 @@ const FaultInfo: EventWidget.IWidget<{}> = {
                             Field={'Key'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
-                        > &nbsp
+                        > {" "}
                         </ReactTable.Column>
                         <ReactTable.Column<IFaultInfo>
                             Key={'Value'}
@@ -134,7 +134,7 @@ const FaultInfo: EventWidget.IWidget<{}> = {
                             Field={'Value'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
-                        > &nbsp
+                        > {" "}
                         </ReactTable.Column>
                     </ReactTable.Table>
                 </div>

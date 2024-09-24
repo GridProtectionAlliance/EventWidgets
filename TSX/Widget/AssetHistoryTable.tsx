@@ -130,7 +130,7 @@ const AssetHistoryTable: EventWidget.IWidget<ISetting> = {
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                             Content={row => <a href={props.Settings.OpenSeeUrl + '?eventid=' + row.item.ID} target="_blank">View in OpenSEE</a>}
-                        > &nbsp
+                        > {" "}
                         </ReactTable.Column>
                     </ReactTable.Table>
                 </div>
