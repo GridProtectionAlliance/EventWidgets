@@ -107,7 +107,7 @@ const AssetHistoryStats: EventWidget.IWidget<{}> = {
                 <div className="card-body">
                     <ReactTable.Table
                         Data={Object.entries(statsData).map(([key, value]) => ({ Stat: key, Value: value }))}
-                        OnSort={() => {/*Do Nothing*/ }}
+                        OnSort={() => { /*Do Nothing*/ }}
                         KeySelector={(item) =>  item.Stat }
                         SortKey={''}
                         Ascending={true}
