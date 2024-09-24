@@ -108,7 +108,7 @@ const AssetHistoryStats: EventWidget.IWidget<{}> = {
                     <ReactTable.Table
                         Data={Object.entries(statsData).map(([key, value]) => ({ Stat: key, Value: value }))}
                         OnSort={() => {/*Do Nothing*/ }}
-                        KeySelector={(_item, index) => { return index; /* Note: index isn't a good key, but we have no better options at time of writing */ } }
+                        KeySelector={(item) =>  item.Stat }
                         SortKey={''}
                         Ascending={true}
                         TableClass="table"
