@@ -23,7 +23,7 @@
 
 import React from 'react';
 import { EventWidget } from '../global';
-import Table from '@gpa-gemstone/react-table';
+import { ReactTable } from '@gpa-gemstone/react-table';
 import { Select } from '@gpa-gemstone/react-forms';
 
 interface IStatsData {
@@ -105,20 +105,34 @@ const AssetHistoryStats: EventWidget.IWidget<{}> = {
                 </div>
             </div>
                 <div className="card-body">
-                    <Table
-                        cols={[
-                            { key: 'Stat', field: 'Stat', label: 'Stat' },
-                            { key: 'Value', field: 'Value', label: 'Value' }
-                        ]}
-                        data={Object.entries(statsData).map(([key, value]) => ({ Stat: key, Value: value }))}
-                        onSort={() => {/*Do Nothing*/ }}
-                        sortKey={''}
-                        ascending={true}
-                        tableClass="table"
-                        theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        tbodyStyle={{ display: 'block', overflowY: 'scroll', width: '100%', maxHeight: props.MaxHeight ?? 500 }}
-                        rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    />
+                    <ReactTable.Table
+                        Data={Object.entries(statsData).map(([key, value]) => ({ Stat: key, Value: value }))}
+                        OnSort={() => { /*Do Nothing*/ }}
+                        KeySelector={(item) =>  item.Stat }
+                        SortKey={''}
+                        Ascending={true}
+                        TableClass="table"
+                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        TbodyStyle={{ display: 'block', overflowY: 'scroll', width: '100%', maxHeight: props.MaxHeight ?? 500 }}
+                        RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                    >
+                        <ReactTable.Column
+                            Key={'Stat'}
+                            AllowSort={false}
+                            Field={'Stat'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Stat
+                        </ReactTable.Column>
+                        <ReactTable.Column
+                            Key={'Value'}
+                            AllowSort={false}
+                            Field={'Value'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Value
+                        </ReactTable.Column>
+                    </ReactTable.Table>
                 </div>
             </div>
         );

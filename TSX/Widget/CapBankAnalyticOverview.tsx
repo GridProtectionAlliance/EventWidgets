@@ -23,7 +23,7 @@
 
 import React from 'react';
 import { EventWidget } from '../global';
-import Table from '@gpa-gemstone/react-table';
+import { ReactTable } from '@gpa-gemstone/react-table';
 
 interface ICapBankAnalytic {
     ID: number,
@@ -77,26 +77,75 @@ const EventSearchCapBankAnalyticOverview: EventWidget.IWidget<{}> = {
                     EPRI Capacitor Bank Analytic:
                 </div>
                 <div className="card-body">
-                    <Table
-                        cols={[
-                            { key: 'Phase', field: 'Phase', label: 'Phase' },
-                            { key: 'Status', field: 'Status', label: 'Analysis Status' },
-                            { key: 'Operation', field: 'Operation', label: 'Capacitor Bank Operation' },
-                            { key: 'Resonance', field: 'Resonance', label: 'Resonance' },
-                            { key: 'Health', field: 'CapBankHealth', label: 'Capacitor Bank Health' },
-                            { key: 'Restrike', field: 'Restrike', label: 'Restrike' },
-                            { key: 'PIS', field: 'PreInsertionSwitch', label: 'PreInsertionSwitching Condition' }
-                        ]}
-                        data={data}
-                        onClick={() => { /* Do Nothing */ }}
-                        onSort={() => { /* Do Nothing */ }}
-                        sortKey={''}
-                        ascending={true}
-                        tableClass="table"
-                        theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', height: 50 }}
-                        tbodyStyle={{ display: 'block', overflowY: 'scroll', width: '100%', maxHeight: props.MaxHeight ?? 500 }}
-                        rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    />
+                    <ReactTable.Table<ICapBankAnalytic>
+                        Data={data}
+                        KeySelector={item => item.ID }
+                        OnClick={() => { /* Do Nothing */ }}
+                        OnSort={() => { /* Do Nothing */ }}
+                        SortKey={''}
+                        Ascending={true}
+                        TableClass="table"
+                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', height: 50 }}
+                        TbodyStyle={{ display: 'block', overflowY: 'scroll', width: '100%', maxHeight: props.MaxHeight ?? 500 }}
+                        RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                    >
+                        <ReactTable.Column<ICapBankAnalytic>
+                            Key={'Phase'}
+                            AllowSort={false}
+                            Field={'Phase'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Phase
+                        </ReactTable.Column>
+                        <ReactTable.Column<ICapBankAnalytic>
+                            Key={'Status'}
+                            AllowSort={false}
+                            Field={'Status'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Analysis Status
+                        </ReactTable.Column>
+                        <ReactTable.Column<ICapBankAnalytic>
+                            Key={'Operation'}
+                            AllowSort={false}
+                            Field={'Operation'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Capacitor Bank Operation
+                        </ReactTable.Column>
+                        <ReactTable.Column<ICapBankAnalytic>
+                            Key={'Resonance'}
+                            AllowSort={false}
+                            Field={'Resonance'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Resonance
+                        </ReactTable.Column>
+                        <ReactTable.Column<ICapBankAnalytic>
+                            Key={'Health'}
+                            AllowSort={false}
+                            Field={'CapBankHealth'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Capacitor Bank Health
+                        </ReactTable.Column>
+                        <ReactTable.Column<ICapBankAnalytic>
+                            Key={'Restrike'}
+                            AllowSort={false}
+                            Field={'Restrike'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Restrike
+                        </ReactTable.Column>
+                        <ReactTable.Column<ICapBankAnalytic>
+                            Key={'PIS'}
+                            AllowSort={false}
+                            Field={'PreInsertionSwitch'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > PreInsertionSwitching Condition
+                        </ReactTable.Column>
+                    </ReactTable.Table>
                 </div>
             </div>
         );

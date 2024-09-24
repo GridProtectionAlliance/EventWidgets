@@ -43,12 +43,13 @@ namespace Widgets.Controllers
                     SELECT 
                         EventType.Name as EventType,
                         Phase.Name as Phase,
+                        Disturbance.ID,
                         Disturbance.PerUnitMagnitude,
                         Disturbance.DurationSeconds,
                         Disturbance.StartTime,
                         DisturbanceSeverity.SeverityCode,
                         CASE 
-                            WHEN Disturbance.ID = EventWorstDisturbance.WorstDisturbanceID THEN 1
+                            WHEN Disturbance.ID in (SELECT WorstDisturbanceID FROM EventWorstDisturbance WHERE EventWorstDisturbance.EventID = {0}) THEN 1
                             ELSE 0
                         END as IsWorstDisturbance
                     FROM 
@@ -56,7 +57,6 @@ namespace Widgets.Controllers
                         JOIN Phase ON Disturbance.PhaseID = Phase.ID 
                         JOIN EventType ON Disturbance.EventTypeID = EventType.ID 
                         JOIN DisturbanceSeverity ON Disturbance.ID = DisturbanceSeverity.DisturbanceID
-                        JOIN EventWorstDisturbance ON Disturbance.EventID = EventWorstDisturbance.EventID
                     WHERE
                         Phase.Name != 'WORST' AND  
                         Disturbance.EventID = {0}

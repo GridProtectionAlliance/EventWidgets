@@ -24,7 +24,7 @@
 import React from 'react';
 import moment from 'moment';
 import { EventWidget } from '../global';
-import Table from '@gpa-gemstone/react-table';
+import { ReactTable } from '@gpa-gemstone/react-table';
 import { Select, Input } from '@gpa-gemstone/react-forms';
 
 interface ISetting { OpenSeeUrl: string}
@@ -95,21 +95,44 @@ const AssetHistoryTable: EventWidget.IWidget<ISetting> = {
                     </div>
                 </div>
                 <div className="card-body">
-                    <Table
-                        cols={[
-                            { key: 'EventType', field: 'EventType', label: 'Event Type' },
-                            { key: 'Date', field: 'StartTime', label: 'Date', content: (d) => moment(d.StartTime).format('MM/DD/YYYY HH:mm:ss.SSS') },
-                            { key: 'Link', field: 'ID', label: '', content: (d) => <a href={props.Settings.OpenSeeUrl + '?eventid=' + d.ID} target="_blank">View in OpenSEE</a> },
-                        ]}
-                        data={historyData}
-                        onSort={() => {/*Do Nothing*/ }}
-                        sortKey={''}
-                        ascending={true}
-                        tableClass="table"
-                        theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', height: 50 }}
-                        tbodyStyle={{ display: 'block', overflowY: 'scroll', width: '100%', maxHeight: props.MaxHeight ?? 500 }}
-                        rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    />
+                    <ReactTable.Table
+                        Data={historyData}
+                        KeySelector={item => item.ID }
+                        OnSort={() => {/*Do Nothing*/ }}
+                        SortKey={''}
+                        Ascending={true}
+                        TableClass="table"
+                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', height: 50 }}
+                        TbodyStyle={{ display: 'block', overflowY: 'scroll', width: '100%', maxHeight: props.MaxHeight ?? 500 }}
+                        RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                    >
+                        <ReactTable.Column
+                            Key={'EventType'}
+                            AllowSort={false}
+                            Field={'EventType'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Event Type
+                        </ReactTable.Column>
+                        <ReactTable.Column
+                            Key={'StartTime'}
+                            AllowSort={false}
+                            Field={'StartTime'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                            Content={row => moment(row.item.StartTime).format('MM/DD/YYYY HH:mm:ss.SSS')}
+                        > Date
+                        </ReactTable.Column>
+                        <ReactTable.Column
+                            Key={'ID'}
+                            AllowSort={false}
+                            Field={'ID'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                            Content={row => <a href={props.Settings.OpenSeeUrl + '?eventid=' + row.item.ID} target="_blank">View in OpenSEE</a>}
+                        > {" "}
+                        </ReactTable.Column>
+                    </ReactTable.Table>
                 </div>
             </div>
         );

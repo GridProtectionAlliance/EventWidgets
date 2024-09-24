@@ -43,7 +43,7 @@ namespace Widgets.Controllers
 
                     const string SQL = @"
                         SELECT
-	                        Service, DisplayTime, Amplitude, Latitude,Longitude
+	                        LightningStrike.ID, Service, DisplayTime, Amplitude, Latitude,Longitude
                         FROM
 	                        LightningStrike JOIN
 	                        Event ON LightningStrike.EventID = Event.ID JOIN

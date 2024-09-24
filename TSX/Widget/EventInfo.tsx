@@ -51,11 +51,8 @@ interface IStat {
     IsTime: boolean;
 }
 
-
-
 const momentDateFormat = "MM/DD/YYYY";
 const momentTimeFormat = "HH:mm:ss.SSS";
-
 
 const EventInfo: EventWidget.IWidget<{}> = {
     Name: 'EventInfo',
@@ -163,7 +160,7 @@ const EventInfo: EventWidget.IWidget<{}> = {
                         RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
                         Selected={() => false}
                         KeySelector={(item) => item.Stat}
-                        OnSort={(d) => {}}
+                        OnSort={() => { /* Nothing */ } }
                     >
                         <ReactTable.Column<IStat>
                             Key={'Stat'}

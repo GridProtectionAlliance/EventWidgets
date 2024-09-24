@@ -22,10 +22,11 @@
 //******************************************************************************************************
 import React from 'react';
 import moment from 'moment';
-import Table from '@gpa-gemstone/react-table';
+import { ReactTable } from '@gpa-gemstone/react-table';
 import { EventWidget } from '../global';
 
 interface IDisturbanceData {
+    ID: number;
     EventType: string;
     Phase: string;
     PerUnitMagnitude: number;
@@ -68,25 +69,70 @@ const AssetVoltageDisturbances: EventWidget.IWidget<{}> = {
                 <div className="card-header fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>
                     Voltage Disturbance in Waveform:</div>
                 <div className="card-body">
-                    <Table
-                        cols={[
-                            { key: 'EventType', field: 'EventType', label: 'Disturbance Type' },
-                            { key: 'Phase', field: 'Phase', label: 'Phase' },
-                            { key: 'PerUnitMagnitude', field: 'PerUnitMagnitude', label: 'Magnitude (%)', content: (r) => (r.PerUnitMagnitude * 100).toFixed(1), },
-                            { key: 'DurationSeconds', field: 'DurationSeconds', label: 'Duration (ms)', content: (r) => (r.DurationSeconds * 1000).toFixed(2), },
-                            { key: 'StartTime', field: 'StartTime', label: 'Start Time', content: (r) => moment(r.StartTime).format('HH:mm:ss.SSS') },
-                            { key: 'SeverityCode', field: 'SeverityCode', label: 'Severity' },
-                        ]}
-                        data={data}
-                        onSort={() => {/*Do Nothing*/ }}
-                        sortKey={''}
-                        ascending={true}
-                        tableClass="table"
-                        theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', height: 50 }}
-                        tbodyStyle={{ display: 'block', overflowY: 'scroll', width: '100%', maxHeight: props.MaxHeight ?? 500 }}
-                        rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        selected={(r) => r.IsWorstDisturbance}
-                    />
+                    <ReactTable.Table<IDisturbanceData>
+                        Data={data}
+                        KeySelector={(item) => item.ID }
+                        OnSort={() => {/*Do Nothing*/ }}
+                        SortKey={''}
+                        Ascending={true}
+                        TableClass="table"
+                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', height: 50 }}
+                        TbodyStyle={{ display: 'block', overflowY: 'scroll', width: '100%', maxHeight: props.MaxHeight ?? 500 }}
+                        RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        Selected={(r) => r.IsWorstDisturbance}
+                    >
+                        <ReactTable.Column<IDisturbanceData>
+                            Key={'EventType'}
+                            AllowSort={false}
+                            Field={'EventType'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Disturbance Type
+                        </ReactTable.Column>
+                        <ReactTable.Column<IDisturbanceData>
+                            Key={'Phase'}
+                            AllowSort={false}
+                            Field={'Phase'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Phase
+                        </ReactTable.Column>
+                        <ReactTable.Column<IDisturbanceData>
+                            Key={'PerUnitMagnitude'}
+                            AllowSort={false}
+                            Field={'PerUnitMagnitude'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                            Content={row => (row.item.PerUnitMagnitude * 100).toFixed(1)}
+                        > Magnitude (%)
+                        </ReactTable.Column>
+                        <ReactTable.Column<IDisturbanceData>
+                            Key={'DurationSeconds'}
+                            AllowSort={false}
+                            Field={'DurationSeconds'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                            Content={row => (row.item.DurationSeconds * 1000).toFixed(2)}
+                        > Duration (ms)
+                        </ReactTable.Column>
+                        <ReactTable.Column<IDisturbanceData>
+                            Key={'StartTime'}
+                            AllowSort={false}
+                            Field={'StartTime'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                            Content={row => moment(row.item.StartTime).format('HH:mm:ss.SSS')}
+                        > Start Time
+                        </ReactTable.Column>
+                        <ReactTable.Column<IDisturbanceData>
+                            Key={'SeverityCode'}
+                            AllowSort={false}
+                            Field={'SeverityCode'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Severity
+                        </ReactTable.Column>
+                    </ReactTable.Table>
                 </div>
             </div>
         );

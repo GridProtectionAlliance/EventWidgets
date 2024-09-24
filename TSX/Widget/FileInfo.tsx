@@ -23,10 +23,16 @@
 
 import React from 'react';
 import { EventWidget } from '../global';
-import Table from '@gpa-gemstone/react-table';
+import { ReactTable } from '@gpa-gemstone/react-table';
 import { Input } from '@gpa-gemstone/react-forms';
 
 interface ISetting { SystemCenterUrl: string }
+
+interface IMappedChannel {
+    ID: number,
+    Channel: string,
+    Mapping: string
+}
 
 const EventSearchFileInfo: EventWidget.IWidget<ISetting> = {
     Name: 'FileInfo',
@@ -45,7 +51,7 @@ const EventSearchFileInfo: EventWidget.IWidget<ISetting> = {
     },
     Widget: (props: EventWidget.IWidgetProps<ISetting>) => {
         const [fileName, setFileName] = React.useState<string>('');
-        const [mappedChannels, setMappedChannels] = React.useState<Array<{ Channel: string, Mapping: string }>>([]);
+        const [mappedChannels, setMappedChannels] = React.useState<Array<IMappedChannel>>([]);
         const [meterKey, setMeterKey] = React.useState<string>('');
         const [meterConfigurationID, setMeterConfigurationID] = React.useState<number>(0);
 
@@ -108,21 +114,35 @@ const EventSearchFileInfo: EventWidget.IWidget<ISetting> = {
 
                 <div className="card-body">
                     <p>{fileName}</p>
-                    <Table
-                        cols={[
-                            { key: 'channel', field: 'Channel', label: 'Channel' },
-                            { key: 'mapping', field: 'Mapping', label: 'Mapping' },
-                        ]}
-                        data={mappedChannels}
-                        onClick={() => { /* Do Nothing */ }}
-                        onSort={() => { /* Do Nothing */ }}
-                        sortKey={''}
-                        ascending={true}
-                        tableClass="table"
-                        theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        tbodyStyle={{ display: 'block', overflowY: 'scroll', width: '100%', maxHeight: props.MaxHeight ?? 500 }}
-                        rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    />
+                    <ReactTable.Table<IMappedChannel>
+                        Data={mappedChannels}
+                        OnClick={() => { /* Do Nothing */ }}
+                        OnSort={() => { /* Do Nothing */ }}
+                        SortKey={''}
+                        KeySelector={(item) => item.ID }
+                        Ascending={true}
+                        TableClass="table"
+                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        TbodyStyle={{ display: 'block', overflowY: 'scroll', width: '100%', maxHeight: props.MaxHeight ?? 500 }}
+                        RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                    >
+                        <ReactTable.Column<IMappedChannel>
+                            Key={'Channel'}
+                            AllowSort={false}
+                            Field={'Channel'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Channel
+                        </ReactTable.Column>
+                        <ReactTable.Column<IMappedChannel>
+                            Key={'Mapping'}
+                            AllowSort={false}
+                            Field={'Mapping'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Mapping
+                        </ReactTable.Column>
+                    </ReactTable.Table>
                 </div>
             </div>
         );

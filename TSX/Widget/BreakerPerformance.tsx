@@ -23,7 +23,7 @@
 import * as React from 'react';
 import moment from 'moment';
 import { LineWithThreshold, Plot } from '@gpa-gemstone/react-graph';
-import Table from '@gpa-gemstone/react-table';
+import { ReactTable } from '@gpa-gemstone/react-table';
 import { RandomColor } from '@gpa-gemstone/helper-functions';
 import { EventWidget } from '../global';
 
@@ -130,28 +130,98 @@ const EventSearchBreakerPerformance: EventWidget.IWidget<{}> = {
                                 />
                             </Plot>
                         </div> : null}
-                        <Table
-                            cols={[
-                                { key: 'EventID', field: 'EventID', label: 'Event ID' },
-                                { key: 'EventType', field: 'EventType', label: 'Type' },
-                                { key: 'TripInitiate', label: 'Trip Initiation', content: (d) => moment(d.TripInitiate).format('MM/DD/YY HH:mm:ss.SSSS') },
-                                { key: 'TripCoilCondition', field: 'TripCoilCondition', label: 'Trip Coil Condition', content: (d) => `${d.TripCoilCondition.toFixed(2)} A/s` },
-                                { key: 'TripCoilConditionTime', field: 'TripCoilConditionTime', label: 'Tril Coil Condition Time', content: (d) => `${(d.TripCoilConditionTime / 10).toFixed(0)}` },
-                                { key: 'Tend', field: 'Tend', label: 'TCE Curr. Extinction', content: (d) => `${(d.Tend / 10).toFixed(0)}` },
-                                { key: 'ExtinctionTimeA', field: 'ExtinctionTimeA', label: 'Arc Time A', content: (d) => `${(d.ExtinctionTimeA / 10).toFixed(0)}` },
-                                { key: 'ExtinctionTimeB', field: 'ExtinctionTimeB', label: 'Arc Time B', content: (d) => `${(d.ExtinctionTimeB / 10).toFixed(0)}` },
-                                { key: 'ExtinctionTimeC', field: 'ExtinctionTimeC', label: 'Arc Time C', content: (d) => `${(d.ExtinctionTimeC / 10).toFixed(0)}` }
-                            ]}
-                            data={data}
-                            onClick={() => { /* Do Nothing */ }}
-                            onSort={() => { /* Do Nothing */ }}
-                            sortKey={''}
-                            ascending={true}
-                            tableClass="table"
-                            theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', height: 50 }}
-                            tbodyStyle={{ display: 'block', overflowY: 'scroll', width: '100%', maxHeight: props.MaxHeight ?? 500 }}
-                            rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        />
+                        <ReactTable.Table<IRelayPerformance>
+                            Data={data}
+                            KeySelector={item => item.EventID}
+                            OnClick={() => { /* Do Nothing */ }}
+                            OnSort={() => { /* Do Nothing */ }}
+                            SortKey={''}
+                            Ascending={true}
+                            TableClass="table"
+                            TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', height: 50 }}
+                            TbodyStyle={{ display: 'block', overflowY: 'scroll', width: '100%', maxHeight: props.MaxHeight ?? 500 }}
+                            RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        >
+                            <ReactTable.Column<IRelayPerformance>
+                                Key={'EventID'}
+                                AllowSort={false}
+                                Field={'EventID'}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                            > Event ID
+                            </ReactTable.Column>
+                            <ReactTable.Column<IRelayPerformance>
+                                Key={'EventType'}
+                                AllowSort={false}
+                                Field={'EventType'}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                            > Type
+                            </ReactTable.Column>
+                            <ReactTable.Column<IRelayPerformance>
+                                Key={'TripInitiate'}
+                                AllowSort={false}
+                                Field={'TripInitiate'}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                                Content={row => moment(row.item.TripInitiate).format('MM/DD/YY HH:mm:ss.SSSS')}
+                            > Trip Initiation
+                            </ReactTable.Column>
+                            <ReactTable.Column<IRelayPerformance>
+                                Key={'TripCoilCondition'}
+                                AllowSort={false}
+                                Field={'TripCoilCondition'}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                                Content={row => `${row.item.TripCoilCondition.toFixed(2)} A/s`}
+                            > Trip Coil Condition
+                            </ReactTable.Column>
+                            <ReactTable.Column<IRelayPerformance>
+                                Key={'TripCoilConditionTime'}
+                                AllowSort={false}
+                                Field={'TripCoilConditionTime'}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                                Content={row => `${(row.item.TripCoilConditionTime / 10).toFixed(0)}`}
+                            > Tril Coil Condition Time
+                            </ReactTable.Column>
+                            <ReactTable.Column<IRelayPerformance>
+                                Key={'Tend'}
+                                AllowSort={false}
+                                Field={'Tend'}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                                Content={row => `${(row.item.Tend / 10).toFixed(0)}`}
+                            > TCE Curr. Extinction
+                            </ReactTable.Column>
+                            <ReactTable.Column<IRelayPerformance>
+                                Key={'ExtinctionTimeA'}
+                                AllowSort={false}
+                                Field={'ExtinctionTimeA'}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                                Content={row => `${(row.item.ExtinctionTimeA / 10).toFixed(0)}`}
+                            > Arc Time A
+                            </ReactTable.Column>
+                            <ReactTable.Column<IRelayPerformance>
+                                Key={'ExtinctionTimeB'}
+                                AllowSort={false}
+                                Field={'ExtinctionTimeB'}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                                Content={row => `${(row.item.ExtinctionTimeB / 10).toFixed(0)}`}
+                            > Arc Time B
+                            </ReactTable.Column>
+                            <ReactTable.Column<IRelayPerformance>
+                                Key={'ExtinctionTimeC'}
+                                AllowSort={false}
+                                Field={'ExtinctionTimeC'}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                                Content={row => `${(row.item.ExtinctionTimeC / 10).toFixed(0)}`}
+                            > Arc Time C
+                            </ReactTable.Column>
+                        </ReactTable.Table>
                     </div>
                 </div>
             </>
