@@ -26,7 +26,7 @@ import { EventWidget } from '../global';
 import { Input, MultiCheckBoxSelect, Select } from '@gpa-gemstone/react-forms';
 import { ReactTable }  from '@gpa-gemstone/react-table';
 import cloneDeep from 'lodash/cloneDeep';
-import { TrashCan } from '@gpa-gemstone/gpa-symbols';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import _ from 'lodash';
 
 interface IValue {
@@ -40,22 +40,22 @@ interface ItoaInfo {
     Station: string
 }
 interface ISetting {
-    FilterOut: string[]
+    Filter: string[]
 }
 
 const ITOA: EventWidget.IWidget<ISetting> = {
     Name: 'ITOA',
     DefaultSettings: {
-        FilterOut: []
+        Filter: []
     },
     Settings: (props) => {
         const [val, setVal] = React.useState<{ Value: string }[]>([]);
 
         React.useEffect(() => {
-            if (props.Settings.FilterOut == undefined)
+            if (props.Settings.Filter == undefined)
                 return;
-            setVal(props.Settings.FilterOut.map(t => ({ Value: t })))
-        }, [props.Settings.FilterOut]);
+            setVal(props.Settings.Filter.map(t => ({ Value: t })))
+        }, [props.Settings.Filter]);
         
         return <>
             
@@ -66,48 +66,50 @@ const ITOA: EventWidget.IWidget<ISetting> = {
                         Record={item}
                         Field={'Value'}
                         Setter={(record) => {
-                            const u = _.cloneDeep(props.Settings.FilterOut);
+                            const u = _.cloneDeep(props.Settings.Filter);
                             u[i] = record.Value;
-                            props.SetSettings({ FilterOut: u })
+                            props.SetSettings({ Filter: u })
                         }}
                         Valid={() => true}
-                            Label={'Filter' + i} />
+                            Label={'Cause Code ' + i} />
                     </div>
-                    <div className="col-6">
+                    <div className="col-6 m-auto">
                     <button className="btn btn-small btn-danger" onClick={() => {
-                        const u = _.cloneDeep(props.Settings.FilterOut);
+                        const u = _.cloneDeep(props.Settings.Filter);
                         u.splice(i, 1);
-                        props.SetSettings({ FilterOut: u })
-                    }}>{TrashCan}</button>
+                        props.SetSettings({ Filter: u })
+                    }}><ReactIcons.TrashCan/></button>
                 </div> </div>)}
             
             <div className="row">
                 <div className="col">
                     <button className="btn btn-primary" onClick={() => {
-                        const u = _.cloneDeep(props.Settings.FilterOut);
+                        const u = _.cloneDeep(props.Settings.Filter);
                         u.push('');
-                        props.SetSettings({ FilterOut: u })
+                        props.SetSettings({ Filter: u })
                     }}>Add Cause Filter</button>
                 </div>
             </div>
         </>
     },
     Widget: (props: EventWidget.IWidgetProps<ISetting>) => {
-        const [soeInfo, setSOEInfo] = React.useState<ItoaInfo[]>([]);
-        const [statusFilter, setStatusFilter] = React.useState<string[]>([])
+        const [data, setData] = React.useState<ItoaInfo[]>([]);
+        const [causeFilter, setCauseFilter] = React.useState<string[]>([])
         const [timeWindow, setTimeWindow] = React.useState<number>(2);
         const [filterOptions, setFilterOptions] = React.useState<{ Value: number, Text: string, Selected: boolean}[]>([])
 
         React.useEffect(() => {
-            setFilterOptions(props.Settings.FilterOut.map((f, i) => ({ Value: i, Text: f.toLowerCase(), Selected: false })))
-        }, [props.Settings.FilterOut]);
+            setFilterOptions(props.Settings.Filter.map((f, i) => ({ Value: i, Text: f.toLowerCase(), Selected: false })))
+            setCauseFilter(props.Settings.Filter.map(f => f.toLowerCase()));
+        }, [props.Settings.Filter]);
 
         React.useEffect(() => {
-            setFilterOptions((d) => d.map(f => ({ ...f, Selected: statusFilter.includes(f.Text) })));
-        }, [statusFilter])
+            setFilterOptions((d) => d.map(f => ({ ...f, Selected: causeFilter.includes(f.Text) })));
+        }, [causeFilter])
+
         React.useEffect(() => {
             return GetData();
-        }, [props.EventID, timeWindow, statusFilter]);
+        }, [props.EventID, timeWindow, causeFilter]);
 
         function GetData() {
             const handle = $.ajax({
@@ -117,10 +119,13 @@ const ITOA: EventWidget.IWidget<ISetting> = {
                 dataType: 'json',
                 cache: true,
                 async: true
-            });
+            }) as JQuery.jqXHR<ItoaInfo[]>;
 
-            handle.done(data => {
-                setSOEInfo(data.filter(si => !statusFilter.includes(si.Status.toLowerCase())));
+            handle.done(d => { 
+                if (causeFilter.length == 0)
+                    setData(d);
+                else
+                    setData(d.filter(si => causeFilter.includes(si.Cause.toLowerCase())));
             });
 
             return function () {
@@ -150,19 +155,19 @@ const ITOA: EventWidget.IWidget<ISetting> = {
                         <div className='col-8'>
                             <MultiCheckBoxSelect
                                 Options={filterOptions}
-                                Label={'Filter Out Causes: '}
+                                Label={'Filter Causes: '}
                                 OnChange={(evt, options) => {
-                                    const filters = cloneDeep(statusFilter)
+                                    const filters = cloneDeep(causeFilter)
                                     const remove = options.filter(o => o.Selected).map(o => o.Text)
                                     const add = options.filter(o => !o.Selected).map(o => o.Text);
-                                    setStatusFilter(filters.filter(t => !remove.includes(t)).concat(add))
+                                    setCauseFilter(filters.filter(t => !remove.includes(t)).concat(add))
                                 }} />
                         </div>
 
                     </div>
                     <div style={{ maxHeight: 200, overflowY: 'auto' }}>
                         <ReactTable.Table<ItoaInfo>
-                            Data={soeInfo}
+                            Data={data}
                             OnSort={() => { /*Do Nothing*/ }}
                             SortKey={''}
                             Ascending={true}
