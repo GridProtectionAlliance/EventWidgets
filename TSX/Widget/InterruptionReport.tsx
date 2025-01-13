@@ -21,7 +21,7 @@
 //
 //******************************************************************************************************
 
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { Table, Column } from '@gpa-gemstone/react-table';
 import { Select } from '@gpa-gemstone/react-forms';
 import moment from 'moment';
 import React from 'react';
@@ -100,7 +100,7 @@ const InterruptionReport: EventWidget.IWidget<{}> = {
                     </div>
                 </div>
                 <div className="card-body">
-                    <ReactTable.Table<IInterruption>
+                    <Table<IInterruption>
                         KeySelector={item => item.ReportNumber}
                         Data={data}
                         OnSort={() => {/*Do Nothing*/ }}
@@ -111,15 +111,15 @@ const InterruptionReport: EventWidget.IWidget<{}> = {
                         TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: props.MaxHeight ?? 500, width: '100%' }}
                         RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                     >
-                        <ReactTable.Column<IInterruption>
+                        <Column<IInterruption>
                             Key={'CircuitInfo'}
                             AllowSort={false}
                             Field={'CircuitInfo'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Substation Ckt
-                        </ReactTable.Column>
-                        <ReactTable.Column<IInterruption>
+                        </Column>
+                        <Column<IInterruption>
                             Key={'TimeOut'}
                             AllowSort={false}
                             Field={'TimeOut'}
@@ -127,8 +127,8 @@ const InterruptionReport: EventWidget.IWidget<{}> = {
                             RowStyle={{ width: 'auto' }}
                             Content={row => (row.item.TimeIn == null && row.item.TimeOut != null ? moment(row.item.TimeOut).format("HH:mm") : null)}
                         > Time Out
-                        </ReactTable.Column>
-                        <ReactTable.Column<IInterruption>
+                        </Column>
+                        <Column<IInterruption>
                             Key={'TimeIn'}
                             AllowSort={false}
                             Field={'TimeIn'}
@@ -136,8 +136,8 @@ const InterruptionReport: EventWidget.IWidget<{}> = {
                             RowStyle={{ width: 'auto' }}
                             Content={row => (row.item.TimeIn == null ? null : moment(row.item.TimeIn).format("HH:mm"))}
                         > Time In
-                        </ReactTable.Column>
-                        <ReactTable.Column<IInterruption>
+                        </Column>
+                        <Column<IInterruption>
                             Key={'TotalTime'}
                             AllowSort={false}
                             Field={'TimeIn'}
@@ -145,40 +145,40 @@ const InterruptionReport: EventWidget.IWidget<{}> = {
                             RowStyle={{ width: 'auto' }}
                             Content={row => (row.item.TimeOut == null || row.item.TimeIn == null ? null : formatDif(row.item.TimeOut, row.item.TimeIn))}
                         > Total Time
-                        </ReactTable.Column>
-                        <ReactTable.Column<IInterruption>
+                        </Column>
+                        <Column<IInterruption>
                             Key={'Class'}
                             AllowSort={false}
                             Field={'Class'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Class Type
-                        </ReactTable.Column>
-                        <ReactTable.Column<IInterruption>
+                        </Column>
+                        <Column<IInterruption>
                             Key={'Area'}
                             AllowSort={false}
                             Field={'Area'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Affected Area/District
-                        </ReactTable.Column>
-                        <ReactTable.Column<IInterruption>
+                        </Column>
+                        <Column<IInterruption>
                             Key={'ReportNumber'}
                             AllowSort={false}
                             Field={'ReportNumber'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Report
-                        </ReactTable.Column>
-                        <ReactTable.Column<IInterruption>
+                        </Column>
+                        <Column<IInterruption>
                             Key={'Explanation'}
                             AllowSort={false}
                             Field={'Explanation'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Explanation
-                        </ReactTable.Column>
-                    </ReactTable.Table>
+                        </Column>
+                    </Table>
                 </div>
             </div>
         );

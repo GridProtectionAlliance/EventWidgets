@@ -25,7 +25,7 @@ import React from 'react';
 import { scaleLinear, line, extent, select, axisLeft } from 'd3';
 import moment from 'moment';
 import { EventWidget } from '../global';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { Table, Column } from '@gpa-gemstone/react-table';
 
 const TVALightningChart: EventWidget.IWidget<{}> = {
     Name: 'Lightning',
@@ -215,7 +215,7 @@ const TVALightningChart: EventWidget.IWidget<{}> = {
                         </g>
 
                     </svg>
-                    <ReactTable.Table
+                    <Table
                         Data={Object.keys(tableData).filter(key => key != 'Day').map((key) => {
                             return {
                                 key: key,
@@ -238,31 +238,31 @@ const TVALightningChart: EventWidget.IWidget<{}> = {
                         TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: props.MaxHeight ?? 500, width: '100%' }}
                         RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                     >
-                        <ReactTable.Column
+                        <Column
                             Key={'service'}
                             AllowSort={false}
                             Field={'service'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Service
-                        </ReactTable.Column>
-                        <ReactTable.Column
+                        </Column>
+                        <Column
                             Key={'date'}
                             AllowSort={false}
                             Field={'date'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > {moment.unix(xcoord).format('MM/DD')}
-                        </ReactTable.Column>
-                        <ReactTable.Column
+                        </Column>
+                        <Column
                             Key={'totals'}
                             AllowSort={false}
                             Field={'totals'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Totals
-                        </ReactTable.Column>
-                    </ReactTable.Table>
+                        </Column>
+                    </Table>
                 </div>
             </div>
         );

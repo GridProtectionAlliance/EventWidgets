@@ -23,7 +23,7 @@
 import * as React from 'react';
 import moment from 'moment';
 import { LineWithThreshold, Plot } from '@gpa-gemstone/react-graph';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { Table, Column } from '@gpa-gemstone/react-table';
 import { RandomColor } from '@gpa-gemstone/helper-functions';
 import { EventWidget } from '../global';
 
@@ -130,7 +130,7 @@ const EventSearchBreakerPerformance: EventWidget.IWidget<{}> = {
                                 />
                             </Plot>
                         </div> : null}
-                        <ReactTable.Table<IRelayPerformance>
+                        <Table<IRelayPerformance>
                             Data={data}
                             KeySelector={item => item.EventID}
                             OnClick={() => { /* Do Nothing */ }}
@@ -142,23 +142,23 @@ const EventSearchBreakerPerformance: EventWidget.IWidget<{}> = {
                             TbodyStyle={{ display: 'block', overflowY: 'scroll', width: '100%', maxHeight: props.MaxHeight ?? 500 }}
                             RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                         >
-                            <ReactTable.Column<IRelayPerformance>
+                            <Column<IRelayPerformance>
                                 Key={'EventID'}
                                 AllowSort={false}
                                 Field={'EventID'}
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
                             > Event ID
-                            </ReactTable.Column>
-                            <ReactTable.Column<IRelayPerformance>
+                            </Column>
+                            <Column<IRelayPerformance>
                                 Key={'EventType'}
                                 AllowSort={false}
                                 Field={'EventType'}
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
                             > Type
-                            </ReactTable.Column>
-                            <ReactTable.Column<IRelayPerformance>
+                            </Column>
+                            <Column<IRelayPerformance>
                                 Key={'TripInitiate'}
                                 AllowSort={false}
                                 Field={'TripInitiate'}
@@ -166,8 +166,8 @@ const EventSearchBreakerPerformance: EventWidget.IWidget<{}> = {
                                 RowStyle={{ width: 'auto' }}
                                 Content={row => moment(row.item.TripInitiate).format('MM/DD/YY HH:mm:ss.SSSS')}
                             > Trip Initiation
-                            </ReactTable.Column>
-                            <ReactTable.Column<IRelayPerformance>
+                            </Column>
+                            <Column<IRelayPerformance>
                                 Key={'TripCoilCondition'}
                                 AllowSort={false}
                                 Field={'TripCoilCondition'}
@@ -175,8 +175,8 @@ const EventSearchBreakerPerformance: EventWidget.IWidget<{}> = {
                                 RowStyle={{ width: 'auto' }}
                                 Content={row => `${row.item.TripCoilCondition.toFixed(2)} A/s`}
                             > Trip Coil Condition
-                            </ReactTable.Column>
-                            <ReactTable.Column<IRelayPerformance>
+                            </Column>
+                            <Column<IRelayPerformance>
                                 Key={'TripCoilConditionTime'}
                                 AllowSort={false}
                                 Field={'TripCoilConditionTime'}
@@ -184,8 +184,8 @@ const EventSearchBreakerPerformance: EventWidget.IWidget<{}> = {
                                 RowStyle={{ width: 'auto' }}
                                 Content={row => `${(row.item.TripCoilConditionTime / 10).toFixed(0)}`}
                             > Tril Coil Condition Time
-                            </ReactTable.Column>
-                            <ReactTable.Column<IRelayPerformance>
+                            </Column>
+                            <Column<IRelayPerformance>
                                 Key={'Tend'}
                                 AllowSort={false}
                                 Field={'Tend'}
@@ -193,8 +193,8 @@ const EventSearchBreakerPerformance: EventWidget.IWidget<{}> = {
                                 RowStyle={{ width: 'auto' }}
                                 Content={row => `${(row.item.Tend / 10).toFixed(0)}`}
                             > TCE Curr. Extinction
-                            </ReactTable.Column>
-                            <ReactTable.Column<IRelayPerformance>
+                            </Column>
+                            <Column<IRelayPerformance>
                                 Key={'ExtinctionTimeA'}
                                 AllowSort={false}
                                 Field={'ExtinctionTimeA'}
@@ -202,8 +202,8 @@ const EventSearchBreakerPerformance: EventWidget.IWidget<{}> = {
                                 RowStyle={{ width: 'auto' }}
                                 Content={row => `${(row.item.ExtinctionTimeA / 10).toFixed(0)}`}
                             > Arc Time A
-                            </ReactTable.Column>
-                            <ReactTable.Column<IRelayPerformance>
+                            </Column>
+                            <Column<IRelayPerformance>
                                 Key={'ExtinctionTimeB'}
                                 AllowSort={false}
                                 Field={'ExtinctionTimeB'}
@@ -211,8 +211,8 @@ const EventSearchBreakerPerformance: EventWidget.IWidget<{}> = {
                                 RowStyle={{ width: 'auto' }}
                                 Content={row => `${(row.item.ExtinctionTimeB / 10).toFixed(0)}`}
                             > Arc Time B
-                            </ReactTable.Column>
-                            <ReactTable.Column<IRelayPerformance>
+                            </Column>
+                            <Column<IRelayPerformance>
                                 Key={'ExtinctionTimeC'}
                                 AllowSort={false}
                                 Field={'ExtinctionTimeC'}
@@ -220,8 +220,8 @@ const EventSearchBreakerPerformance: EventWidget.IWidget<{}> = {
                                 RowStyle={{ width: 'auto' }}
                                 Content={row => `${(row.item.ExtinctionTimeC / 10).toFixed(0)}`}
                             > Arc Time C
-                            </ReactTable.Column>
-                        </ReactTable.Table>
+                            </Column>
+                        </Table>
                     </div>
                 </div>
             </>

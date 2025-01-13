@@ -27,7 +27,7 @@ import { basemapLayer, dynamicMapLayer } from 'esri-leaflet';
 import moment from 'moment';
 import { EventWidget } from '../global';
 import { Application } from '@gpa-gemstone/application-typings';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { Table, Column } from '@gpa-gemstone/react-table';
 import { Select } from '@gpa-gemstone/react-forms';
 import { Input } from '@gpa-gemstone/react-forms';
 
@@ -389,7 +389,7 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
                         {(status == 'loading' ? <span>Searching...</span> : null)}
                         {(status == 'error' ? <span>An error occurred</span> : null)}
                         {(lightningInfo.length == 0 ? <span>No Lightning Records Found</span> : null)}
-                        <ReactTable.Table<ILightningStrike>
+                        <Table<ILightningStrike>
                             TableClass="table table-hover"
                             KeySelector={(item) => item.ID}
                             Data={lightningInfo}
@@ -401,47 +401,47 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
                             RowStyle={{ display: 'table', tableLayout: 'fixed', width: 'calc(100%)' }}
                             Selected={() => false}
                         >
-                            <ReactTable.Column<ILightningStrike>
+                            <Column<ILightningStrike>
                                 Key={'Service'}
                                 AllowSort={false}
                                 Field={'Service'}
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
                             > Service
-                            </ReactTable.Column>
-                            <ReactTable.Column<ILightningStrike>
+                            </Column>
+                            <Column<ILightningStrike>
                                 Key={'DisplayTime'}
                                 AllowSort={false}
                                 Field={'DisplayTime'}
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
                             > Time
-                            </ReactTable.Column>
-                            <ReactTable.Column<ILightningStrike>
+                            </Column>
+                            <Column<ILightningStrike>
                                 Key={'Amplitude'}
                                 AllowSort={false}
                                 Field={'Amplitude'}
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
                             > Amplitude
-                            </ReactTable.Column>
-                            <ReactTable.Column<ILightningStrike>
+                            </Column>
+                            <Column<ILightningStrike>
                                 Key={'Latitude'}
                                 AllowSort={false}
                                 Field={'Latitude'}
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
                             > Latitude
-                            </ReactTable.Column>
-                            <ReactTable.Column<ILightningStrike>
+                            </Column>
+                            <Column<ILightningStrike>
                                 Key={'Longitude'}
                                 AllowSort={false}
                                 Field={'Longitude'}
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
                             > Longitude
-                            </ReactTable.Column>
-                        </ReactTable.Table>
+                            </Column>
+                        </Table>
                     </div>
                 </div>
             </div>

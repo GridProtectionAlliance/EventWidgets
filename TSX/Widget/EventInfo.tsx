@@ -30,7 +30,7 @@ import * as React from 'react';
 import { EventWidget } from '../global';
 import moment from 'moment';
 import _ from 'lodash';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { Table, Column } from '@gpa-gemstone/react-table';
 import { useDispatch, useSelector } from 'react-redux';
 import { Dispatch } from '@reduxjs/toolkit';
 
@@ -146,7 +146,7 @@ const EventInfo: EventWidget.IWidget<{}> = {
               
                 <div className="card-body">
                         <LoadingIcon Show={loading} />
-                    {loading ? null : <ReactTable.Table<IStat>
+                    {loading ? null : <Table<IStat>
                         TableClass="table table-hover"
                         Data={rows}
                         SortKey={''}
@@ -162,7 +162,7 @@ const EventInfo: EventWidget.IWidget<{}> = {
                         KeySelector={(item) => item.Stat}
                         OnSort={() => { /* Nothing */ } }
                     >
-                        <ReactTable.Column<IStat>
+                        <Column<IStat>
                             Key={'Stat'}
                             AllowSort={false}
                             Field={'Stat'}
@@ -170,8 +170,8 @@ const EventInfo: EventWidget.IWidget<{}> = {
                             RowStyle={{ width: 'auto', textAlign: 'left' }}
                         >
                             Property
-                        </ReactTable.Column>
-                        <ReactTable.Column<IStat>
+                        </Column>
+                        <Column<IStat>
                             Key={'Value'}
                             AllowSort={false}
                             Field={'Value'}
@@ -180,8 +180,8 @@ const EventInfo: EventWidget.IWidget<{}> = {
                             Content={(d) => d.item.IsTime ? moment(d.item.Value).format(momentDateFormat + ' ' + momentTimeFormat) : d.item.Value}
                         >
                             Value
-                        </ReactTable.Column>
-                    </ReactTable.Table>}                       
+                        </Column>
+                    </Table>}                       
                 </div>
 
                 <Modal

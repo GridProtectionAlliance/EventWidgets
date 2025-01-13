@@ -24,7 +24,7 @@
 import React from 'react';
 import moment from 'moment';
 import { EventWidget } from '../global';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { Table, Column } from '@gpa-gemstone/react-table';
 import { Input } from '@gpa-gemstone/react-forms';
 
 interface IRelayPerformanceTrend {
@@ -104,7 +104,7 @@ const EventSearchRelayPerformance: EventWidget.IWidget<ISetting> = {
                     Breaker Performance:
                 </div>
                 <div className="card-body">
-                    <ReactTable.Table<IRelayPerformanceTrend>
+                    <Table<IRelayPerformanceTrend>
                         Data={data}
                         OnClick={() => { /* Do Nothing */ }}
                         OnSort={() => { /* Do Nothing */ }}
@@ -116,7 +116,7 @@ const EventSearchRelayPerformance: EventWidget.IWidget<ISetting> = {
                         TbodyStyle={{ display: 'block', overflowY: 'scroll', width: '100%', maxHeight: props.MaxHeight ?? 500 }}
                         RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                     >
-                        <ReactTable.Column<IRelayPerformanceTrend>
+                        <Column<IRelayPerformanceTrend>
                             Key={'EventID'}
                             AllowSort={false}
                             Field={'EventID'}
@@ -128,8 +128,8 @@ const EventSearchRelayPerformance: EventWidget.IWidget<ISetting> = {
                                 </a>
                             )}
                         > Event ID
-                        </ReactTable.Column>
-                        <ReactTable.Column<IRelayPerformanceTrend>
+                        </Column>
+                        <Column<IRelayPerformanceTrend>
                             Key={'TripInitiate'}
                             AllowSort={false}
                             Field={'TripInitiate'}
@@ -137,8 +137,8 @@ const EventSearchRelayPerformance: EventWidget.IWidget<ISetting> = {
                             RowStyle={{ width: 'auto' }}
                             Content={row => moment(row.item.TripInitiate).format('MM/DD/YY HH:mm:ss.SSSS')}
                         > Trip Initiation Time
-                        </ReactTable.Column>
-                        <ReactTable.Column<IRelayPerformanceTrend>
+                        </Column>
+                        <Column<IRelayPerformanceTrend>
                             Key={'TripTime'}
                             AllowSort={false}
                             Field={'TripTime'}
@@ -146,8 +146,8 @@ const EventSearchRelayPerformance: EventWidget.IWidget<ISetting> = {
                             RowStyle={{ width: 'auto' }}
                             Content={row => `${row.item.TripTime} micros`}
                         > Trip Time
-                        </ReactTable.Column>
-                        <ReactTable.Column<IRelayPerformanceTrend>
+                        </Column>
+                        <Column<IRelayPerformanceTrend>
                             Key={'PickupTime'}
                             AllowSort={false}
                             Field={'PickupTime'}
@@ -155,8 +155,8 @@ const EventSearchRelayPerformance: EventWidget.IWidget<ISetting> = {
                             RowStyle={{ width: 'auto' }}
                             Content={row => `${row.item.PickupTime} micros`}
                         > Pickup Time
-                        </ReactTable.Column>
-                        <ReactTable.Column<IRelayPerformanceTrend>
+                        </Column>
+                        <Column<IRelayPerformanceTrend>
                             Key={'ExtinctionTimeA'}
                             AllowSort={false}
                             Field={'ExtinctionTimeA'}
@@ -164,8 +164,8 @@ const EventSearchRelayPerformance: EventWidget.IWidget<ISetting> = {
                             RowStyle={{ width: 'auto' }}
                             Content={row => `${row.item.ExtinctionTimeA} micros`}
                         > Extinction Time
-                        </ReactTable.Column>
-                        <ReactTable.Column<IRelayPerformanceTrend>
+                        </Column>
+                        <Column<IRelayPerformanceTrend>
                             Key={'TripCoilCondition'}
                             AllowSort={false}
                             Field={'TripCoilCondition'}
@@ -173,8 +173,8 @@ const EventSearchRelayPerformance: EventWidget.IWidget<ISetting> = {
                             RowStyle={{ width: 'auto' }}
                             Content={row => `${row.item.TripCoilCondition.toFixed(2)} A/s`}
                         > Trip Coil Condition
-                        </ReactTable.Column>
-                        <ReactTable.Column<IRelayPerformanceTrend>
+                        </Column>
+                        <Column<IRelayPerformanceTrend>
                             Key={'Imax1'}
                             AllowSort={false}
                             Field={'Imax1'}
@@ -182,8 +182,8 @@ const EventSearchRelayPerformance: EventWidget.IWidget<ISetting> = {
                             RowStyle={{ width: 'auto' }}
                             Content={row => `${row.item.Imax1.toFixed(3)} A`}
                         > L1
-                        </ReactTable.Column>
-                        <ReactTable.Column<IRelayPerformanceTrend>
+                        </Column>
+                        <Column<IRelayPerformanceTrend>
                             Key={'Imax2'}
                             AllowSort={false}
                             Field={'Imax2'}
@@ -191,8 +191,8 @@ const EventSearchRelayPerformance: EventWidget.IWidget<ISetting> = {
                             RowStyle={{ width: 'auto' }}
                             Content={row => `${row.item.Imax2.toFixed(3)} A`}
                         > L2
-                        </ReactTable.Column>
-                    </ReactTable.Table>
+                        </Column>
+                    </Table>
                 </div>
             </div>
         );

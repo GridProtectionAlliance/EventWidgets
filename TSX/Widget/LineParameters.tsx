@@ -22,7 +22,7 @@
 //******************************************************************************************************
 
 import React from 'react';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { Table, Column } from '@gpa-gemstone/react-table';
 import { Input } from '@gpa-gemstone/react-forms';
 import { EventWidget } from '../global';
 
@@ -130,7 +130,7 @@ const LineParameters: EventWidget.IWidget<ISetting> = {
                     >Line Configuration Via System Center</a>
                 </div>
                 <div className="card-body">
-                    <ReactTable.Table<ILoopImpedance>
+                    <Table<ILoopImpedance>
                         KeySelector={(item) => item.ID }
                         Data={loopParameters}
                         OnClick={() => { /* Do Nothing */ }}
@@ -142,71 +142,71 @@ const LineParameters: EventWidget.IWidget<ISetting> = {
                         TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: props.MaxHeight - 60, width: '100%' }}
                         RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                     >
-                        <ReactTable.Column<ILoopImpedance>
+                        <Column<ILoopImpedance>
                             Key={'Length'}
                             AllowSort={false}
                             Field={'Length'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Length (mi)
-                        </ReactTable.Column>
-                        <ReactTable.Column<ILoopImpedance>
+                        </Column>
+                        <Column<ILoopImpedance>
                             Key={'ZS'}
                             AllowSort={false}
                             Field={'ZS'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > ZS (Ohm)
-                        </ReactTable.Column>
-                        <ReactTable.Column<ILoopImpedance>
+                        </Column>
+                        <Column<ILoopImpedance>
                             Key={'Ang'}
                             AllowSort={false}
                             Field={'Ang'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Ang (Deg)
-                        </ReactTable.Column>
-                        <ReactTable.Column<ILoopImpedance>
+                        </Column>
+                        <Column<ILoopImpedance>
                             Key={'RS'}
                             AllowSort={false}
                             Field={'RS'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > RS (Ohm)
-                        </ReactTable.Column>
-                        <ReactTable.Column<ILoopImpedance>
+                        </Column>
+                        <Column<ILoopImpedance>
                             Key={'XS'}
                             AllowSort={false}
                             Field={'XS'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > XS (Ohm)
-                        </ReactTable.Column>
-                        <ReactTable.Column<ILoopImpedance>
+                        </Column>
+                        <Column<ILoopImpedance>
                             Key={'PerMileZS'}
                             AllowSort={false}
                             Field={'PerMileZS'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Per Mile ZS
-                        </ReactTable.Column>
-                        <ReactTable.Column<ILoopImpedance>
+                        </Column>
+                        <Column<ILoopImpedance>
                             Key={'PerMileRS'}
                             AllowSort={false}
                             Field={'PerMileRS'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Per Mile RS
-                        </ReactTable.Column>
-                        <ReactTable.Column<ILoopImpedance>
+                        </Column>
+                        <Column<ILoopImpedance>
                             Key={'PerMileXS'}
                             AllowSort={false}
                             Field={'PerMileXS'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Per Mile XS
-                        </ReactTable.Column>
-                    </ReactTable.Table>
+                        </Column>
+                    </Table>
                 </div>
             </div>
         );
