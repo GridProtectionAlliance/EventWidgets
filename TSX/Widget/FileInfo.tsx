@@ -23,7 +23,7 @@
 
 import React from 'react';
 import { EventWidget } from '../global';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { Table, Column } from '@gpa-gemstone/react-table';
 import { Input } from '@gpa-gemstone/react-forms';
 
 interface ISetting { SystemCenterUrl: string }
@@ -114,7 +114,7 @@ const EventSearchFileInfo: EventWidget.IWidget<ISetting> = {
 
                 <div className="card-body">
                     <p>{fileName}</p>
-                    <ReactTable.Table<IMappedChannel>
+                    <Table<IMappedChannel>
                         Data={mappedChannels}
                         OnClick={() => { /* Do Nothing */ }}
                         OnSort={() => { /* Do Nothing */ }}
@@ -126,23 +126,23 @@ const EventSearchFileInfo: EventWidget.IWidget<ISetting> = {
                         TbodyStyle={{ display: 'block', overflowY: 'scroll', width: '100%', maxHeight: props.MaxHeight ?? 500 }}
                         RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                     >
-                        <ReactTable.Column<IMappedChannel>
+                        <Column<IMappedChannel>
                             Key={'Channel'}
                             AllowSort={false}
                             Field={'Channel'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Channel
-                        </ReactTable.Column>
-                        <ReactTable.Column<IMappedChannel>
+                        </Column>
+                        <Column<IMappedChannel>
                             Key={'Mapping'}
                             AllowSort={false}
                             Field={'Mapping'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Mapping
-                        </ReactTable.Column>
-                    </ReactTable.Table>
+                        </Column>
+                    </Table>
                 </div>
             </div>
         );

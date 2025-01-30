@@ -24,7 +24,7 @@
 import React from 'react';
 import moment from 'moment';
 import { EventWidget } from '../global';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { Table, Column } from '@gpa-gemstone/react-table';
 
 interface IFaultSegment {
     ID: number;
@@ -83,7 +83,7 @@ const EventSearchAssetFaultSegments: EventWidget.IWidget<{}> = {
             <div className="card" style={{ display: count > 0 ? 'block' : 'none' }}>
                 <div className="card-header fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>Fault Evolution Summary:</div>
                 <div className="card-body">
-                    <ReactTable.Table<IFaultSegment>
+                    <Table<IFaultSegment>
                         Data={data}
                         KeySelector={item => item.ID }
                         OnClick={() => { /* Do Nothing */ }}
@@ -95,15 +95,15 @@ const EventSearchAssetFaultSegments: EventWidget.IWidget<{}> = {
                         TbodyStyle={{ display: 'block', overflowY: 'scroll', width: '100%', maxHeight: props.MaxHeight ?? 500 }}
                         RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                     >
-                        <ReactTable.Column<IFaultSegment>
+                        <Column<IFaultSegment>
                             Key={'SegmentType'}
                             AllowSort={false}
                             Field={'SegmentType'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Evolution
-                        </ReactTable.Column>
-                        <ReactTable.Column<IFaultSegment>
+                        </Column>
+                        <Column<IFaultSegment>
                             Key={'StartTime'}
                             AllowSort={false}
                             Field={'StartTime'}
@@ -111,8 +111,8 @@ const EventSearchAssetFaultSegments: EventWidget.IWidget<{}> = {
                             RowStyle={{ width: 'auto' }}
                             Content={row => moment(row.item.StartTime).format('HH:mm:ss.SSS')}
                         > Inception
-                        </ReactTable.Column>
-                        <ReactTable.Column<IFaultSegment>
+                        </Column>
+                        <Column<IFaultSegment>
                             Key={'EndTime'}
                             AllowSort={false}
                             Field={'EndTime'}
@@ -120,16 +120,16 @@ const EventSearchAssetFaultSegments: EventWidget.IWidget<{}> = {
                             RowStyle={{ width: 'auto' }}
                             Content={row => moment(row.item.EndTime).format('HH:mm:ss.SSS')}
                         > End
-                        </ReactTable.Column>
-                        <ReactTable.Column<IFaultSegment>
+                        </Column>
+                        <Column<IFaultSegment>
                             Key={'Duration'}
                             AllowSort={false}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                             Content={row => ((moment(row.item.EndTime).diff(moment(row.item.StartTime)) / 16.66667).toFixed(1))}
                         > Duration (c)
-                        </ReactTable.Column>
-                    </ReactTable.Table>
+                        </Column>
+                    </Table>
                 </div>
             </div>
         );

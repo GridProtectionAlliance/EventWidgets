@@ -24,7 +24,7 @@
 import React from 'react';
 import moment from 'moment';
 import { EventWidget } from '../global';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { Table, Column } from '@gpa-gemstone/react-table';
 import { Select, Input } from '@gpa-gemstone/react-forms';
 
 interface ISetting { OpenSeeUrl: string}
@@ -95,7 +95,7 @@ const AssetHistoryTable: EventWidget.IWidget<ISetting> = {
                     </div>
                 </div>
                 <div className="card-body">
-                    <ReactTable.Table
+                    <Table
                         Data={historyData}
                         KeySelector={item => item.ID }
                         OnSort={() => {/*Do Nothing*/ }}
@@ -106,15 +106,15 @@ const AssetHistoryTable: EventWidget.IWidget<ISetting> = {
                         TbodyStyle={{ display: 'block', overflowY: 'scroll', width: '100%', maxHeight: props.MaxHeight ?? 500 }}
                         RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                     >
-                        <ReactTable.Column
+                        <Column
                             Key={'EventType'}
                             AllowSort={false}
                             Field={'EventType'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Event Type
-                        </ReactTable.Column>
-                        <ReactTable.Column
+                        </Column>
+                        <Column
                             Key={'StartTime'}
                             AllowSort={false}
                             Field={'StartTime'}
@@ -122,8 +122,8 @@ const AssetHistoryTable: EventWidget.IWidget<ISetting> = {
                             RowStyle={{ width: 'auto' }}
                             Content={row => moment(row.item.StartTime).format('MM/DD/YYYY HH:mm:ss.SSS')}
                         > Date
-                        </ReactTable.Column>
-                        <ReactTable.Column
+                        </Column>
+                        <Column
                             Key={'ID'}
                             AllowSort={false}
                             Field={'ID'}
@@ -131,8 +131,8 @@ const AssetHistoryTable: EventWidget.IWidget<ISetting> = {
                             RowStyle={{ width: 'auto' }}
                             Content={row => <a href={props.Settings.OpenSeeUrl + '?eventid=' + row.item.ID} target="_blank">View in OpenSEE</a>}
                         > {" "}
-                        </ReactTable.Column>
-                    </ReactTable.Table>
+                        </Column>
+                    </Table>
                 </div>
             </div>
         );

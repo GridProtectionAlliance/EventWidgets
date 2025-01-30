@@ -22,7 +22,7 @@
 //******************************************************************************************************
 import React from 'react';
 import moment from 'moment';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { Table, Column } from '@gpa-gemstone/react-table';
 import { EventWidget } from '../global';
 
 interface IDisturbanceData {
@@ -69,7 +69,7 @@ const AssetVoltageDisturbances: EventWidget.IWidget<{}> = {
                 <div className="card-header fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>
                     Voltage Disturbance in Waveform:</div>
                 <div className="card-body">
-                    <ReactTable.Table<IDisturbanceData>
+                    <Table<IDisturbanceData>
                         Data={data}
                         KeySelector={(item) => item.ID }
                         OnSort={() => {/*Do Nothing*/ }}
@@ -81,23 +81,23 @@ const AssetVoltageDisturbances: EventWidget.IWidget<{}> = {
                         RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                         Selected={(r) => r.IsWorstDisturbance}
                     >
-                        <ReactTable.Column<IDisturbanceData>
+                        <Column<IDisturbanceData>
                             Key={'EventType'}
                             AllowSort={false}
                             Field={'EventType'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Disturbance Type
-                        </ReactTable.Column>
-                        <ReactTable.Column<IDisturbanceData>
+                        </Column>
+                        <Column<IDisturbanceData>
                             Key={'Phase'}
                             AllowSort={false}
                             Field={'Phase'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Phase
-                        </ReactTable.Column>
-                        <ReactTable.Column<IDisturbanceData>
+                        </Column>
+                        <Column<IDisturbanceData>
                             Key={'PerUnitMagnitude'}
                             AllowSort={false}
                             Field={'PerUnitMagnitude'}
@@ -105,8 +105,8 @@ const AssetVoltageDisturbances: EventWidget.IWidget<{}> = {
                             RowStyle={{ width: 'auto' }}
                             Content={row => (row.item.PerUnitMagnitude * 100).toFixed(1)}
                         > Magnitude (%)
-                        </ReactTable.Column>
-                        <ReactTable.Column<IDisturbanceData>
+                        </Column>
+                        <Column<IDisturbanceData>
                             Key={'DurationSeconds'}
                             AllowSort={false}
                             Field={'DurationSeconds'}
@@ -114,8 +114,8 @@ const AssetVoltageDisturbances: EventWidget.IWidget<{}> = {
                             RowStyle={{ width: 'auto' }}
                             Content={row => (row.item.DurationSeconds * 1000).toFixed(2)}
                         > Duration (ms)
-                        </ReactTable.Column>
-                        <ReactTable.Column<IDisturbanceData>
+                        </Column>
+                        <Column<IDisturbanceData>
                             Key={'StartTime'}
                             AllowSort={false}
                             Field={'StartTime'}
@@ -123,16 +123,16 @@ const AssetVoltageDisturbances: EventWidget.IWidget<{}> = {
                             RowStyle={{ width: 'auto' }}
                             Content={row => moment(row.item.StartTime).format('HH:mm:ss.SSS')}
                         > Start Time
-                        </ReactTable.Column>
-                        <ReactTable.Column<IDisturbanceData>
+                        </Column>
+                        <Column<IDisturbanceData>
                             Key={'SeverityCode'}
                             AllowSort={false}
                             Field={'SeverityCode'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Severity
-                        </ReactTable.Column>
-                    </ReactTable.Table>
+                        </Column>
+                    </Table>
                 </div>
             </div>
         );

@@ -24,7 +24,7 @@
 import React from 'react';
 import { EventWidget } from '../global';
 import { Input, MultiCheckBoxSelect, Select } from '@gpa-gemstone/react-forms';
-import { ReactTable }  from '@gpa-gemstone/react-table';
+import { Table, Column }  from '@gpa-gemstone/react-table';
 import cloneDeep from 'lodash/cloneDeep';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import _ from 'lodash';
@@ -166,7 +166,7 @@ const ITOA: EventWidget.IWidget<ISetting> = {
 
                     </div>
                     <div style={{ maxHeight: 200, overflowY: 'auto' }}>
-                        <ReactTable.Table<ItoaInfo>
+                        <Table<ItoaInfo>
                             Data={data}
                             OnSort={() => { /*Do Nothing*/ }}
                             SortKey={''}
@@ -177,39 +177,39 @@ const ITOA: EventWidget.IWidget<ISetting> = {
                             TbodyStyle={{ display: 'block', overflowY: 'scroll', width: '100%', maxHeight: props.MaxHeight ?? 500 }}
                             RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                         >
-                            <ReactTable.Column<ItoaInfo>
+                            <Column<ItoaInfo>
                                 Key={'Time'}
                                 AllowSort={false}
                                 Field={'StartTime'}
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
                             > Time
-                            </ReactTable.Column>
-                            <ReactTable.Column<ItoaInfo>
+                            </Column>
+                            <Column<ItoaInfo>
                                 Key={'Cause'}
                                 AllowSort={false}
                                 Field={'Cause'}
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
                             > Alarm
-                            </ReactTable.Column>
-                            <ReactTable.Column<ItoaInfo>
+                            </Column>
+                            <Column<ItoaInfo>
                                 Key={'Station'}
                                 AllowSort={false}
                                 Field={'Station'}
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
                             > Description
-                            </ReactTable.Column>
-                            <ReactTable.Column<ItoaInfo>
+                            </Column>
+                            <Column<ItoaInfo>
                                 Key={'Voltage'}
                                 AllowSort={false}
                                 Field={'Voltage'}
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
                             > Voltages
-                            </ReactTable.Column>
-                        </ReactTable.Table>
+                            </Column>
+                        </Table>
                     </div>
                 </div>
             </div>

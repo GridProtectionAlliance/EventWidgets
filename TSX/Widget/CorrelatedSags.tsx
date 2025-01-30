@@ -24,7 +24,7 @@
 import React from 'react';
 import moment from 'moment';
 import { EventWidget } from '../global';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { Table, Column } from '@gpa-gemstone/react-table';
 import { Input } from '@gpa-gemstone/react-forms';
 
 interface ITimeCorrelatedSags {
@@ -103,7 +103,7 @@ const EventSearchCorrelatedSags: EventWidget.IWidget<ISetting> = {
                     Correlated Sags (within {props.Settings.OverlappingWindow} seconds):
                 </div>
                 <div className="card-body" >
-                    <ReactTable.Table<ITimeCorrelatedSags>
+                    <Table<ITimeCorrelatedSags>
                         Data={data}
                         KeySelector={item => item.EventID }
                         OnClick={() => { /* Do Nothing */ }}
@@ -116,7 +116,7 @@ const EventSearchCorrelatedSags: EventWidget.IWidget<ISetting> = {
                         RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                         Selected={(d: ITimeCorrelatedSags) => d.EventID === props.EventID}
                     >
-                        <ReactTable.Column<ITimeCorrelatedSags>
+                        <Column<ITimeCorrelatedSags>
                             Key={'EventID'}
                             AllowSort={false}
                             Field={'EventID'}
@@ -127,24 +127,24 @@ const EventSearchCorrelatedSags: EventWidget.IWidget<ISetting> = {
                                     <div style={{ width: '100%', height: '100%' }}>{row.item.EventID}</div>
                                 </a>)}
                         > Event ID
-                        </ReactTable.Column>
-                        <ReactTable.Column<ITimeCorrelatedSags>
+                        </Column>
+                        <Column<ITimeCorrelatedSags>
                             Key={'EventType'}
                             AllowSort={false}
                             Field={'EventType'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Event Type
-                        </ReactTable.Column>
-                        <ReactTable.Column<ITimeCorrelatedSags>
+                        </Column>
+                        <Column<ITimeCorrelatedSags>
                             Key={'SagMagnitudePercent'}
                             AllowSort={false}
                             Field={'SagMagnitudePercent'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Magnitude
-                        </ReactTable.Column>
-                        <ReactTable.Column<ITimeCorrelatedSags>
+                        </Column>
+                        <Column<ITimeCorrelatedSags>
                             Key={'SagDurationMilliseconds'}
                             AllowSort={false}
                             Field={'SagDurationMilliseconds'}
@@ -152,8 +152,8 @@ const EventSearchCorrelatedSags: EventWidget.IWidget<ISetting> = {
                             RowStyle={{ width: 'auto' }}
                             Content={row => `${row.item.SagDurationMilliseconds} ms (${row.item.SagDurationCycles} cycles)`}
                         > Duration
-                        </ReactTable.Column>
-                        <ReactTable.Column<ITimeCorrelatedSags>
+                        </Column>
+                        <Column<ITimeCorrelatedSags>
                             Key={'StartTime'}
                             AllowSort={false}
                             Field={'StartTime'}
@@ -161,24 +161,24 @@ const EventSearchCorrelatedSags: EventWidget.IWidget<ISetting> = {
                             RowStyle={{ width: 'auto' }}
                             Content={row => moment(row.item.StartTime).format('HH:mm:ss.SSS')}
                         > Start Time
-                        </ReactTable.Column>
-                        <ReactTable.Column<ITimeCorrelatedSags>
+                        </Column>
+                        <Column<ITimeCorrelatedSags>
                             Key={'MeterName'}
                             AllowSort={false}
                             Field={'MeterName'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Meter Name
-                        </ReactTable.Column>
-                        <ReactTable.Column<ITimeCorrelatedSags>
+                        </Column>
+                        <Column<ITimeCorrelatedSags>
                             Key={'AssetName'}
                             AllowSort={false}
                             Field={'AssetName'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Asset Name
-                        </ReactTable.Column>
-                    </ReactTable.Table>
+                        </Column>
+                    </Table>
                 </div>
             </div>
         );

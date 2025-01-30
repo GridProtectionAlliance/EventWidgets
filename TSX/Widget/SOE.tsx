@@ -24,7 +24,7 @@
 import React from 'react';
 import { EventWidget } from '../global';
 import { Input, MultiCheckBoxSelect, Select } from '@gpa-gemstone/react-forms';
-import { ReactTable }  from '@gpa-gemstone/react-table';
+import { Table, Column }  from '@gpa-gemstone/react-table';
 import cloneDeep from 'lodash/cloneDeep';
 import { TrashCan } from '@gpa-gemstone/gpa-symbols';
 import _ from 'lodash';
@@ -158,7 +158,7 @@ const SOE: EventWidget.IWidget<ISetting> = {
 
                     </div>
                     <div style={{ maxHeight: 200, overflowY: 'auto' }}>
-                        <ReactTable.Table<SOEInfo>
+                        <Table<SOEInfo>
                             Data={soeInfo}
                             OnSort={() => { /*Do Nothing*/ }}
                             SortKey={''}
@@ -169,31 +169,31 @@ const SOE: EventWidget.IWidget<ISetting> = {
                             TbodyStyle={{ display: 'block', overflowY: 'scroll', width: '100%', maxHeight: props.MaxHeight ?? 500 }}
                             RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                         >
-                            <ReactTable.Column<SOEInfo>
+                            <Column<SOEInfo>
                                 Key={'Time'}
                                 AllowSort={false}
                                 Field={'Time'}
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
                             > Time
-                            </ReactTable.Column>
-                            <ReactTable.Column<SOEInfo>
+                            </Column>
+                            <Column<SOEInfo>
                                 Key={'Alarm'}
                                 AllowSort={false}
                                 Field={'Alarm'}
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
                             > Alarm
-                            </ReactTable.Column>
-                            <ReactTable.Column<SOEInfo>
+                            </Column>
+                            <Column<SOEInfo>
                                 Key={'Status'}
                                 AllowSort={false}
                                 Field={'Status'}
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
                             > Status
-                            </ReactTable.Column>
-                        </ReactTable.Table>
+                            </Column>
+                        </Table>
                     </div>
                 </div>
             </div>
