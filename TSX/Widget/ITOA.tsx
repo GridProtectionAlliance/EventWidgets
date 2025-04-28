@@ -131,9 +131,12 @@ const ITOA: EventWidget.IWidget<ISetting> = {
         function GetData() {
             const handle = $.ajax({
                 type: "GET",
-                url: `${props.HomePath}api/ITOA/${props.EventID}/${timeWindow}`,
+                url: `${props.HomePath}api/ITOA/${props.EventID}/${timeWindow}/${props.WidgetID}`,
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
+                data: JSON.stringify({
+                    SQLCommand: props.Settings.SQLCommand
+                }),
                 cache: true,
                 async: true
             }) as JQuery.jqXHR<ItoaInfo[]>;

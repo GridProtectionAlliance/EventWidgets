@@ -43,7 +43,8 @@ export namespace EventWidget {
         HomePath: string,
         Roles: string[],
         Name: string,
-        Store: IWigetStore
+        Store: IWigetStore,
+        WidgetID: number
     }
 
     export interface IWidgetSettingsProps<T> {

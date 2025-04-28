@@ -21,32 +21,49 @@
 //
 //******************************************************************************************************
 
+using GSF.Configuration;
 using GSF.Data;
 using System;
+using System.Configuration;
 using System.Data;
 using System.Web.Http;
+using Widgets.Configuration;
 
 namespace Widget.Controllers
 {
     [RoutePrefix("api/ITOA")]
     public class ITOAController : ApiController
     {
+
+        public class Settings
+        {
+            public Settings(Action<object> configure) =>
+               configure(this);
+
+            [Setting()]
+            public string SQLCommand { get; set; }
+        }
+
         const string SOECategory = "dbITOA";
         const string SettingsCategory = "systemSettings";
 
-        [Route("{eventID:int}/{timeWindow:int}"), HttpGet]
-        public IHttpActionResult Get(int eventID, int timeWindow)
+        [Route("{eventID:int}/{timeWindow:int}/{widgetID:int}"), HttpGet]
+        public IHttpActionResult Get(int eventID, int timeWindow, int widgetID)
         {
             DateTime eventTime;
-            using (AdoDataConnection connection = new(SettingsCategory))
+            using (AdoDataConnection connection = CreateDbConnection())
             {
                 eventTime = connection.ExecuteScalar<DateTime>("SELECT StartTime FROM Event WHERE ID = {0}", eventID);
             }
 
+            Settings settings = new Settings(new ConfigurationLoader(CreateDbConnection,widgetID).Configure);
+
+            
             using (AdoDataConnection connection = new(SOECategory))
             {
-
-                DataTable table = connection.RetrieveData(@"
+                string sql = settings.SQLCommand;
+                if (string.IsNullOrEmpty(sql))
+                    sql = @"
                 SELECT TOP 100
                     GENERIC_INTERRUPT.APP_ID AS ID,
                     GENERIC_INTERRUPT.SCHED_START_DATE AS StartTime,
@@ -62,11 +79,15 @@ namespace Widget.Controllers
                     GENERIC_INTERRUPT.INITIATING_CAUSE_CODE,
                     GENERIC_INTERRUPT.STATION
                 ORDER BY GENERIC_INTERRUPT.SCHED_START_DATE DESC                  
-                ", eventTime.AddSeconds(-1 * timeWindow), eventTime.AddSeconds(timeWindow));
+                ";
+
+                DataTable table = connection.RetrieveData(sql, eventTime.AddSeconds(-1 * timeWindow), eventTime.AddSeconds(timeWindow));
+
                 return Ok(table);
             }
            
         }
 
+        public AdoDataConnection CreateDbConnection() => new(SettingsCategory);        
     }
 }
