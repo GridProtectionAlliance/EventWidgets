@@ -23,7 +23,7 @@
 
 import React from 'react';
 import { EventWidget } from '../global';
-import { Input, MultiCheckBoxSelect, Select } from '@gpa-gemstone/react-forms';
+import { Input, MultiCheckBoxSelect, Select, TextArea } from '@gpa-gemstone/react-forms';
 import { Table, Column }  from '@gpa-gemstone/react-table';
 import cloneDeep from 'lodash/cloneDeep';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
@@ -40,13 +40,15 @@ interface ItoaInfo {
     Station: string
 }
 interface ISetting {
-    Filter: string[]
+    Filter: string[],
+    SQLCommand: string
 }
 
 const ITOA: EventWidget.IWidget<ISetting> = {
     Name: 'ITOA',
     DefaultSettings: {
-        Filter: []
+        Filter: [],
+        SQLCommand: ''
     },
     Settings: (props) => {
         const [val, setVal] = React.useState<{ Value: string }[]>([]);
@@ -68,7 +70,7 @@ const ITOA: EventWidget.IWidget<ISetting> = {
                         Setter={(record) => {
                             const u = _.cloneDeep(props.Settings.Filter);
                             u[i] = record.Value;
-                            props.SetSettings({ Filter: u })
+                            props.SetSettings({ Filter: u, SQLCommand: props.Settings.SQLCommand })
                         }}
                         Valid={() => true}
                             Label={'Cause Code ' + i} />
@@ -77,7 +79,7 @@ const ITOA: EventWidget.IWidget<ISetting> = {
                     <button className="btn btn-small btn-danger" onClick={() => {
                         const u = _.cloneDeep(props.Settings.Filter);
                         u.splice(i, 1);
-                        props.SetSettings({ Filter: u })
+                            props.SetSettings({ Filter: u, SQLCommand: props.Settings.SQLCommand })
                     }}><ReactIcons.TrashCan/></button>
                 </div> </div>)}
             
@@ -86,8 +88,23 @@ const ITOA: EventWidget.IWidget<ISetting> = {
                     <button className="btn btn-primary" onClick={() => {
                         const u = _.cloneDeep(props.Settings.Filter);
                         u.push('');
-                        props.SetSettings({ Filter: u })
+                        props.SetSettings({ Filter: u, SQLCommand: props.Settings.SQLCommand })
                     }}>Add Cause Filter</button>
+                </div>
+            </div>
+
+            <div className="row">
+                <div className="col">
+                    <TextArea<ISetting>
+                        Rows={4}
+                        Record={{ SQLCommand: props.Settings.SQLCommand, Filter: props.Settings.Filter }}
+                        Field="SQLCommand"
+                        Label="SQL Command"
+                        Valid={() => true}
+                        Setter={(record) => {
+                            props.SetSettings(record);
+                        }}
+                    />
                 </div>
             </div>
         </>
@@ -114,9 +131,12 @@ const ITOA: EventWidget.IWidget<ISetting> = {
         function GetData() {
             const handle = $.ajax({
                 type: "GET",
-                url: `${props.HomePath}api/ITOA/${props.EventID}/${timeWindow}`,
+                url: `${props.HomePath}api/ITOA/${props.EventID}/${timeWindow}/${props.WidgetID}`,
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
+                data: JSON.stringify({
+                    SQLCommand: props.Settings.SQLCommand
+                }),
                 cache: true,
                 async: true
             }) as JQuery.jqXHR<ItoaInfo[]>;
@@ -165,6 +185,8 @@ const ITOA: EventWidget.IWidget<ISetting> = {
                         </div>
 
                     </div>
+
+
                     <div style={{ maxHeight: 200, overflowY: 'auto' }}>
                         <Table<ItoaInfo>
                             Data={data}

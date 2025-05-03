@@ -115,6 +115,7 @@ const WidgetRouter: React.FC<IProps> = (props: IProps) => {
                 FaultID={props.FaultID}
                 Name={props.Widget.Name}
                 Store={props.Store}
+                WidgetID={props.Widget.ID}
             />
         </ErrorBoundary>}
     </>
