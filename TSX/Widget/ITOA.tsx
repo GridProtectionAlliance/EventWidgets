@@ -113,6 +113,7 @@ const ITOA: EventWidget.IWidget<ISetting> = {
                                 u[i] = record.Value;
                                 props.SetSettings({ TimeWindow: u, ...props.Settings })
                             }}
+                            Type={'number'}
                             Valid={() => true}
                             Label={'Window ' + i + ' (s)'} />
                     </div>

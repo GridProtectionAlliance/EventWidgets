@@ -103,6 +103,7 @@ const SOE: EventWidget.IWidget<ISetting> = {
                                 props.SetSettings({ TimeWindow: u, ...props.Settings })
                             }}
                             Valid={() => true}
+                            Type={'number'}
                             Label={'Window ' + i + ' (s)'} />
                     </div>
                     <div className="col-6 m-auto">
