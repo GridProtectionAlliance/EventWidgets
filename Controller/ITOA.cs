@@ -44,7 +44,7 @@ namespace Widget.Controllers
             public string SQLCommand { get; set; }
         }
 
-        const string SOECategory = "dbITOA";
+        const string ITOACategory = "dbITOA";
         const string SettingsCategory = "systemSettings";
 
         [Route("{eventID:int}/{timeWindow:int}/{widgetID:int}"), HttpGet]
@@ -59,7 +59,7 @@ namespace Widget.Controllers
             Settings settings = new Settings(new ConfigurationLoader(CreateDbConnection,widgetID).Configure);
 
             
-            using (AdoDataConnection connection = new(SOECategory))
+            using (AdoDataConnection connection = new(ITOACategory))
             {
                 string sql = settings.SQLCommand;
                 if (string.IsNullOrEmpty(sql))
