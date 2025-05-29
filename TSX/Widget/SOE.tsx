@@ -26,7 +26,7 @@ import { EventWidget } from '../global';
 import { Input, MultiCheckBoxSelect, Select } from '@gpa-gemstone/react-forms';
 import { Table, Column }  from '@gpa-gemstone/react-table';
 import cloneDeep from 'lodash/cloneDeep';
-import { TrashCan } from '@gpa-gemstone/gpa-symbols';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import _ from 'lodash';
 
 interface IValue {
@@ -38,26 +38,28 @@ interface SOEInfo {
     Status: string
 }
 interface ISetting {
-    FilterOut: string[]
+    FilterOut: string[],
+    TimeWindow: number[],
 }
 
 const SOE: EventWidget.IWidget<ISetting> = {
     Name: 'SOE',
     DefaultSettings: {
-        FilterOut: ['abnormal', 'close', 'no', 'normal', 'received', 'start', 'trip', 'yes']
+        FilterOut: ['abnormal', 'close', 'no', 'normal', 'received', 'start', 'trip', 'yes'],
+        TimeWindow: [2, 10, 60]
     },
     Settings: (props) => {
-        const [val, setVal] = React.useState<{ Value: string }[]>([]);
+        const [filterVal, setFilterVal] = React.useState<{ Value: string }[]>([]);
 
         React.useEffect(() => {
             if (props.Settings.FilterOut == undefined)
                 return;
-            setVal(props.Settings.FilterOut.map(t => ({ Value: t })))
+            setFilterVal(props.Settings.FilterOut.map(t => ({ Value: t })))
         }, [props.Settings.FilterOut]);
         
         return <>
             
-            {val.map((item, i) => 
+            {filterVal.map((item, i) => 
                 <div className="row fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}> 
                 <div className="col-6">
                     <Input<IValue>
@@ -66,7 +68,7 @@ const SOE: EventWidget.IWidget<ISetting> = {
                         Setter={(record) => {
                             const u = _.cloneDeep(props.Settings.FilterOut);
                             u[i] = record.Value;
-                            props.SetSettings({ FilterOut: u })
+                            props.SetSettings({ FilterOut: u, ...props.Setting })
                         }}
                         Valid={() => true}
                             Label={'Filter ' + i} />
@@ -75,8 +77,8 @@ const SOE: EventWidget.IWidget<ISetting> = {
                     <button className="btn btn-small btn-danger" onClick={() => {
                         const u = _.cloneDeep(props.Settings.FilterOut);
                         u.splice(i, 1);
-                        props.SetSettings({ FilterOut: u })
-                    }}>{TrashCan}</button>
+                        props.SetSettings({ FilterOut: u, ...props.Setting })
+                        }}><ReactIcons.TrashCan /></button>
                 </div> </div>)}
             
             <div className="row">
@@ -84,10 +86,43 @@ const SOE: EventWidget.IWidget<ISetting> = {
                     <button className="btn btn-primary" onClick={() => {
                         const u = _.cloneDeep(props.Settings.FilterOut);
                         u.push('');
-                        props.SetSettings({ FilterOut: u })
+                        props.SetSettings({ FilterOut: u, ...props.Setting })
                     }}>Add Exclusion Filter</button>
                 </div>
             </div>
+
+            {timeVal.map((item, i) =>
+                <div className="row fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>
+                    <div className="col-6">
+                        <Input<IValue>
+                            Record={item}
+                            Field={'Value'}
+                            Setter={(record) => {
+                                const u = _.cloneDeep(props.Settings.TimeWindow);
+                                u[i] = record.Value;
+                                props.SetSettings({ TimeWindow: u, ...props.Settings })
+                            }}
+                            Valid={() => true}
+                            Label={'Window ' + i + ' (s)'} />
+                    </div>
+                    <div className="col-6 m-auto">
+                        <button className="btn btn-small btn-danger" onClick={() => {
+                            const u = _.cloneDeep(props.Settings.TimeWindow);
+                            u.splice(i, 1);
+                            props.SetSettings({ TimeWindow: u, ...props.Settings })
+                        }}><ReactIcons.TrashCan /></button>
+                    </div> </div>)}
+
+            <div className="row">
+                <div className="col">
+                    <button className="btn btn-primary" onClick={() => {
+                        const u = _.cloneDeep(props.Settings.T);
+                        u.push('');
+                        props.SetSettings({ Time: u, ...props.Settings })
+                    }}>Add Time Window</button>
+                </div>
+            </div>
+
         </>
     },
     Widget: (props: EventWidget.IWidgetProps<ISetting>) => {
@@ -95,6 +130,9 @@ const SOE: EventWidget.IWidget<ISetting> = {
         const [statusFilter, setStatusFilter] = React.useState<string[]>([])
         const [timeWindow, setTimeWindow] = React.useState<number>(2);
         const [filterOptions, setFilterOptions] = React.useState<{ Value: number, Text: string, Selected: boolean}[]>([])
+
+        const timeWindowOptions = React.useMemo(() => props.Settings.TimeWindow.map((t) => ({ Value: t.toString(), Label: t.toString() }), [props.Settings.TimeWindow]);
+
 
         React.useEffect(() => {
             setFilterOptions(props.Settings.FilterOut.map((f, i) => ({ Value: i, Text: f.toLowerCase(), Selected: false })))
@@ -113,7 +151,7 @@ const SOE: EventWidget.IWidget<ISetting> = {
                 url: `${props.HomePath}api/SOE/${props.EventID}/${timeWindow}`,
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
-                cache: true,
+                cache: false,
                 async: true
             });
 
@@ -135,11 +173,7 @@ const SOE: EventWidget.IWidget<ISetting> = {
                             <Select
                                 Record={{ timeWindow }}
                                 Field='timeWindow'
-                                Options={[
-                                    { Value: "2", Label: "2" },
-                                    { Value: "10", Label: "10" },
-                                    { Value: "60", Label: "60" }
-                                ]}
+                                Options={timeWindowOptions}
                                 Setter={(record) => setTimeWindow(record.timeWindow)}
                                 Label="Time Window (s)"
                             />
