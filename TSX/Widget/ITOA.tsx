@@ -30,7 +30,7 @@ import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import _ from 'lodash';
 
 interface IValue {
-    Value: string
+    Value: string|number
 }
 interface ItoaInfo {
     StartTime: string,
@@ -41,27 +41,36 @@ interface ItoaInfo {
 }
 interface ISetting {
     Filter: string[],
-    SQLCommand: string
+    SQLCommand: string,
+    TimeWindow: number[]
 }
 
 const ITOA: EventWidget.IWidget<ISetting> = {
     Name: 'ITOA',
     DefaultSettings: {
         Filter: [],
+        TimeWindow: [2,10,60,120],
         SQLCommand: ''
     },
     Settings: (props) => {
-        const [val, setVal] = React.useState<{ Value: string }[]>([]);
+        const [filterVal, setFilterVal] = React.useState<{ Value: string }[]>([]);
+        const [timeVal, setTimeVal] = React.useState<{ Value: number }[]>([]);
 
         React.useEffect(() => {
             if (props.Settings.Filter == undefined)
                 return;
-            setVal(props.Settings.Filter.map(t => ({ Value: t })))
+            setFilterVal(props.Settings.Filter.map(t => ({ Value: t })))
         }, [props.Settings.Filter]);
         
+        React.useEffect(() => {
+            if (props.Settings.TimeWindow == undefined)
+                return;
+            setTimeVal(props.Settings.TimeWindow.map(t => ({ Value: t })))
+        }, [props.Settings.TimeWindow]);
+
         return <>
-            
-            {val.map((item, i) => 
+
+            {filterVal.map((item, i) => 
                 <div className="row fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}> 
                 <div className="col-6">
                     <Input<IValue>
@@ -69,8 +78,8 @@ const ITOA: EventWidget.IWidget<ISetting> = {
                         Field={'Value'}
                         Setter={(record) => {
                             const u = _.cloneDeep(props.Settings.Filter);
-                            u[i] = record.Value;
-                            props.SetSettings({ Filter: u, SQLCommand: props.Settings.SQLCommand })
+                            u[i] = record.Value.toString();
+                            props.SetSettings({ Filter: u, ...props.Settings })
                         }}
                         Valid={() => true}
                             Label={'Cause Code ' + i} />
@@ -79,7 +88,7 @@ const ITOA: EventWidget.IWidget<ISetting> = {
                     <button className="btn btn-small btn-danger" onClick={() => {
                         const u = _.cloneDeep(props.Settings.Filter);
                         u.splice(i, 1);
-                            props.SetSettings({ Filter: u, SQLCommand: props.Settings.SQLCommand })
+                        props.SetSettings({ Filter: u, ...props.Settings })
                     }}><ReactIcons.TrashCan/></button>
                 </div> </div>)}
             
@@ -88,8 +97,41 @@ const ITOA: EventWidget.IWidget<ISetting> = {
                     <button className="btn btn-primary" onClick={() => {
                         const u = _.cloneDeep(props.Settings.Filter);
                         u.push('');
-                        props.SetSettings({ Filter: u, SQLCommand: props.Settings.SQLCommand })
+                        props.SetSettings({ Filter: u, ...props.Settings })
                     }}>Add Cause Filter</button>
+                </div>
+            </div>
+
+            {timeVal.map((item, i) =>
+                <div className="row fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>
+                    <div className="col-6">
+                        <Input<IValue>
+                            Record={item}
+                            Field={'Value'}
+                            Setter={(record) => {
+                                const u = _.cloneDeep(props.Settings.TimeWindow);
+                                u[i] = parseFloat(record.Value.toString());
+                                props.SetSettings({ TimeWindow: u, ...props.Settings })
+                            }}
+                            Type={'number'}
+                            Valid={() => true}
+                            Label={'Window ' + i + ' (s)'} />
+                    </div>
+                    <div className="col-6 m-auto">
+                        <button className="btn btn-small btn-danger" onClick={() => {
+                            const u = _.cloneDeep(props.Settings.TimeWindow);
+                            u.splice(i, 1);
+                            props.SetSettings({ TimeWindow: u, ...props.Settings })
+                        }}><ReactIcons.TrashCan /></button>
+                    </div> </div>)}
+
+            <div className="row">
+                <div className="col">
+                    <button className="btn btn-primary" onClick={() => {
+                        const u = _.cloneDeep(props.Settings.TimeWindow);
+                        u.push(0);
+                        props.SetSettings({ TimeWindow: u, ...props.Settings })
+                    }}>Add Time Window</button>
                 </div>
             </div>
 
@@ -97,7 +139,7 @@ const ITOA: EventWidget.IWidget<ISetting> = {
                 <div className="col">
                     <TextArea<ISetting>
                         Rows={4}
-                        Record={{ SQLCommand: props.Settings.SQLCommand, Filter: props.Settings.Filter }}
+                        Record={{ SQLCommand: props.Settings.SQLCommand, ...props.Settings }}
                         Field="SQLCommand"
                         Label="SQL Command"
                         Valid={() => true}
@@ -114,6 +156,8 @@ const ITOA: EventWidget.IWidget<ISetting> = {
         const [causeFilter, setCauseFilter] = React.useState<string[]>([])
         const [timeWindow, setTimeWindow] = React.useState<number>(2);
         const [filterOptions, setFilterOptions] = React.useState<{ Value: number, Text: string, Selected: boolean}[]>([])
+
+        const timeWindowOptions = React.useMemo(() => props.Settings.TimeWindow.map((t) => ({ Value: t.toString(), Label: t.toString() })), [props.Settings.TimeWindow]);
 
         React.useEffect(() => {
             setFilterOptions(props.Settings.Filter.map((f, i) => ({ Value: i, Text: f.toLowerCase(), Selected: false })))
@@ -134,10 +178,7 @@ const ITOA: EventWidget.IWidget<ISetting> = {
                 url: `${props.HomePath}api/ITOA/${props.EventID}/${timeWindow}/${props.WidgetID}`,
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
-                data: JSON.stringify({
-                    SQLCommand: props.Settings.SQLCommand
-                }),
-                cache: true,
+                cache: false,
                 async: true
             }) as JQuery.jqXHR<ItoaInfo[]>;
 
@@ -162,12 +203,7 @@ const ITOA: EventWidget.IWidget<ISetting> = {
                             <Select
                                 Record={{ timeWindow }}
                                 Field='timeWindow'
-                                Options={[
-                                    { Value: "2", Label: "2" },
-                                    { Value: "10", Label: "10" },
-                                    { Value: "60", Label: "60" },
-                                    { Value: "120", Label: "120" }
-                                ]}
+                                Options={timeWindowOptions}
                                 Setter={(record) => setTimeWindow(record.timeWindow)}
                                 Label="Time Window (s)"
                             />
