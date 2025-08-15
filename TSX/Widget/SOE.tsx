@@ -51,11 +51,19 @@ const SOE: EventWidget.IWidget<ISetting> = {
     Settings: (props) => {
         const [filterVal, setFilterVal] = React.useState<{ Value: string }[]>([]);
 
+        const [timeVal, setTimeVal] = React.useState<{ Value: string }[]>([]);
+
         React.useEffect(() => {
             if (props.Settings.FilterOut == undefined)
                 return;
             setFilterVal(props.Settings.FilterOut.map(t => ({ Value: t })))
         }, [props.Settings.FilterOut]);
+
+        React.useEffect(() => {
+            if (props.Settings.TimeWindow == undefined)
+                return;
+            setTimeVal(props.Settings.TimeWindow.map(t => ({ Value: t.toString() })))
+        }, [props.Settings.TimeWindow]);
         
         return <>
             
@@ -68,7 +76,7 @@ const SOE: EventWidget.IWidget<ISetting> = {
                         Setter={(record) => {
                             const u = _.cloneDeep(props.Settings.FilterOut);
                             u[i] = record.Value;
-                            props.SetSettings({ FilterOut: u, ...props.Setting })
+                            props.SetSettings({ FilterOut: u, ...props.Settings })
                         }}
                         Valid={() => true}
                             Label={'Filter ' + i} />
@@ -77,7 +85,7 @@ const SOE: EventWidget.IWidget<ISetting> = {
                     <button className="btn btn-small btn-danger" onClick={() => {
                         const u = _.cloneDeep(props.Settings.FilterOut);
                         u.splice(i, 1);
-                        props.SetSettings({ FilterOut: u, ...props.Setting })
+                            props.SetSettings({ FilterOut: u, ...props.Settings })
                         }}><ReactIcons.TrashCan /></button>
                 </div> </div>)}
             
@@ -86,7 +94,7 @@ const SOE: EventWidget.IWidget<ISetting> = {
                     <button className="btn btn-primary" onClick={() => {
                         const u = _.cloneDeep(props.Settings.FilterOut);
                         u.push('');
-                        props.SetSettings({ FilterOut: u, ...props.Setting })
+                        props.SetSettings({ FilterOut: u, ...props.Settings })
                     }}>Add Exclusion Filter</button>
                 </div>
             </div>
@@ -99,7 +107,7 @@ const SOE: EventWidget.IWidget<ISetting> = {
                             Field={'Value'}
                             Setter={(record) => {
                                 const u = _.cloneDeep(props.Settings.TimeWindow);
-                                u[i] = record.Value;
+                                u[i] = parseFloat(record.Value.toString());
                                 props.SetSettings({ TimeWindow: u, ...props.Settings })
                             }}
                             Valid={() => true}
@@ -117,9 +125,9 @@ const SOE: EventWidget.IWidget<ISetting> = {
             <div className="row">
                 <div className="col">
                     <button className="btn btn-primary" onClick={() => {
-                        const u = _.cloneDeep(props.Settings.T);
-                        u.push('');
-                        props.SetSettings({ Time: u, ...props.Settings })
+                        const u = _.cloneDeep(props.Settings.TimeWindow);
+                        u.push(0);
+                        props.SetSettings({ TimeWindow: u, ...props.Settings })
                     }}>Add Time Window</button>
                 </div>
             </div>
@@ -132,7 +140,7 @@ const SOE: EventWidget.IWidget<ISetting> = {
         const [timeWindow, setTimeWindow] = React.useState<number>(2);
         const [filterOptions, setFilterOptions] = React.useState<{ Value: number, Text: string, Selected: boolean}[]>([])
 
-        const timeWindowOptions = React.useMemo(() => props.Settings.TimeWindow.map((t) => ({ Value: t.toString(), Label: t.toString() }), [props.Settings.TimeWindow]);
+        const timeWindowOptions = React.useMemo(() => props.Settings.TimeWindow.map((t) => ({ Value: t.toString(), Label: t.toString() })), [props.Settings.TimeWindow]);
 
 
         React.useEffect(() => {

@@ -78,7 +78,7 @@ const ITOA: EventWidget.IWidget<ISetting> = {
                         Field={'Value'}
                         Setter={(record) => {
                             const u = _.cloneDeep(props.Settings.Filter);
-                            u[i] = record.Value;
+                            u[i] = record.Value.toString();
                             props.SetSettings({ Filter: u, ...props.Settings })
                         }}
                         Valid={() => true}
@@ -110,7 +110,7 @@ const ITOA: EventWidget.IWidget<ISetting> = {
                             Field={'Value'}
                             Setter={(record) => {
                                 const u = _.cloneDeep(props.Settings.TimeWindow);
-                                u[i] = record.Value;
+                                u[i] = parseFloat(record.Value.toString());
                                 props.SetSettings({ TimeWindow: u, ...props.Settings })
                             }}
                             Type={'number'}
@@ -128,9 +128,9 @@ const ITOA: EventWidget.IWidget<ISetting> = {
             <div className="row">
                 <div className="col">
                     <button className="btn btn-primary" onClick={() => {
-                        const u = _.cloneDeep(props.Settings.T);
-                        u.push('');
-                        props.SetSettings({ Time: u, ...props.Settings })
+                        const u = _.cloneDeep(props.Settings.TimeWindow);
+                        u.push(0);
+                        props.SetSettings({ TimeWindow: u, ...props.Settings })
                     }}>Add Time Window</button>
                 </div>
             </div>
@@ -157,7 +157,7 @@ const ITOA: EventWidget.IWidget<ISetting> = {
         const [timeWindow, setTimeWindow] = React.useState<number>(2);
         const [filterOptions, setFilterOptions] = React.useState<{ Value: number, Text: string, Selected: boolean}[]>([])
 
-        const timeWindowOptions = React.useMemo(() => props.Settings.TimeWindow.map((t) => ({ Value: t.toString(), Label: t.toString() }), [props.Settings.TimeWindow]);
+        const timeWindowOptions = React.useMemo(() => props.Settings.TimeWindow.map((t) => ({ Value: t.toString(), Label: t.toString() })), [props.Settings.TimeWindow]);
 
         React.useEffect(() => {
             setFilterOptions(props.Settings.Filter.map((f, i) => ({ Value: i, Text: f.toLowerCase(), Selected: false })))
