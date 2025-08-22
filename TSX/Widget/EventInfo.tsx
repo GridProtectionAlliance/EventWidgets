@@ -23,8 +23,7 @@
 
 
 import { Pencil } from '@gpa-gemstone/gpa-symbols';
-import { Select } from '@gpa-gemstone/react-forms';
-import DateTimePicker from '@gpa-gemstone/react-forms/lib/DatePicker';
+import { Select, DatePicker } from '@gpa-gemstone/react-forms';
 import { LoadingIcon, Modal } from '@gpa-gemstone/react-interactive';
 import * as React from 'react';
 import { EventWidget } from '../global';
@@ -216,7 +215,7 @@ const EventInfo: EventWidget.IWidget<{}> = {
                             />
                         </div>
                         <div className="col-12">
-                            <DateTimePicker<IEventInfo>
+                            <DatePicker<IEventInfo>
                                 Record={statsData}
                                 Field={'StartTime'}
                                 Setter={(r) => {
@@ -229,7 +228,7 @@ const EventInfo: EventWidget.IWidget<{}> = {
                             />
                         </div>
                         <div className="col-12">
-                            <DateTimePicker<IEventInfo>
+                            <DatePicker<IEventInfo>
                                 Record={statsData}
                                 Field={'EndTime'}
                                 Setter={(r) => {

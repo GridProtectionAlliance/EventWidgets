@@ -138,17 +138,17 @@ const SOE: EventWidget.IWidget<ISetting> = {
         const [soeInfo, setSOEInfo] = React.useState<SOEInfo[]>([]);
         const [statusFilter, setStatusFilter] = React.useState<string[]>([])
         const [timeWindow, setTimeWindow] = React.useState<number>(2);
-        const [filterOptions, setFilterOptions] = React.useState<{ Value: number, Text: string, Selected: boolean}[]>([])
+        const [filterOptions, setFilterOptions] = React.useState<{ Value: number, Label: string, Selected: boolean}[]>([])
 
         const timeWindowOptions = React.useMemo(() => props.Settings.TimeWindow.map((t) => ({ Value: t.toString(), Label: t.toString() })), [props.Settings.TimeWindow]);
 
 
         React.useEffect(() => {
-            setFilterOptions(props.Settings.FilterOut.map((f, i) => ({ Value: i, Text: f.toLowerCase(), Selected: false })))
+            setFilterOptions(props.Settings.FilterOut.map((f, i) => ({ Value: i, Label: f.toLowerCase(), Selected: false })))
         }, [props.Settings.FilterOut]);
 
         React.useEffect(() => {
-            setFilterOptions((d) => d.map(f => ({ ...f, Selected: statusFilter.includes(f.Text) })));
+            setFilterOptions((d) => d.map(f => ({ ...f, Selected: statusFilter.includes(f.Label) })));
         }, [statusFilter])
         React.useEffect(() => {
             return GetData();
@@ -193,9 +193,9 @@ const SOE: EventWidget.IWidget<ISetting> = {
                                 Label={'Filter Out: '}
                                 OnChange={(evt, options) => {
                                     const filters = cloneDeep(statusFilter)
-                                    const remove = options.filter(o => o.Selected).map(o => o.Text)
-                                    const add = options.filter(o => !o.Selected).map(o => o.Text);
-                                    setStatusFilter(filters.filter(t => !remove.includes(t)).concat(add))
+                                    const remove = options.filter(o => o.Selected).map(o => o.Label)
+                                    const add = options.filter(o => !o.Selected).map(o => o.Label);
+                                    setStatusFilter(filters.filter(t => !remove.includes(t)).concat(add as string[]))
                                 }} />
                         </div>
 
