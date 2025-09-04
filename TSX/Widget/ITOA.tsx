@@ -155,17 +155,17 @@ const ITOA: EventWidget.IWidget<ISetting> = {
         const [data, setData] = React.useState<ItoaInfo[]>([]);
         const [causeFilter, setCauseFilter] = React.useState<string[]>([])
         const [timeWindow, setTimeWindow] = React.useState<number>(2);
-        const [filterOptions, setFilterOptions] = React.useState<{ Value: number, Text: string, Selected: boolean}[]>([])
+        const [filterOptions, setFilterOptions] = React.useState<{ Value: number, Label: string, Selected: boolean}[]>([])
 
         const timeWindowOptions = React.useMemo(() => props.Settings.TimeWindow.map((t) => ({ Value: t.toString(), Label: t.toString() })), [props.Settings.TimeWindow]);
 
         React.useEffect(() => {
-            setFilterOptions(props.Settings.Filter.map((f, i) => ({ Value: i, Text: f.toLowerCase(), Selected: false })))
+            setFilterOptions(props.Settings.Filter.map((f, i) => ({ Value: i, Label: f.toLowerCase(), Selected: false })))
             setCauseFilter(props.Settings.Filter.map(f => f.toLowerCase()));
         }, [props.Settings.Filter]);
 
         React.useEffect(() => {
-            setFilterOptions((d) => d.map(f => ({ ...f, Selected: causeFilter.includes(f.Text) })));
+            setFilterOptions((d) => d.map(f => ({ ...f, Selected: causeFilter.includes(f.Label) })));
         }, [causeFilter])
 
         React.useEffect(() => {
@@ -214,9 +214,9 @@ const ITOA: EventWidget.IWidget<ISetting> = {
                                 Label={'Filter Causes: '}
                                 OnChange={(evt, options) => {
                                     const filters = cloneDeep(causeFilter)
-                                    const remove = options.filter(o => o.Selected).map(o => o.Text)
-                                    const add = options.filter(o => !o.Selected).map(o => o.Text);
-                                    setCauseFilter(filters.filter(t => !remove.includes(t)).concat(add))
+                                    const remove = options.filter(o => o.Selected).map(o => o.Label)
+                                    const add = options.filter(o => !o.Selected).map(o => o.Label);
+                                    setCauseFilter(filters.filter(t => !remove.includes(t)).concat(add as string[]))
                                 }} />
                         </div>
 

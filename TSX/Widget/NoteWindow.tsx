@@ -180,7 +180,7 @@ const NoteWidget: EventWidget.IWidget<ISetting> = {
                     <div className='row'>
                         <div className='col'>
                             <MultiCheckBoxSelect Label={'Types:'}
-                                Options={noteTags.map(t => ({ Selected: selectedTags.find(i => i == t.ID) != null, Text: t.Name, Value: t.ID }))}
+                                Options={noteTags.map(t => ({ Selected: selectedTags.find(i => i == t.ID) != null, Label: t.Name, Value: t.ID }))}
                                 OnChange={(evt, changed) => {
                                     setSelectedTags((st) => {
                                         const u = st.filter((t) => changed.findIndex(c => c.Value == t) == -1);
