@@ -188,6 +188,7 @@ const NoteWidget: EventWidget.IWidget<ISetting> = {
                                         return u;
                                     })
                                 }}
+                                ShowToolTip={true}
                             />
                             <Select<OpenXDA.Types.NoteType>
                                 Record={noteType}
