@@ -53,28 +53,12 @@ const ITOA: EventWidget.IWidget<ISetting> = {
         SQLCommand: ''
     },
     Settings: (props) => {
-        const [filterVal, setFilterVal] = React.useState<{ Value: string }[]>([]);
-        const [timeVal, setTimeVal] = React.useState<{ Value: number }[]>([]);
-
-        React.useEffect(() => {
-            if (props.Settings.Filter == undefined)
-                return;
-            setFilterVal(props.Settings.Filter.map(t => ({ Value: t })))
-        }, [props.Settings.Filter]);
-        
-        React.useEffect(() => {
-            if (props.Settings.TimeWindow == undefined)
-                return;
-            setTimeVal(props.Settings.TimeWindow.map(t => ({ Value: t })))
-        }, [props.Settings.TimeWindow]);
-
         return <>
-
-            {filterVal.map((item, i) => 
+            {props.Settings.Filter?.map((item, i) => 
                 <div className="row fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}> 
                 <div className="col-6">
                     <Input<IValue>
-                        Record={item}
+                            Record={{ Value: item }}
                         Field={'Value'}
                         Setter={(record) => {
                             const u = _.cloneDeep(props.Settings.Filter);
@@ -102,11 +86,11 @@ const ITOA: EventWidget.IWidget<ISetting> = {
                 </div>
             </div>
 
-            {timeVal.map((item, i) =>
+            {props.Settings.TimeWindow?.map((item, i) =>
                 <div className="row fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>
                     <div className="col-6">
                         <Input<IValue>
-                            Record={item}
+                            Record={{ Value: item }}
                             Field={'Value'}
                             Setter={(record) => {
                                 const u = _.cloneDeep(props.Settings.TimeWindow);

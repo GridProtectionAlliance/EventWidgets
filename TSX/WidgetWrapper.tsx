@@ -49,7 +49,7 @@ import { IWigetStore } from './Store';
 import EventInfo from './Widget/EventInfo';
 import ITOA from './Widget/ITOA';
 
-const AllWidgets: EventWidget.IWidget<any>[] = [LineParameters , 
+const AllWidgets: EventWidget.IWidget<unknown>[] = [LineParameters , 
     EventSearchOpenSEE, ESRIMap, FaultInfo, EventSearchAssetFaultSegments,
     AssetVoltageDisturbances, EventSearchCorrelatedSags, SOE, EventSearchPQI, Lightning, EventSearchFileInfo, EventSearchNoteWindow,
     StructureInfo, PQICurve, InterruptionReport, EventSearchRelayPerformance, EventSearchBreakerPerformance, EventSearchCapBankAnalyticOverview,
