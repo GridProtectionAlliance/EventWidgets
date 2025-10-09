@@ -55,9 +55,9 @@ const ITOA: EventWidget.IWidget<ISetting> = {
     Settings: (props) => {
         return <>
             {props.Settings.Filter?.map((item, i) => 
-                <div className="row fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}> 
-                <div className="col-6">
-                    <Input<IValue>
+                <div className="row fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }} key={`filter_${i}`}> 
+                    <div className="col-6">
+                        <Input<IValue>
                             Record={{ Value: item }}
                         Field={'Value'}
                         Setter={(record) => {
@@ -87,7 +87,7 @@ const ITOA: EventWidget.IWidget<ISetting> = {
             </div>
 
             {props.Settings.TimeWindow?.map((item, i) =>
-                <div className="row fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>
+                <div className="row fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }} key={`time_${i}`}>
                     <div className="col-6">
                         <Input<IValue>
                             Record={{ Value: item }}
