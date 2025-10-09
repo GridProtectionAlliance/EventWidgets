@@ -59,29 +59,31 @@ const ITOA: EventWidget.IWidget<ISetting> = {
                     <div className="col-6">
                         <Input<IValue>
                             Record={{ Value: item }}
-                        Field={'Value'}
-                        Setter={(record) => {
+                            Field={'Value'}
+                            Setter={(record) => {
+                                const u = _.cloneDeep(props.Settings.Filter);
+                                u[i] = record.Value as string;
+                                props.SetSettings({ ...props.Settings, Filter: u })
+                            }}
+                            Valid={() => true}
+                                Label={'Cause Code ' + i} />
+                        </div>
+                        <div className="col-6 m-auto">
+                        <button className="btn btn-small btn-danger" onClick={() => {
                             const u = _.cloneDeep(props.Settings.Filter);
-                            u[i] = record.Value.toString();
-                            props.SetSettings({ Filter: u, ...props.Settings })
-                        }}
-                        Valid={() => true}
-                            Label={'Cause Code ' + i} />
+                            u.splice(i, 1);
+                            props.SetSettings({ ...props.Settings, Filter: u })
+                        }}><ReactIcons.TrashCan/></button>
                     </div>
-                    <div className="col-6 m-auto">
-                    <button className="btn btn-small btn-danger" onClick={() => {
-                        const u = _.cloneDeep(props.Settings.Filter);
-                        u.splice(i, 1);
-                        props.SetSettings({ Filter: u, ...props.Settings })
-                    }}><ReactIcons.TrashCan/></button>
-                </div> </div>)}
+                </div>
+            )}
             
             <div className="row">
                 <div className="col">
                     <button className="btn btn-primary" onClick={() => {
                         const u = _.cloneDeep(props.Settings.Filter);
                         u.push('');
-                        props.SetSettings({ Filter: u, ...props.Settings })
+                        props.SetSettings({ ...props.Settings, Filter: u })
                     }}>Add Cause Filter</button>
                 </div>
             </div>
@@ -94,8 +96,8 @@ const ITOA: EventWidget.IWidget<ISetting> = {
                             Field={'Value'}
                             Setter={(record) => {
                                 const u = _.cloneDeep(props.Settings.TimeWindow);
-                                u[i] = parseFloat(record.Value.toString());
-                                props.SetSettings({ TimeWindow: u, ...props.Settings })
+                                u[i] = record.Value as number;
+                                props.SetSettings({ ...props.Settings, TimeWindow: u })
                             }}
                             Type={'number'}
                             Valid={() => true}
@@ -105,16 +107,18 @@ const ITOA: EventWidget.IWidget<ISetting> = {
                         <button className="btn btn-small btn-danger" onClick={() => {
                             const u = _.cloneDeep(props.Settings.TimeWindow);
                             u.splice(i, 1);
-                            props.SetSettings({ TimeWindow: u, ...props.Settings })
+                            props.SetSettings({ ...props.Settings, TimeWindow: u })
                         }}><ReactIcons.TrashCan /></button>
-                    </div> </div>)}
+                    </div>
+                </div>
+            )}
 
             <div className="row">
                 <div className="col">
                     <button className="btn btn-primary" onClick={() => {
                         const u = _.cloneDeep(props.Settings.TimeWindow);
                         u.push(0);
-                        props.SetSettings({ TimeWindow: u, ...props.Settings })
+                        props.SetSettings({ ...props.Settings, TimeWindow: u })
                     }}>Add Time Window</button>
                 </div>
             </div>
@@ -123,13 +127,11 @@ const ITOA: EventWidget.IWidget<ISetting> = {
                 <div className="col">
                     <TextArea<ISetting>
                         Rows={4}
-                        Record={{ SQLCommand: props.Settings.SQLCommand, ...props.Settings }}
+                        Record={props.Settings}
                         Field="SQLCommand"
                         Label="SQL Command"
                         Valid={() => true}
-                        Setter={(record) => {
-                            props.SetSettings(record);
-                        }}
+                        Setter={props.SetSettings}
                     />
                 </div>
             </div>
