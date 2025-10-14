@@ -48,10 +48,11 @@ const SOE: EventWidget.IWidget<ISetting> = {
         FilterOut: ['abnormal', 'close', 'no', 'normal', 'received', 'start', 'trip', 'yes'],
         TimeWindow: [2, 10, 60]
     },
-    Settings: (props) => (
+    Settings: (props) => {
+        return (
             <>
                 {props.Settings.FilterOut?.map((item, i) =>
-                    <div className="row fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>
+                    <div className="row fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }} key={`filter_${i}`}>
                         <div className="col-6">
                             <Input<IValue>
                                 Record={{ Value: item }}
@@ -84,7 +85,7 @@ const SOE: EventWidget.IWidget<ISetting> = {
                 </div>
 
                 {props.Settings.TimeWindow?.map((item, i) =>
-                    <div className="row fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>
+                    <div className="row fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }} key={`time_${i}`}>
                         <div className="col-6">
                             <Input<IValue>
                                 Record={{ Value: item }}
@@ -103,7 +104,9 @@ const SOE: EventWidget.IWidget<ISetting> = {
                                 const u = _.cloneDeep(props.Settings.TimeWindow);
                                 u.splice(i, 1);
                             }}><ReactIcons.TrashCan /></button>
-                        </div> </div>)}
+                        </div>
+                    </div>
+                )}
 
                 <div className="row">
                     <div className="col">
@@ -116,7 +119,8 @@ const SOE: EventWidget.IWidget<ISetting> = {
                 </div>
 
             </>
-    ),
+        );
+    },
     Widget: (props: EventWidget.IWidgetProps<ISetting>) => {
         const [soeInfo, setSOEInfo] = React.useState<SOEInfo[]>([]);
         const [statusFilter, setStatusFilter] = React.useState<string[]>([])
