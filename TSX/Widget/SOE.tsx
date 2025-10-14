@@ -30,7 +30,7 @@ import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import _ from 'lodash';
 
 interface IValue {
-    Value: string
+    Value: string | number
 }
 interface SOEInfo {
     Time: string,
@@ -48,92 +48,75 @@ const SOE: EventWidget.IWidget<ISetting> = {
         FilterOut: ['abnormal', 'close', 'no', 'normal', 'received', 'start', 'trip', 'yes'],
         TimeWindow: [2, 10, 60]
     },
-    Settings: (props) => {
-        const [filterVal, setFilterVal] = React.useState<{ Value: string }[]>([]);
-
-        const [timeVal, setTimeVal] = React.useState<{ Value: string }[]>([]);
-
-        React.useEffect(() => {
-            if (props.Settings.FilterOut == undefined)
-                return;
-            setFilterVal(props.Settings.FilterOut.map(t => ({ Value: t })))
-        }, [props.Settings.FilterOut]);
-
-        React.useEffect(() => {
-            if (props.Settings.TimeWindow == undefined)
-                return;
-            setTimeVal(props.Settings.TimeWindow.map(t => ({ Value: t.toString() })))
-        }, [props.Settings.TimeWindow]);
-        
-        return <>
-            
-            {filterVal.map((item, i) => 
-                <div className="row fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}> 
-                <div className="col-6">
-                    <Input<IValue>
-                        Record={item}
-                        Field={'Value'}
-                        Setter={(record) => {
+    Settings: (props) => (
+            <>
+                {props.Settings.FilterOut?.map((item, i) =>
+                    <div className="row fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>
+                        <div className="col-6">
+                            <Input<IValue>
+                                Record={{ Value: item }}
+                                Field={'Value'}
+                                Setter={(record) => {
+                                    const u = _.cloneDeep(props.Settings.FilterOut);
+                                    u[i] = record.Value as string;
+                                    props.SetSettings({ ...props.Settings, FilterOut: u });
+                                }}
+                                Valid={() => true}
+                                Label={'Filter ' + i} />
+                        </div>
+                        <div className="col-6">
+                            <button className="btn btn-small btn-danger" onClick={() => {
+                                const u = _.cloneDeep(props.Settings.FilterOut);
+                                u.splice(i, 1);
+                                props.SetSettings({ ...props.Settings, FilterOut: u });
+                            }}><ReactIcons.TrashCan /></button>
+                        </div>
+                    </div>
+                )}
+                <div className="row">
+                    <div className="col">
+                        <button className="btn btn-primary" onClick={() => {
                             const u = _.cloneDeep(props.Settings.FilterOut);
-                            u[i] = record.Value;
-                            props.SetSettings({ FilterOut: u, ...props.Settings })
-                        }}
-                        Valid={() => true}
-                            Label={'Filter ' + i} />
+                            u.push('');
+                            props.SetSettings({ ...props.Settings, FilterOut: u });
+                        }}>Add Exclusion Filter</button>
                     </div>
-                    <div className="col-6">
-                    <button className="btn btn-small btn-danger" onClick={() => {
-                        const u = _.cloneDeep(props.Settings.FilterOut);
-                        u.splice(i, 1);
-                            props.SetSettings({ FilterOut: u, ...props.Settings })
-                        }}><ReactIcons.TrashCan /></button>
-                </div> </div>)}
-            
-            <div className="row">
-                <div className="col">
-                    <button className="btn btn-primary" onClick={() => {
-                        const u = _.cloneDeep(props.Settings.FilterOut);
-                        u.push('');
-                        props.SetSettings({ FilterOut: u, ...props.Settings })
-                    }}>Add Exclusion Filter</button>
                 </div>
-            </div>
 
-            {timeVal.map((item, i) =>
-                <div className="row fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>
-                    <div className="col-6">
-                        <Input<IValue>
-                            Record={item}
-                            Field={'Value'}
-                            Setter={(record) => {
+                {props.Settings.TimeWindow?.map((item, i) =>
+                    <div className="row fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>
+                        <div className="col-6">
+                            <Input<IValue>
+                                Record={{ Value: item }}
+                                Field={'Value'}
+                                Setter={(record) => {
+                                    const u = _.cloneDeep(props.Settings.TimeWindow);
+                                    u[i] = record.Value as number;
+                                    props.SetSettings({ ...props.Settings, TimeWindow: u });
+                                }}
+                                Valid={() => true}
+                                Type={'number'}
+                                Label={'Window ' + i + ' (s)'} />
+                        </div>
+                        <div className="col-6 m-auto">
+                            <button className="btn btn-small btn-danger" onClick={() => {
                                 const u = _.cloneDeep(props.Settings.TimeWindow);
-                                u[i] = parseFloat(record.Value.toString());
-                                props.SetSettings({ TimeWindow: u, ...props.Settings })
-                            }}
-                            Valid={() => true}
-                            Type={'number'}
-                            Label={'Window ' + i + ' (s)'} />
-                    </div>
-                    <div className="col-6 m-auto">
-                        <button className="btn btn-small btn-danger" onClick={() => {
+                                u.splice(i, 1);
+                            }}><ReactIcons.TrashCan /></button>
+                        </div> </div>)}
+
+                <div className="row">
+                    <div className="col">
+                        <button className="btn btn-primary" onClick={() => {
                             const u = _.cloneDeep(props.Settings.TimeWindow);
-                            u.splice(i, 1);
-                            props.SetSettings({ TimeWindow: u, ...props.Settings })
-                        }}><ReactIcons.TrashCan /></button>
-                    </div> </div>)}
-
-            <div className="row">
-                <div className="col">
-                    <button className="btn btn-primary" onClick={() => {
-                        const u = _.cloneDeep(props.Settings.TimeWindow);
-                        u.push(0);
-                        props.SetSettings({ TimeWindow: u, ...props.Settings })
-                    }}>Add Time Window</button>
+                            u.push(0);
+                            props.SetSettings({ ...props.Settings, TimeWindow: u });
+                        }}>Add Time Window</button>
+                    </div>
                 </div>
-            </div>
 
-        </>
-    },
+            </>
+    ),
     Widget: (props: EventWidget.IWidgetProps<ISetting>) => {
         const [soeInfo, setSOEInfo] = React.useState<SOEInfo[]>([]);
         const [statusFilter, setStatusFilter] = React.useState<string[]>([])
