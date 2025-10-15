@@ -103,6 +103,7 @@ const SOE: EventWidget.IWidget<ISetting> = {
                             <button className="btn btn-small btn-danger" onClick={() => {
                                 const u = _.cloneDeep(props.Settings.TimeWindow);
                                 u.splice(i, 1);
+                                props.SetSettings({ ...props.Settings, TimeWindow: u });
                             }}><ReactIcons.TrashCan /></button>
                         </div>
                     </div>
