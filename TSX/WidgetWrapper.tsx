@@ -48,6 +48,7 @@ import MatlabAnalyticResults from './Widget/MatlabAnalyticResults';
 import { IWigetStore } from './Store';
 import EventInfo from './Widget/EventInfo';
 import ITOA from './Widget/ITOA';
+import { ErrorBoundary } from '@gpa-gemstone/common-pages';
 
 const AllWidgets: EventWidget.IWidget<any>[] = [LineParameters , 
     EventSearchOpenSEE, ESRIMap, FaultInfo, EventSearchAssetFaultSegments,
@@ -103,7 +104,9 @@ const WidgetRouter: React.FC<IProps> = (props: IProps) => {
                 Size={150} />
             </div>
              </div>
-        : <ErrorBoundary Widget={props.Widget.Name}>
+        : <ErrorBoundary
+            ErrorMessage={`Widget ${props.Widget.Name} has encoutered an error.`}
+        >
             <Widget.Widget
                 Settings={Settings}
                 StartTime={props.StartTime}
@@ -119,46 +122,6 @@ const WidgetRouter: React.FC<IProps> = (props: IProps) => {
             />
         </ErrorBoundary>}
     </>
-}
-
-interface IError {
-    name: string,
-    message: string
-}
-
-class ErrorBoundary extends React.Component<{Widget: string}, IError> {
-    constructor(props) {
-        super(props);
-        this.state = { name: "", message: "" };
-    }
-
-    componentDidCatch(error) {
-        this.setState({
-            name: error.name,
-            message: error.message
-        });
-        console.log(error);
-    }
-
-    render() {
-        if (this.state.name.length > 0) {
-            return (
-                <div className="card">
-                    <div className="card-header">
-                        {this.props.Widget} - Error
-                    </div>
-                    <div className="card-body">
-
-                <ServerErrorIcon Show={true}
-                    Label={`Widget ${this.props.Widget} has encoutered an error.`}
-                            Size={150} />
-                    </div>
-            </div>
-            );
-        } else {
-            return <>{this.props.children}</>;
-        }
-    }
 }
 
 export { AllWidgets }
