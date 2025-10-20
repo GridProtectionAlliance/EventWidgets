@@ -30,11 +30,15 @@ using System.Threading.Tasks;
 using FaultData.DataAnalysis;
 using openXDA.APIAuthentication;
 using System.Net.Http;
+using GSF.Web;
+
 
 #if IS_GEMSTONE
 using RoutePrefix = Microsoft.AspNetCore.Mvc.RouteAttribute;
 using Microsoft.AspNetCore.Mvc;
 #else
+using System.Web.Http;
+using ControllerBase = System.Web.Http.ApiController;
 #endif
 
 namespace Widgets.Controllers
@@ -42,8 +46,8 @@ namespace Widgets.Controllers
     [RoutePrefix("api/OpenSEE")]
     public class OpenSEEController : ControllerBase
     {
-        #if IS_GEMSTONE
         // if this is disabled, the static object must be intialized by the outside instead of having the function injected here
+        #if IS_GEMSTONE
         public OpenSEEController(Func<(string,string,string)> initFunction) 
         {
             if (!XDAAPIHelper.IsIntialized)
@@ -52,10 +56,11 @@ namespace Widgets.Controllers
         #endif
 
         [Route("GetData"), HttpGet]
-        public Task<HttpResponseMessage> GetOpenSEEData(int eventID)
+        public Task<HttpResponseMessage> GetOpenSEEData()
         {
-            string? route = Request.Path.Value;
-            return XDAAPIHelper.GetResponseTask("OpenSEE/GetData");
+            string query = Request.RequestUri.Query;
+            XDAAPIHelper.RefreshSettings();
+            return XDAAPIHelper.GetResponseTask("api/OpenSEE/GetData" + query);
         }
     }
 }
