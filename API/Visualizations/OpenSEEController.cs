@@ -1,5 +1,5 @@
 ﻿//******************************************************************************************************
-//  LineParameters.cs - Gbtc
+//  OpenSEEController.cs - Gbtc
 //
 //  Copyright © 2023, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -23,19 +23,20 @@
 //
 //******************************************************************************************************
 
-using System.Threading.Tasks;
 using openXDA.APIAuthentication;
 using System.Net.Http;
 using System.Threading;
 
 #if IS_GEMSTONE
-using RoutePrefix = Microsoft.AspNetCore.Mvc.RouteAttribute;
 using Microsoft.AspNetCore.Mvc;
 using Gemstone.Web;
+using RoutePrefix = Microsoft.AspNetCore.Mvc.RouteAttribute;
+using ServerResponse = System.Threading.Tasks.Task;
 #else
 using System.Web.Http;
+using API = openXDA.APIAuthentication.XDAAPIHelper;
 using Controller = System.Web.Http.ApiController;
-using ServerResponse = System.Net.Http.HttpResponseMessage;
+using ServerResponse = System.Threading.Tasks.Task<System.Net.Http.HttpResponseMessage>;
 #endif
 
 namespace Widgets.Controllers
@@ -45,26 +46,27 @@ namespace Widgets.Controllers
     {
         // if this is disabled, the static object must be intialized by the outside instead of having the retriever injected here
         #if IS_GEMSTONE
+        XDAAPI API { get; set; }
         public OpenSEEController(IAPICredentialRetriever retriever)
         {
-            XDAAPIHelper.InitializeHelper(retriever);
+            API = new XDAAPI(retriever);
         }
+        #else
         #endif
 
         [Route("GetData"), HttpGet]
-        public async Task GetOpenSEEData(CancellationToken cancellationToken)
+        public async ServerResponse GetOpenSEEData(CancellationToken cancellationToken)
         {
+
             string query;
-            Response.GetType();
 
             #if IS_GEMSTONE
             query = Request.QueryString.Value;
             #else
-            XDAAPIHelper.RefreshSettings();
             query = Request.RequestUri.Query;
             #endif
 
-            HttpResponseMessage response = await XDAAPIHelper.GetResponseTask("api/OpenSEE/GetData" + query).ConfigureAwait(false);
+            HttpResponseMessage response = await API.GetResponseTask("api/OpenSEE/GetData" + query).ConfigureAwait(false);
 
             #if IS_GEMSTONE
             await Response.SetValues(response, cancellationToken);
