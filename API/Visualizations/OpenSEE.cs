@@ -18,49 +18,60 @@
 //  ----------------------------------------------------------------------------------------------------
 //  08/22/2023 - Preston Crawford
 //       Generated original version of source code.
+//  10/17/2025 - Gabriel Santos
+//       Removed endpoint, pointing this to an existing endpoint in XDA.
 //
 //******************************************************************************************************
 
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Runtime.Caching;
 using System.Threading.Tasks;
-using FaultData.DataAnalysis;
 using openXDA.APIAuthentication;
 using System.Net.Http;
-using GSF.Web;
-
+using System.Threading;
 
 #if IS_GEMSTONE
 using RoutePrefix = Microsoft.AspNetCore.Mvc.RouteAttribute;
 using Microsoft.AspNetCore.Mvc;
+using Gemstone.Web;
 #else
 using System.Web.Http;
-using ControllerBase = System.Web.Http.ApiController;
+using Controller = System.Web.Http.ApiController;
+using ServerResponse = System.Net.Http.HttpResponseMessage;
 #endif
 
 namespace Widgets.Controllers
 {
     [RoutePrefix("api/OpenSEE")]
-    public class OpenSEEController : ControllerBase
+    public class OpenSEEController : Controller
     {
-        // if this is disabled, the static object must be intialized by the outside instead of having the function injected here
+        // if this is disabled, the static object must be intialized by the outside instead of having the retriever injected here
         #if IS_GEMSTONE
-        public OpenSEEController(Func<(string,string,string)> initFunction) 
+        public OpenSEEController(IAPICredentialRetriever retriever)
         {
-            if (!XDAAPIHelper.IsIntialized)
-                XDAAPIHelper.InitializeHelper(initFunction);
+            XDAAPIHelper.InitializeHelper(retriever);
         }
         #endif
 
         [Route("GetData"), HttpGet]
-        public Task<HttpResponseMessage> GetOpenSEEData()
+        public async Task GetOpenSEEData(CancellationToken cancellationToken)
         {
-            string query = Request.RequestUri.Query;
+            string query;
+            Response.GetType();
+
+            #if IS_GEMSTONE
+            query = Request.QueryString.Value;
+            #else
             XDAAPIHelper.RefreshSettings();
-            return XDAAPIHelper.GetResponseTask("api/OpenSEE/GetData" + query);
+            query = Request.RequestUri.Query;
+            #endif
+
+            HttpResponseMessage response = await XDAAPIHelper.GetResponseTask("api/OpenSEE/GetData" + query).ConfigureAwait(false);
+
+            #if IS_GEMSTONE
+            await Response.SetValues(response, cancellationToken);
+            return;
+            #else
+            return response;
+            #endif
         }
     }
 }
