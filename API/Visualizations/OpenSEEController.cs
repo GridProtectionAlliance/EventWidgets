@@ -23,13 +23,14 @@
 //
 //******************************************************************************************************
 
-using openXDA.APIAuthentication;
+using System;
 using System.Net.Http;
 using System.Threading;
 
 #if IS_GEMSTONE
-using Microsoft.AspNetCore.Mvc;
 using Gemstone.Web;
+using Microsoft.AspNetCore.Mvc;
+using openXDA.APIAuthentication;
 using RoutePrefix = Microsoft.AspNetCore.Mvc.RouteAttribute;
 using ServerResponse = System.Threading.Tasks.Task;
 #else
@@ -39,9 +40,9 @@ using Controller = System.Web.Http.ApiController;
 using ServerResponse = System.Threading.Tasks.Task<System.Net.Http.HttpResponseMessage>;
 #endif
 
-namespace Widgets.Controllers
+namespace Widgets.API.Visualizations
 {
-    [RoutePrefix("api/OpenSEE")]
+    [RoutePrefix("api/EventWidgets/OpenSEE")]
     public class OpenSEEController : Controller
     {
         // if this is disabled, the static object must be intialized by the outside instead of having the retriever injected here
@@ -51,12 +52,13 @@ namespace Widgets.Controllers
         {
             API = new XDAAPI(retriever);
         }
-        #else
         #endif
 
         [Route("GetData"), HttpGet]
         public async ServerResponse GetOpenSEEData(CancellationToken cancellationToken)
         {
+            if (!API.TryRefreshSettings())
+                throw new InvalidOperationException("Unable to refresh XDA API helper.");
 
             string query;
 
