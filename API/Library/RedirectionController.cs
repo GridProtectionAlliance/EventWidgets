@@ -129,30 +129,6 @@ namespace Widgets.API.Library
             await ForwardRequest(null, token).ConfigureAwait(false);
 
         /// <summary>
-        /// Function that handles route redirection of routes with queries.
-        /// </summary>
-        /// <returns><see cref="ServerResponse"/> that depends on the target framework.</returns>
-        public async ServerResponse ForwardQuery(CancellationToken cancellationToken)
-        {
-            if (!API.TryRefreshSettings())
-                throw new InvalidOperationException("Unable to refresh XDA API helper.");
-            
-            string query = GetQueryString();
-            string endpoint = GetEndpoint();
-
-            HttpResponseMessage response = await API
-                .GetResponseTask(m_xdaRoute + endpoint + query)
-                .ConfigureAwait(false);
-
-            #if IS_GEMSTONE
-            await Response.SetValues(response, cancellationToken);
-            return;
-            #else
-            return response;
-            #endif
-        }
-
-        /// <summary>
         /// Gets the route path taken to hit the current endpoint,
         /// not including the portion to reach the current controller.
         /// </summary>
