@@ -28,9 +28,9 @@ using System.Net.Http;
 using System.Threading;
 
 #if IS_GEMSTONE
-using Gemstone.Web;
 using Microsoft.AspNetCore.Mvc;
 using openXDA.APIAuthentication;
+using Widgets.API.Library;
 using RoutePrefix = Microsoft.AspNetCore.Mvc.RouteAttribute;
 using ServerResponse = System.Threading.Tasks.Task;
 #else
@@ -42,40 +42,31 @@ using ServerResponse = System.Threading.Tasks.Task<System.Net.Http.HttpResponseM
 
 namespace Widgets.API.Visualizations
 {
+    /// <summary>
+    /// Controller that handles fetching of openSEE data from XDA to display a graph of event data. 
+    /// </summary>
+    [XDARedirect("api/Widgets/OpenSEE")]
     [RoutePrefix("api/EventWidgets/OpenSEE")]
-    public class OpenSEEController : Controller
+    public class OpenSEEController : RedirectionController
     {
-        // if this is disabled, the static object must be intialized by the outside instead of having the retriever injected here
         #if IS_GEMSTONE
-        XDAAPI API { get; set; }
-        public OpenSEEController(IAPICredentialRetriever retriever)
-        {
-            API = new XDAAPI(retriever);
-        }
+        /// <summary>
+        /// Dependency injection constructor for use in .NETCore Applications.
+        /// </summary>
+        /// <param name="retriever">An <see cref="IAPICredentialRetriever"/> that is responsible for retriving credentials used to make API calls to XDA.</param>
+        public OpenSEEController(IAPICredentialRetriever retriever) : base(retriever) { }
         #endif
 
-        [Route("GetData"), HttpGet]
-        public async ServerResponse GetOpenSEEData(CancellationToken cancellationToken)
-        {
-            if (!API.TryRefreshSettings())
-                throw new InvalidOperationException("Unable to refresh XDA API helper.");
-
-            string query;
-
-            #if IS_GEMSTONE
-            query = Request.QueryString.Value;
-            #else
-            query = Request.RequestUri.Query;
-            #endif
-
-            HttpResponseMessage response = await API.GetResponseTask("api/OpenSEE/GetData" + query).ConfigureAwait(false);
-
-            #if IS_GEMSTONE
-            await Response.SetValues(response, cancellationToken);
-            return;
-            #else
-            return response;
-            #endif
-        }
+        /// <summary>
+        /// Redirection endpoint that handles fetching openSEE event chart data.
+        /// </summary>
+        /// <remarks>
+        /// This event relies on a query string with the following parameters:<br/>
+        /// eventID is a <see cref="int"/> that represents the ID of the event in the XDA database.<br/>
+        /// pixels is a <see cref="int"/> the width resolution of the graph, so that data may be downsampled.<br/>
+        /// type is a <see cref="string"/> that represents the measurement type of the channels data is being pulled from. Note: supported values are "Voltage", "Current", and "TripCoilCurrent".<br/>
+        /// </remarks>
+        [Route("GetData")]
+        public async ServerResponse GetOpenSEEData(CancellationToken token) => await ForwardRequest(token).ConfigureAwait(false);
     }
 }
