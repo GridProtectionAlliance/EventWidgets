@@ -26,18 +26,6 @@ import { EventWidget } from '../global';
 import { Input } from '@gpa-gemstone/react-forms';
 
 interface ISeries { label: string, color: string, data: [number, number][] }
-
-interface ReturnObject {
-    Data: {
-        DataPoints: [number, number][],
-        ChartLabel: string
-    }[]
-    StartDate: string,
-    EndDate: string,
-    CalculationTime: number,
-    CalculationEnd: number
-}
-
 interface IPartialOpenseeSettings {
     Colors: {
         Va: string,
@@ -140,16 +128,13 @@ const EventSearchOpenSEE: EventWidget.IWidget<ISetting> = {
                 url: `${props.HomePath}api/EventWidgets/OpenSEE/GetData?eventId=${props.EventID}` +
                     `&pixels=${1200}` +
                     `&type=${type}` +
-                    `&dataType=Time`+
-                    `&dataCharacteristic=Instantaneous` +
-                    `&prioritizeNeutrals=${type === 'Voltage'}`,
+                    `&dataType=Time`,
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
                 cache: true,
                 async: true
-            }).done((data: ReturnObject) => {
-                if (data != null) datasetter(data.Data.map((dataObj) => ({ label: dataObj.ChartLabel, data: dataObj.DataPoints, color: '#ff0000' } as ISeries)));
-                else (datasetter([]));
+            }).done(data => {
+                datasetter(Object.keys(data).map((key) => ({ label: key, data: data[key], color: '#ff0000' } as ISeries)))
             })
         }
 
