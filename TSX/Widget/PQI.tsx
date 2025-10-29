@@ -44,7 +44,7 @@ const EventSearchPQI: EventWidget.IWidget<{}> = {
 
             return $.ajax({
                 type: "GET",
-                url: `${props.HomePath}api/PQI/GetEquipment/${props.EventID}`,
+                url: `${props.HomePath}api/EventWidgets/PQI/GetEquipment/${props.EventID}`,
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
                 cache: true,

@@ -253,7 +253,7 @@ const TrendGraph: EventWidget.IWidget<ISetting> = {
                     Trending Data
                 </div>
                 {status === 'idle' ?
-                    <div className="card-body">
+                    <div className="card-body p-0">
                         {Object.keys(data.Voltage).length > 0 ?
                             <Plot height={250} width={dimensions.Width} showBorder={false}
                                 yDomain={'AutoValue'}
@@ -274,7 +274,7 @@ const TrendGraph: EventWidget.IWidget<ISetting> = {
                                 defaultTdomain={data.TimeLimits}
                                 legend={'bottom'}
                                 Tlabel={'Time'}
-                                Ylabel={'Voltage (V)'} showMouse={false} zoom={false} pan={false} useMetricFactors={false}>
+                                Ylabel={'Current (I)'} showMouse={false} zoom={false} pan={false} useMetricFactors={false}>
                                 <VerticalMarker Value={data.EventTime} color={'000000'} lineStyle={':'} width={3} />
                                 {Object.keys(data.Current).map((s) =>
                                     <Line highlightHover={false} showPoints={false} lineStyle={'-'} color={getColor(s)} data={data.Current[s]} legend={s} key={s} />
@@ -287,7 +287,7 @@ const TrendGraph: EventWidget.IWidget<ISetting> = {
                                 defaultTdomain={data.TimeLimits}
                                 legend={'bottom'}
                                 Tlabel={'Time'}
-                                Ylabel={'Voltage (V)'} showMouse={false} zoom={false} pan={false} useMetricFactors={false}>
+                                Ylabel={'Current (I)'} showMouse={false} zoom={false} pan={false} useMetricFactors={false}>
                                 <VerticalMarker Value={data.EventTime} color={'000000'} lineStyle={':'} width={3} />
                                 {Object.keys(data.Voltage).map((s) =>
                                     <Line highlightHover={false} showPoints={false} lineStyle={'-'} color={getColor(s)} data={data.TripCoilCurrent[s]} legend={s} key={s} />

@@ -127,8 +127,7 @@ const EventSearchOpenSEE: EventWidget.IWidget<ISetting> = {
                 type: "GET",
                 url: `${props.HomePath}api/EventWidgets/OpenSEE/GetData?eventId=${props.EventID}` +
                     `&pixels=${1200}` +
-                    `&type=${type}` +
-                    `&dataType=Time`,
+                    `&type=${type}`,
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
                 cache: true,
