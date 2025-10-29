@@ -61,7 +61,9 @@ namespace Widgets.API.Visualizations
         /// Redirection endpoint that handles fetching PQI equipment tables and PQI curve information.
         /// </summary>
         /// <remarks>
-        /// Both endpoints supported require an eventID of a related XDA event to fetch information.
+        /// Both endpoints supported require an eventID of a related XDA 
+        /// <see href="https://github.com/GridProtectionAlliance/openXDA/blob/master/Source/Libraries/openXDA.Model/Events/Event.cs">Event</see>
+        /// to fetch information.
         /// </remarks>
         [Route("GetEquipment/{eventID:int}")]
         [Route("GetCurves/{eventID:int}")]
