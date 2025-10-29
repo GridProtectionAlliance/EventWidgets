@@ -23,16 +23,13 @@
 //
 //******************************************************************************************************
 
-using System;
-using System.Net.Http;
-using System.Text;
 using System.Threading;
+using Newtonsoft.Json.Linq;
+using Widgets.API.Library;
 
 #if IS_GEMSTONE
-using Gemstone.Web;
-using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json.Linq;
 using openXDA.APIAuthentication;
+using Microsoft.AspNetCore.Mvc;
 using RoutePrefix = Microsoft.AspNetCore.Mvc.RouteAttribute;
 using ServerResponse = System.Threading.Tasks.Task;
 #else
@@ -44,50 +41,31 @@ using ServerResponse = System.Threading.Tasks.Task<System.Net.Http.HttpResponseM
 
 namespace Widgets.API.Model
 {
+    /// <summary>
+    /// Controller that fetches <channels> information from XDA.
+    /// </summary>
+    [XDARedirect("api/Widgets/ChannelView")]
     [RoutePrefix("api/EventWidgets/Channel")]
-    public class ChannelController : Controller
+    public class ChannelController : RedirectionController
     {
-        // if this is disabled, the static object must be intialized by the outside instead of having the retriever injected here
         #if IS_GEMSTONE
-        XDAAPI API { get; set; }
-        public ChannelController(IAPICredentialRetriever retriever)
-        {
-            API = new XDAAPI(retriever);
-        }
-        #else
+        /// <summary>
+        /// Dependency injection constructor for use in .NETCore Applications.
+        /// </summary>
+        /// <param name="retriever">An <see cref="IAPICredentialRetriever"/> that is responsible for retriving credentials used to make API calls to XDA.</param>
+        public ChannelController(IAPICredentialRetriever retriever) : base(retriever) { }
         #endif
-        
+
+        /// <summary>
+        /// Redirection endpoint that handles all requests to this controller.
+        /// </summary>
+        /// <remarks>
+        /// XDA endpoint is a 
+        /// <see href="https://github.com/GridProtectionAlliance/gsf/blob/master/Source/Libraries/GSF.Web/Model/ModelController.cs">GSF ModelController</see>
+        /// that is view-only.
+        /// </remarks>
         [Route("ByParentEvent/{eventID:int}/SearchableList")]
         [HttpPost]
-        public async ServerResponse ForwardRequest([FromBody] JObject postData, CancellationToken cancellationToken)
-        {
-            if (!API.TryRefreshSettings())
-                throw new InvalidOperationException("Unable to refresh XDA API helper.");
-
-            string endPoint;
-
-            #if IS_GEMSTONE
-            endPoint = Request.Path.Value;
-            #else
-            endPoint = Request.AbsolutePath;
-            #endif
-
-            endPoint = endPoint.Substring("api/EventWidgets/Channel".Length + 1);
-
-            StringContent content = null;
-            if (postData is not null)
-                content = new StringContent(postData.ToString(), Encoding.UTF8, "application/json");
-
-            HttpResponseMessage response = await API
-                .GetResponseTask("api/Channel" + endPoint, content)
-                .ConfigureAwait(false);
-
-            #if IS_GEMSTONE
-            await Response.SetValues(response, cancellationToken);
-            return;
-            #else
-            return response;
-            #endif
-        }
+        public async ServerResponse HandleRequest([FromBody] JObject postData, CancellationToken cancellationToken) => await ForwardRequest(postData, cancellationToken);
     }
 }
