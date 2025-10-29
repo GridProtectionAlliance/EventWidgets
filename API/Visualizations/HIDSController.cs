@@ -25,15 +25,13 @@
 
 using System;
 using System.Net.Http;
-using System.Text;
 using System.Threading;
 
 #if IS_GEMSTONE
-using System.Collections.Generic;
-using Gemstone.Web;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 using openXDA.APIAuthentication;
+using Widgets.API.Library;
 using RoutePrefix = Microsoft.AspNetCore.Mvc.RouteAttribute;
 using ServerResponse = System.Threading.Tasks.Task;
 #else
@@ -45,34 +43,32 @@ using ServerResponse = System.Threading.Tasks.Task<System.Net.Http.HttpResponseM
 
 namespace Widgets.API.Visualizations
 {
+    /// <summary>
+    /// Controller that handles fetching HIDS trending data from XDA.
+    /// </summary>
     [RoutePrefix("api/EventWidgets/HIDS")]
-    public class HIDSController : Controller
+    [XDARedirect("api/HIDS")]
+    public class HIDSController : RedirectionController
     {
-        // if this is disabled, the static object must be intialized by the outside instead of having the retriever injected here
         #if IS_GEMSTONE
-        XDAAPI API { get; set; }
-        public HIDSController(IAPICredentialRetriever retriever)
-        {
-            API = new XDAAPI(retriever);
-        }
+        /// <summary>
+        /// Dependency injection constructor for use in .NETCore Applications.
+        /// </summary>
+        /// <param name="retriever">An <see cref="IAPICredentialRetriever"/> that is responsible for retriving credentials used to make API calls to XDA.</param>
+        public HIDSController(IAPICredentialRetriever retriever) : base(retriever) { }
         #endif
 
+        /// <summary>
+        /// Redirection endpoint that handles forwarding requests for trending information to XDA.
+        /// </summary>
+        /// <param name="query">
+        /// Query that contains a Object that contains the following fields:<br/>
+        /// Channels: A list of <see cref="List{T}"/> of 
+        /// <see href="https://github.com/GridProtectionAlliance/openXDA/blob/master/Source/Libraries/openXDA.Model/Channels/Channel.cs">channel</see> IDs.<br/>
+        /// StartTime: A <see cref="DateTime"/> of the start of data points to be queried.<br/>
+        /// EndTime: A <see cref="DateTime"/> of the end of data points to be queried.<br/>
+        /// </param>
         [Route("QueryPoints"), HttpPost]
-        public async ServerResponse QueryPoints([FromBody] JObject postData, CancellationToken cancellationToken)
-        {
-            if (!API.TryRefreshSettings())
-                throw new InvalidOperationException("Unable to refresh XDA API helper.");
-
-            HttpResponseMessage response = await API
-                .GetResponseTask("api/HIDS/QueryPoints", new StringContent(postData.ToString(), Encoding.UTF8, "application/json"))
-                .ConfigureAwait(false);
-
-            #if IS_GEMSTONE
-            await Response.SetValues(response, new HashSet<string>(["TransferEncoding"]), null, cancellationToken);
-            return;
-            #else
-            return response;
-            #endif
-        }
+        public async ServerResponse ForwardQueryPoints([FromBody] JObject query, CancellationToken token) => await ForwardRequest(query, token).ConfigureAwait(false);
     }
 }
