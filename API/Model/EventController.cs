@@ -1,5 +1,5 @@
 ﻿//******************************************************************************************************
-//  OpenSEEController.cs - Gbtc
+//  EventController.cs - Gbtc
 //
 //  Copyright © 2023, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -16,21 +16,18 @@
 //
 //  Code Modification History:
 //  ----------------------------------------------------------------------------------------------------
-//  08/22/2023 - Preston Crawford
+//  10/24/2025 - Gabriel Santos
 //       Generated original version of source code.
-//  10/17/2025 - Gabriel Santos
-//       Removed endpoint, pointing this to an existing endpoint in XDA.
 //
 //******************************************************************************************************
 
-using System;
-using System.Net.Http;
 using System.Threading;
+using Newtonsoft.Json.Linq;
+using Widgets.API.Library;
 
 #if IS_GEMSTONE
-using Microsoft.AspNetCore.Mvc;
 using openXDA.APIAuthentication;
-using Widgets.API.Library;
+using Microsoft.AspNetCore.Mvc;
 using RoutePrefix = Microsoft.AspNetCore.Mvc.RouteAttribute;
 using ServerResponse = System.Threading.Tasks.Task;
 #else
@@ -40,29 +37,35 @@ using Controller = System.Web.Http.ApiController;
 using ServerResponse = System.Threading.Tasks.Task<System.Net.Http.HttpResponseMessage>;
 #endif
 
-namespace Widgets.API.Visualizations
+namespace Widgets.API.Model
 {
     /// <summary>
-    /// Controller that handles fetching of openSEE data from XDA to display a graph of event data. 
+    /// Controller that handles fetching and searching of the 
+    /// <see href="https://github.com/GridProtectionAlliance/openXDA/blob/master/Source/Libraries/openXDA.Model/Events/Event.cs">EventWidgetsEventView</see>
+    /// model.
     /// </summary>
-    [XDARedirect("api/Widgets/OpenSEE")]
-    [RoutePrefix("api/EventWidgets/OpenSEE")]
-    public class OpenSEEController : RedirectionController
+    [XDARedirect("api/Widgets/EventView")]
+    [RoutePrefix("api/EventWidgets/Event")]
+    public class EventController : RedirectionController
     {
         #if IS_GEMSTONE
         /// <summary>
         /// Dependency injection constructor for use in .NETCore Applications.
         /// </summary>
         /// <param name="retriever">An <see cref="IAPICredentialRetriever"/> that is responsible for retriving credentials used to make API calls to XDA.</param>
-        public OpenSEEController(IAPICredentialRetriever retriever) : base(retriever) { }
+        public EventController(IAPICredentialRetriever retriever) : base(retriever) { }
         #endif
 
         /// <summary>
-        /// Redirection endpoint that handles fetching openSEE event chart data.
+        /// Redirection endpoint that handles all requests to this controller.
         /// </summary>
-        /// <param name="type"><see cref="string"/> that represents the measurement type of the channels data is being pulled from. ("Voltage", "Current", "TripCoilCurrent" are valid values)</param>
-        /// <param name="eventID"><see cref="int"/> that represents the ID of the event in the XDA database.</param>
-        [Route("GetData/{type}/{eventID:int}")]
-        public async ServerResponse GetOpenSEEData(CancellationToken token) => await ForwardRequest(token).ConfigureAwait(false);
+        /// <remarks>
+        /// XDA endpoint is a 
+        /// <see href="https://github.com/GridProtectionAlliance/gsf/blob/master/Source/Libraries/GSF.Web/Model/ModelController.cs">GSF ModelController</see>
+        /// that is view-only.
+        /// </remarks>
+        [RoutePrefix("{**catchAll}")]
+        [HttpGet, HttpPost]
+        public async ServerResponse HandleRequest([FromBody] JObject postData, CancellationToken cancellationToken) => await ForwardRequest(postData, cancellationToken);
     }
 }

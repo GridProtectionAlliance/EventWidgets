@@ -42,7 +42,9 @@ using ServerResponse = System.Threading.Tasks.Task<System.Net.Http.HttpResponseM
 namespace Widgets.API.Model
 {
     /// <summary>
-    /// Controller that fetches <channels> information from XDA.
+    /// Controller that fetches
+    /// <see href="https://github.com/GridProtectionAlliance/openXDA/blob/master/Source/Libraries/openXDA.Model/Channels/Channel.cs">channel</see>
+    /// information from XDA.
     /// </summary>
     [XDARedirect("api/Widgets/ChannelView")]
     [RoutePrefix("api/EventWidgets/Channel")]
@@ -54,18 +56,16 @@ namespace Widgets.API.Model
         /// </summary>
         /// <param name="retriever">An <see cref="IAPICredentialRetriever"/> that is responsible for retriving credentials used to make API calls to XDA.</param>
         public ChannelController(IAPICredentialRetriever retriever) : base(retriever) { }
-        #endif
+#endif
 
         /// <summary>
-        /// Redirection endpoint that handles all requests to this controller.
+        /// Endpoint produces a list of RMS line to neutral trend 
+        /// <see href="https://github.com/GridProtectionAlliance/openXDA/blob/master/Source/Libraries/openXDA.Model/Channels/Channel.cs">channels</see>
+        /// associated with the provided 
+        /// <see href="https://github.com/GridProtectionAlliance/openXDA/blob/master/Source/Libraries/openXDA.Model/Events/Event.cs">event</see> ID.
         /// </summary>
-        /// <remarks>
-        /// XDA endpoint is a 
-        /// <see href="https://github.com/GridProtectionAlliance/gsf/blob/master/Source/Libraries/GSF.Web/Model/ModelController.cs">GSF ModelController</see>
-        /// that is view-only.
-        /// </remarks>
-        [Route("ByParentEvent/{eventID:int}/SearchableList")]
-        [HttpPost]
-        public async ServerResponse HandleRequest([FromBody] JObject postData, CancellationToken cancellationToken) => await ForwardRequest(postData, cancellationToken);
+        [Route("TrendChannels/{eventID:int}")]
+        [HttpGet]
+        public async ServerResponse FetchTrendChannels(CancellationToken cancellationToken) => await ForwardRequest(cancellationToken);
     }
 }
