@@ -70,7 +70,7 @@ export namespace EventWidget {
     export interface ICollectionSearchInformation {
         Status: Application.Types.Status
         TotalRecords: number,
-        // Following only valid if paged
+        // Following only valid if DataType is XDA-Paged
         RecordsPerPage?: number,
         NumberOfPages?: number,
     }
@@ -83,9 +83,9 @@ export namespace EventWidget {
         // Search Props
         SearchState: ICollectionSearchState,
         SetSearchState: (arg: ICollectionSearchState) => void,
-        SearchInformation: ICollectionSearchInformation
-        // I/O Props
+        SearchInformation: ICollectionSearchInformation,
         Events: OpenXDA.Types.EventSearch[],
+        // Output props
         SelectedEvents: Set<number>,
         EventCallBack: (arg: OpenXDA.Types.EventSearch[]) => void,
         // Other Props
@@ -112,7 +112,10 @@ export namespace EventWidget {
         Settings: React.FC<IWidgetSettingsProps<T>>,
         DefaultSettings: T,
         Name: string,
-        IsPaged: boolean
+        /**
+         *  Data-type specifies supported event data fetching. If set to "Custom", Search props are not valid.
+         */
+        DataType: 'XDA-Paged' | 'XDA-Search' | 'Custom'
     }
 
 }
