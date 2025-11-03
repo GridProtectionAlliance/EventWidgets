@@ -134,44 +134,33 @@ const TrendGraph: EventWidget.IWidget<ISetting> = {
         React.useEffect(() => {
             setStatus('loading');
             let channels: OpenXDA.Types.Channel[];
+            const data: IDataStructure = {
+                Voltage: {},
+                Current: {},
+                TripCoilCurrent: {},
+                EventTime: moment.utc(props.StartTime).valueOf(),
+                TimeLimits: [
+                    moment.utc(props.StartTime).subtract(props.Settings.StartHoursBefore, 'hours').valueOf(),
+                    moment.utc(props.StartTime).add(props.Settings.EndHoursAfter, 'hours').valueOf()
+                ]
+            };
             const dataHandle: JQuery.jqXHR = $.ajax({
-                type: "POST",
-                url: `${homePath}api/EventWidgets/Channel/ByParentEvent/${props.EventID}/SearchableList`,
+                type: "GET",
+                url: `${homePath}api/EventWidgets/Channel/TrendChannels/${props.EventID}`,
                 contentType: "application/json; charset=utf-8",
-                data: JSON.stringify(
-                    {
-                        Searches: [
-                            {
-                                FieldName: 'Trend',
-                                SearchText: '1',
-                                Operator: '=',
-                                Type: 'boolean',
-                                IsPivotColumn: false
-                            },
-                            {
-                                FieldName: 'MeasurementCharacteristic',
-                                SearchText: "RMS",
-                                Operator: '=',
-                                Type: 'string',
-                                IsPivotColumn: false
-                            },
-                            {
-                                FieldName: 'Phase',
-                                SearchText: "**N*",
-                                Operator: 'LIKE',
-                                Type: 'string',
-                                IsPivotColumn: false
-                            }],
-                        Ascending: true,
-                        OrderBy: 'ID'
-                    }),
                 dataType: 'json',
                 cache: false,
                 async: true
             });
             
-            dataHandle.then((chan: string) => {
-                channels = JSON.parse(chan) as OpenXDA.Types.Channel[];
+            dataHandle.then((chan: OpenXDA.Types.Channel[]) => {
+                channels = chan;
+                if (channels.length == 0) {
+                    setData(data);
+                    setStatus('idle');
+                    return;
+                }
+
                 const startTime = moment.utc(props.StartTime).subtract(props.Settings.StartHoursBefore, 'hours').format(sendToServerFormat);
                 const endTime = moment.utc(props.StartTime).add(props.Settings.EndHoursAfter, 'hours').format(sendToServerFormat);
 
@@ -213,17 +202,6 @@ const TrendGraph: EventWidget.IWidget<ISetting> = {
                         }
                     }
                 });
-
-                const data: IDataStructure = {
-                    Voltage: {},
-                    Current: {},
-                    TripCoilCurrent: {},
-                    EventTime: moment.utc(props.StartTime).valueOf(),
-                    TimeLimits: [
-                        moment.utc(props.StartTime).subtract(props.Settings.StartHoursBefore, 'hours').valueOf(),
-                        moment.utc(props.StartTime).add(props.Settings.EndHoursAfter, 'hours').valueOf()
-                    ]
-                };
 
                 ['Voltage', 'Current', 'TripCoilCurrent'].forEach(measurementType => {
                     const relevantChannels = channels.filter(channel => channel.MeasurementType === measurementType);
