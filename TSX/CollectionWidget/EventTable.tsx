@@ -79,7 +79,7 @@ function ExportToCsv<T>(data: T[], filename: string) {
 
 const EventTable: EventWidget.ICollectionWidget<{}> = {
     Name: 'EventTable', 
-    IsPaged: true,
+    DataType: 'XDA-Paged',
     DefaultSettings: {},
     Settings: () => {
         return <></>
