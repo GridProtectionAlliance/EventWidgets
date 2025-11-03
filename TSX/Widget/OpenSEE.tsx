@@ -125,9 +125,7 @@ const EventSearchOpenSEE: EventWidget.IWidget<ISetting> = {
         function GetData(type: ('Voltage' | 'Current' | 'TripCoilCurrent'), datasetter: (d: ISeries[]) => void) {
             return $.ajax({
                 type: "GET",
-                url: `${props.HomePath}api/EventWidgets/OpenSEE/GetData?eventId=${props.EventID}` +
-                    `&pixels=${1200}` +
-                    `&type=${type}`,
+                url: `${props.HomePath}api/EventWidgets/OpenSEE/GetData/${type}/${props.EventID}`,
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
                 cache: true,
