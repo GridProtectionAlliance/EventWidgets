@@ -119,11 +119,11 @@ const CollectionWidgetRouter: React.FC<IProps> = (props: IProps) => {
     }, [Widget, props.Widget.Setting]);
 
     React.useEffect(() => {
-        if (Widget == null) return;
+        if (Widget == null || Widget.DataType === 'Custom') return;
 
         setSearchInfo(i => ({...i, Status: 'loading'}));
         let handle;
-        if (Widget.IsPaged)
+        if (Widget.DataType === 'XDA-Paged')
             handle = EventController.PagedSearch(TransformFilter(props.EventFilter), searchState.SortKey, searchState.Ascending, searchState.Page).done((result) => {
                 setEvents(JSON.parse(result.Data as unknown as string));
                 setSearchInfo({
@@ -133,7 +133,7 @@ const CollectionWidgetRouter: React.FC<IProps> = (props: IProps) => {
                     Status: 'idle'
                 });
             });
-        else
+        else if (Widget.DataType === 'XDA-Search')
             handle = EventController.DBSearch(TransformFilter(props.EventFilter), searchState.SortKey, searchState.Ascending).done((result) => {
                 setEvents(result);
                 setSearchInfo({
@@ -141,6 +141,10 @@ const CollectionWidgetRouter: React.FC<IProps> = (props: IProps) => {
                     Status: 'idle'
                 });
             });
+        else {
+            console.error("Unrecognized data type in Widget Collection Wrapper: " + Widget.DataType)
+            return;
+        }
 
         handle.fail(() => setSearchInfo(i => ({ ...i, Status: 'error' })));
 
