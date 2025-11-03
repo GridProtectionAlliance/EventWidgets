@@ -22,6 +22,7 @@
 //******************************************************************************************************
 import React from 'react';
 import { IWigetStore } from './Store';
+import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 
 export namespace EventWidget {
 
@@ -46,6 +47,53 @@ export namespace EventWidget {
         WidgetID: number
     }
 
+    // External filters into the search
+    export interface ICollectionFilter {
+        TimeFilter?: {
+            StartTime: string,
+            EndTime: string
+        }
+        MeterFilter?: number[],
+        TypeFilter?: number[]
+    }
+
+    // What kind of search should be performed, outside of the filters provided externally
+    export interface ICollectionSearchState {
+        SortKey: keyof OpenXDA.Types.EventSearch,
+        Ascending: boolean,
+        // Only valid if paged
+        Page: number
+    }
+
+    // Details about the search
+    export interface ICollectionSearchInformation {
+        Status: Application.Types.Status
+        TotalRecords: number,
+        // Following only valid if paged
+        RecordsPerPage?: number,
+        NumberOfPages?: number,
+    }
+
+    export interface ICollectionWidgetProps<T> {
+        // Widget Props
+        Settings: T,
+        // Control Props
+        CurrentFilter: ICollectionFilter,
+        // Search Props
+        SearchState: ICollectionSearchState,
+        SetSearchState: (arg: ICollectionSearchState) => void,
+        SearchInformation: ICollectionSearchInformation
+        // I/O Props
+        Events: OpenXDA.Types.EventSearch[],
+        SelectedEvents: Set<number>,
+        EventCallBack: (arg: OpenXDA.Types.EventSearch[]) => void,
+        // Other Props
+        HomePath: string,
+        Roles: string[],
+        Name: string,
+        WidgetID: number
+    }
+
     export interface IWidgetSettingsProps<T> {
         Settings: T,
         SetSettings: (settings: T) => void,
@@ -56,6 +104,14 @@ export namespace EventWidget {
         Settings: React.FC<IWidgetSettingsProps<T>>,
         DefaultSettings: T,
         Name: string,
+    }
+
+    export interface ICollectionWidget<T> {
+        Widget: React.FC<ICollectionWidgetProps<T>>,
+        Settings: React.FC<IWidgetSettingsProps<T>>,
+        DefaultSettings: T,
+        Name: string,
+        IsPaged: boolean
     }
 
 }
