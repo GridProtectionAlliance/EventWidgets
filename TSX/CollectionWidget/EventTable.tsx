@@ -116,8 +116,8 @@ const EventTable: EventWidget.ICollectionWidget<{}> = {
                                 });
                             }
                         }}
-                        OnClick={data => props.EventCallBack([data.row])}
-                        Selected={item => props.SelectedEvents.has(item.ID)}
+                        OnClick={data => { if (props.EventCallBack != null) props.EventCallBack([data.row]); }}
+                        Selected={item => props.SelectedEvents == null ? false : props.SelectedEvents.has(item.ID)}
                         KeySelector={item => item.ID}
                     >
                         <Column<OpenXDA.Types.EventSearch>

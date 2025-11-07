@@ -54,8 +54,8 @@ export namespace EventWidget {
             StartTime: string,
             EndTime: string
         }
-        MeterFilter?: number[],
-        TypeFilter?: number[]
+        MeterFilter?: OpenXDA.Types.Meter[],
+        TypeFilter?: OpenXDA.Types.EventType[]
     }
 
     // What kind of search should be performed, outside of the filters provided externally
@@ -86,8 +86,8 @@ export namespace EventWidget {
         SearchInformation: ICollectionSearchInformation,
         Events: OpenXDA.Types.EventSearch[],
         // Output props
-        SelectedEvents: Set<number>,
-        EventCallBack: (arg: OpenXDA.Types.EventSearch[]) => void,
+        SelectedEvents?: Set<number>,
+        EventCallBack?: (arg: OpenXDA.Types.EventSearch[]) => void,
         // Other Props
         HomePath: string,
         Roles: string[],

@@ -21,28 +21,25 @@
 //
 //******************************************************************************************************
 
+import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { ErrorBoundary } from '@gpa-gemstone/common-pages';
 import { GenericController, LoadingIcon, Search, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
 import { cloneDeep } from 'lodash';
 import * as React from 'react';
-import { EventWidget } from './global';
 import EventTable from './CollectionWidget/EventTable';
-import { OpenXDA } from '@gpa-gemstone/application-typings';
+import PQHealthIndex from './CollectionWidget/PQHealthIndex';
+import { EventWidget } from './global';
 
-export const AllWidgets: EventWidget.ICollectionWidget<any>[] = [EventTable];
+export const AllWidgets: EventWidget.ICollectionWidget<any>[] = [EventTable, PQHealthIndex];
 
 interface IProps {
     Widget: EventWidget.IWidgetView,
-    EventCallBack: (arg: OpenXDA.Types.EventSearch[]) => void,
-    SelectedEvents: Set<number>,
+    EventCallBack?: (arg: OpenXDA.Types.EventSearch[]) => void,
+    SelectedEvents?: Set<number>,
     EventFilter: EventWidget.ICollectionFilter,
     HomePath: string,
     Roles: string[]
 }
-
-const EventController = new GenericController<OpenXDA.Types.EventSearch>(
-    "api/EventWidgets/Event", "StartTime", true
-);
 
 function TransformFilter(filt: EventWidget.ICollectionFilter): Search.IFilter<OpenXDA.Types.EventSearch>[] {
     const newFilt: Search.IFilter<OpenXDA.Types.EventSearch>[] = [];
@@ -64,7 +61,7 @@ function TransformFilter(filt: EventWidget.ICollectionFilter): Search.IFilter<Op
     if (filt?.MeterFilter != null)
         newFilt.push({
             FieldName: 'MeterID',
-            SearchText: `(${filt.MeterFilter.join(',')})`,
+            SearchText: `(${filt.MeterFilter.map(meter => meter.ID).join(',')})`,
             Operator: 'IN',
             Type: 'number',
             IsPivotColumn: false
@@ -73,7 +70,7 @@ function TransformFilter(filt: EventWidget.ICollectionFilter): Search.IFilter<Op
     if (filt?.TypeFilter != null)
         newFilt.push({
             FieldName: 'EventTypeID',
-            SearchText: `(${filt.TypeFilter.join(',')})`,
+            SearchText: `(${filt.TypeFilter.map(type => type.ID).join(',')})`,
             Operator: 'IN',
             Type: 'number',
             IsPivotColumn: false
@@ -91,10 +88,14 @@ const CollectionWidgetRouter: React.FC<IProps> = (props: IProps) => {
     });
     const [searchInfo, setSearchInfo] = React.useState<EventWidget.ICollectionSearchInformation>({
         TotalRecords: 0,
-        Status: 'unintiated'
+        Status: 'uninitiated'
     });
 
     const Widget = React.useMemo(() => AllWidgets.find(item => item.Name === props.Widget.Type), [props.Widget.ID]);
+
+    const EventController = React.useMemo(() => new GenericController<OpenXDA.Types.EventSearch>(
+        `${props.HomePath}api/EventWidgets/Event`, "StartTime", true
+    ), [props.HomePath]);
 
     const Settings = React.useMemo(() => {
         if (props.Widget.Setting == null)
@@ -119,7 +120,11 @@ const CollectionWidgetRouter: React.FC<IProps> = (props: IProps) => {
     }, [Widget, props.Widget.Setting]);
 
     React.useEffect(() => {
-        if (Widget == null || Widget.DataType === 'Custom') return;
+        if (Widget == null) return;
+        if (Widget.DataType === 'Custom') {
+            setSearchInfo(i => ({ ...i, Status: 'idle' }));
+            return;
+        }
 
         setSearchInfo(i => ({...i, Status: 'loading'}));
         let handle;
@@ -149,7 +154,7 @@ const CollectionWidgetRouter: React.FC<IProps> = (props: IProps) => {
         handle.fail(() => setSearchInfo(i => ({ ...i, Status: 'error' })));
 
         return () => { if (handle != null && handle?.abort != null) handle.abort(); }
-    }, [searchState, props.EventFilter])
+    }, [searchState, props.EventFilter, Widget?.DataType])
 
     if (Widget == null || searchInfo.Status === 'error')
         return (
@@ -167,7 +172,7 @@ const CollectionWidgetRouter: React.FC<IProps> = (props: IProps) => {
             </div>
         );
 
-    if (searchInfo.Status === 'loading' || searchInfo.Status === 'unintiated')
+    if (searchInfo.Status === 'loading' || searchInfo.Status === 'uninitiated')
         return (
             <div className="card">
                 <div className="card-header">
