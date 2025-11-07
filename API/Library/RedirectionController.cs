@@ -100,8 +100,8 @@ namespace Widgets.API.Library
             if (!API.TryRefreshSettings())
                 throw new InvalidOperationException("Unable to refresh XDA API helper.");
 
-            string endPoint = GetEndpoint();
-            string query = GetQueryString();
+            string endPoint = this.GetEndpoint(m_baseRoute);
+            string query = this.GetQueryString();
 
             StringContent content = null;
             if (postData is not null)
@@ -127,35 +127,5 @@ namespace Widgets.API.Library
         /// <returns><see cref="ServerResponse"/> that depends on the target framework.</returns>
         public async ServerResponse ForwardRequest(CancellationToken token) =>
             await ForwardRequest(null, token).ConfigureAwait(false);
-
-        /// <summary>
-        /// Gets the route path taken to hit the current endpoint,
-        /// not including the portion to reach the current controller.
-        /// </summary>
-        /// <returns><see cref="string"/> of endpoint route.</returns>
-        private string GetEndpoint()
-        {
-            string endPoint;
-            #if IS_GEMSTONE
-            endPoint = Request.Path.Value;
-            #else
-            endPoint = Request.AbsolutePath;
-            #endif
-
-            return endPoint.Substring(m_baseRoute.Length + 1);
-        }
-
-        /// <summary>
-        /// Gets the query string of the current request.
-        /// </summary>
-        /// <returns><see cref="string"/> that has the current query.</returns>
-        private string GetQueryString()
-        {
-            #if IS_GEMSTONE
-            return Request.QueryString.Value;
-            #else
-            return Request.RequestUri.Query;
-            #endif
-        }
     }
 }
