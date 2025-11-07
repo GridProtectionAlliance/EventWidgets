@@ -106,7 +106,7 @@ const TrendGraph: EventWidget.IWidget<ISetting> = {
         const containerRef = React.useRef<HTMLTableSectionElement | undefined>(undefined);
         const [data, setData] = React.useState<IDataStructure | undefined>(undefined);
         const [dimensions, setDimensions] = React.useState<{ Width: number }>(null);
-        const [status, setStatus] = React.useState<Application.Types.Status>('unintiated');
+        const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
 
         React.useEffect(() => {
             let resizeObserver: ResizeObserver;
