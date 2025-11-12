@@ -74,8 +74,10 @@ export namespace EventWidget {
     }
 
     export interface IWidgetSettingsProps<T> {
+        HomePath: string,
+        SetErrors: (e: string[]) => void,
         Settings: T,
-        SetSettings: (settings: T) => void,
+        SetSettings: (settings: T) => void
     }
 
     export interface IWidget<T>  {
