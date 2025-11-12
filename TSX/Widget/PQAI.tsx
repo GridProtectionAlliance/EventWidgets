@@ -23,8 +23,8 @@
 
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { SpacedColor } from '@gpa-gemstone/helper-functions';
-import { Input } from '@gpa-gemstone/react-forms';
-import { Circle, Plot } from '@gpa-gemstone/react-graph';
+import { ColorPicker, Input } from '@gpa-gemstone/react-forms';
+import { CircleGroup, Plot } from '@gpa-gemstone/react-graph';
 import { Column, Table } from '@gpa-gemstone/react-table';
 import _ from 'lodash';
 import React from 'react';
@@ -120,6 +120,10 @@ const PQAI: EventWidget.IWidget<ISetting> = {
             setGroup(newRecord, selectedIndex);
         }, [props.Settings.Groups, selectedIndex, setGroup]);
 
+        const displayedGroup = React.useMemo(() => 
+            [props.Settings.Groups?.[selectedIndex]]
+        , [props.Settings.Groups, selectedIndex])
+
         return (
             <div className="row">
                 <div className="col-4" style={{ display: "flex", flexDirection: "column", overflow: "hidden" }}>
@@ -182,6 +186,7 @@ const PQAI: EventWidget.IWidget<ISetting> = {
                                     Content={row => (
                                         <Input<IDataPoint>
                                             Valid={() => true}
+                                            Label={null}
                                             Type={"number"}
                                             Record={row.item}
                                             Field={0}
@@ -194,6 +199,7 @@ const PQAI: EventWidget.IWidget<ISetting> = {
                                     Content={row => (
                                         <Input<IDataPoint>
                                             Valid={() => true}
+                                            Label={null}
                                             Type={"number"}
                                             Record={row.item}
                                             Field={1}
@@ -229,21 +235,22 @@ const PQAI: EventWidget.IWidget<ISetting> = {
                         <>
                             <div className="row">
                                 <div className="col-6">
-                                    <Input<IGroup>
-                                        Valid={isValid}
+                                    <ColorPicker
                                         Record={props.Settings.Groups[selectedIndex]}
-                                        Field={"Label"}
+                                        Field={"Color"}
                                         Setter={record => setGroup(record, selectedIndex)}
+                                        Label={"Color"}
                                     />
                                 </div>
-                                <div className="col-6">
+                                <div className="col-6 mt-auto mb-auto">
                                     <button
                                         className={"btn btn-block btn-danger"}
                                         onClick={() => setGroup(null, selectedIndex)}
                                     >Remove Group</button>
                                 </div>
                             </div>
-                            <div className="row">
+                            <div className="row w-100">
+                                <PlotComponent ShowLegend={false} Groups={displayedGroup}/>
                             </div>
                         </>
                     }
@@ -276,7 +283,10 @@ function PlotComponent(props: IPlotProps) {
             .filter(group => enabled?.[group.Identifier] ?? false)
             .flatMap(group => group.Data)
             .map(point => point[0]);
-        return [Math.min(...xValues), Math.max(...xValues)];
+        const min = Math.min(...xValues);
+        const max = Math.max(...xValues);
+        const margin = 0.1*(max-min)
+        return [min - margin, max + margin];
     }, [enabled]);
 
     React.useEffect(() => {
@@ -311,7 +321,7 @@ function PlotComponent(props: IPlotProps) {
     }, [props.Groups]);
 
     return (
-        <div className="card">
+        <div className="card w-100">
             <div className="card-header fixed-top" style={{ position: "sticky", background: "#f7f7f7" }}>
                 PQAI Analytic
             </div>
@@ -323,7 +333,7 @@ function PlotComponent(props: IPlotProps) {
                     yDomain={"AutoValue"}
                     XAxisType={"value"}
                     defaultTdomain={defaultTDomain}
-                    legend={props.ShowLegend ? "hidden" : "right"}
+                    legend={props.ShowLegend ? "right" : "hidden"}
                     Tlabel={"PCA Component 1"}
                     Ylabel={"PCA Component 2"}
                     showMouse={false}
@@ -333,10 +343,8 @@ function PlotComponent(props: IPlotProps) {
                 >
                     {props.Groups
                         .filter(group => enabled?.[group.Identifier] ?? false)
-                        .flatMap((group) =>
-                            group.Data.map(point =>
-                                <Circle data={point} color={group.Color} radius={3} opacity={0.5} />
-                            )
+                        .map((group, index) =>
+                            <CircleGroup key={index} Data={group.Data} Color={group.Color} Legend={group.Label ?? group.Identifier} />
                     )}
                 </Plot>
             </div>
