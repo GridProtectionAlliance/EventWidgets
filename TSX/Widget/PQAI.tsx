@@ -51,6 +51,8 @@ const PQAI: EventWidget.IWidget<ISetting> = {
     },
     Settings: (props: EventWidget.IWidgetSettingsProps<ISetting>) => {
         const [selectedIndex, setSelectedIndex] = React.useState<number>(0);
+        const [selectedFile, setSelectedFile] = React.useState<string>('');
+        const [fileParseError, setFileParseError] = React.useState<boolean>(false);
 
         React.useEffect(() => {
             const e: string[] = [];
@@ -120,6 +122,55 @@ const PQAI: EventWidget.IWidget<ISetting> = {
             setGroup(newRecord, selectedIndex);
         }, [props.Settings.Groups, selectedIndex, setGroup]);
 
+        const handleFile = React.useCallback((evt: React.ChangeEvent<HTMLInputElement>) => {
+            console.log("yeet");
+            const handler = () => {
+                if (evt.target.value == null) return false;
+                let fileName = evt.target.value.split("\\").pop();
+                if (fileName == "") return false;
+
+                setSelectedFile(fileName);
+
+                //Retrieve the first (and only!) File from the FileList object
+                var f = evt.target.files[0];
+
+                if (!f) return false;
+
+                let r = new FileReader();
+                let failure = false;
+                r.onload = (e) => {
+                    const lines = new TextDecoder('utf-8')
+                        .decode(e.target.result as ArrayBuffer)
+                        .split('\n')
+                        .slice(1); // skip header line
+
+                    if (lines.length <= 0)
+                        failure = true;
+                    else {
+                        const points: [number, number][] = lines.map(line => {
+                            const data = line.split(',');
+                            if (data.length < 2) {
+                                failure = true;
+                                return [NaN, NaN];
+                            }
+                            else
+                                return [parseInt(data[0]), parseInt(data[1])];
+                        });
+                        if (!failure) {
+                            const newRecord = { ...props.Settings.Groups?.[selectedIndex] };
+                            newRecord.Data = points;
+                            setGroup(newRecord, selectedIndex)
+                        }
+                    }
+                }
+                r.readAsArrayBuffer(f);
+                return failure;
+            }
+
+            const failure = handler();
+            setFileParseError(failure);
+        }, [props.Settings.Groups, selectedIndex, setGroup]);
+
         const displayedGroup = React.useMemo(() => 
             [props.Settings.Groups?.[selectedIndex]]
         , [props.Settings.Groups, selectedIndex])
@@ -173,6 +224,20 @@ const PQAI: EventWidget.IWidget<ISetting> = {
                                         Field={"Identifier"}
                                         Setter={record => setGroup(record, selectedIndex)}
                                     />
+                                </div>
+                            </div>
+                            <div className="row">
+                                <div className="col">
+                                    <div className="form-group" style={{ width: '100%' }}>
+                                        <div className="custom-file">
+                                            <input
+                                                type="file"
+                                                className="custom-file-input"
+                                                onChange={handleFile}
+                                            />
+                                            <label className={"custom-file-label" + (selectedFile.length > 0 ? " selected" : "")} > {selectedFile.length > 0 ? selectedFile : `Upload CSV`}</label>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <Table<IDataPoint>
@@ -272,7 +337,6 @@ interface IEnabled {
     [key: string]: boolean
 }
 
-
 function PlotComponent(props: IPlotProps) {
     const containerRef = React.useRef<HTMLTableSectionElement | undefined>(undefined);
     const [width, setWidth] = React.useState<number>(250);
@@ -286,6 +350,17 @@ function PlotComponent(props: IPlotProps) {
         const min = Math.min(...xValues);
         const max = Math.max(...xValues);
         const margin = 0.1*(max-min)
+        return [min - margin, max + margin];
+    }, [enabled]);
+
+    const defaultYDomain: [number, number] = React.useMemo(() => {
+        const yValues = props.Groups
+            .filter(group => enabled?.[group.Identifier] ?? false)
+            .flatMap(group => group.Data)
+            .map(point => point[1]);
+        const min = Math.min(...yValues);
+        const max = Math.max(...yValues);
+        const margin = 0.1 * (max - min)
         return [min - margin, max + margin];
     }, [enabled]);
 
@@ -330,9 +405,11 @@ function PlotComponent(props: IPlotProps) {
                     height={width + (props.ShowLegend ? legendWidth : 0)}
                     width={width}
                     showBorder={false}
-                    yDomain={"AutoValue"}
+                    showGrid={true}
+                    yDomain={"Manual"}
                     XAxisType={"value"}
                     defaultTdomain={defaultTDomain}
+                    defaultYdomain={defaultYDomain}
                     legend={props.ShowLegend ? "right" : "hidden"}
                     Tlabel={"PCA Component 1"}
                     Ylabel={"PCA Component 2"}
@@ -344,7 +421,7 @@ function PlotComponent(props: IPlotProps) {
                     {props.Groups
                         .filter(group => enabled?.[group.Identifier] ?? false)
                         .map((group, index) =>
-                            <CircleGroup key={index} Data={group.Data} Color={group.Color} Legend={group.Label ?? group.Identifier} />
+                            <CircleGroup key={index} Data={group.Data} Color={group.Color} Legend={group.Label ?? group.Identifier} Opacity={0.25} />
                     )}
                 </Plot>
             </div>
