@@ -27,21 +27,19 @@ using System.Net.Http;
 using System.Reflection;
 using System.Text;
 using System.Threading;
+using Newtonsoft.Json.Linq;
+using openXDA.APIAuthentication;
 
 #if IS_GEMSTONE
 using Gemstone.Web;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json.Linq;
-using openXDA.APIAuthentication;
-using RoutePrefix = Microsoft.AspNetCore.Mvc.RouteAttribute;
+using RoutePrefixAttribute = Microsoft.AspNetCore.Mvc.RouteAttribute;
 using ServerResponse = System.Threading.Tasks.Task;
 #else
 using System.Web.Http;
-using API = openXDA.APIAuthentication.XDAAPIHelper;
 using Controller = System.Web.Http.ApiController;
 using ServerResponse = System.Threading.Tasks.Task<System.Net.Http.HttpResponseMessage>;
 #endif
-
 namespace Widgets.API.Library
 {
     /// <summary>
@@ -85,7 +83,11 @@ namespace Widgets.API.Library
         
         public RedirectionController()
         {
-            m_baseRoute = this.GetType().GetCustomAttributes<RoutePrefix>().FirstOrDefault()?.Template ?? "";
+            #if IS_GEMSTONE
+            m_baseRoute = this.GetType().GetCustomAttributes<RoutePrefixAttribute>().FirstOrDefault()?.Template ?? "";
+            #else
+            m_baseRoute = this.GetType().GetCustomAttributes<RoutePrefixAttribute>().FirstOrDefault()?.Prefix ?? "";
+            #endif
             m_xdaRoute = this.GetType().GetCustomAttributes<XDARedirectAttribute>().FirstOrDefault()?.XDARoute ?? m_baseRoute;
         }
 
@@ -97,7 +99,7 @@ namespace Widgets.API.Library
         /// <returns><see cref="ServerResponse"/> that depends on the target framework.</returns>
         public async ServerResponse ForwardRequest(JObject postData, CancellationToken cancellationToken)
         {
-            if (!API.TryRefreshSettings())
+            if (!XDAAPIHelper.TryRefreshSettings())
                 throw new InvalidOperationException("Unable to refresh XDA API helper.");
 
             string endPoint = this.GetEndpoint(m_baseRoute);
@@ -107,7 +109,7 @@ namespace Widgets.API.Library
             if (postData is not null)
                 content = new StringContent(postData.ToString(), Encoding.UTF8, "application/json");
 
-            HttpResponseMessage response = await API
+            HttpResponseMessage response = await XDAAPIHelper
                 .GetResponseTask(m_xdaRoute + endPoint + query, content)
                 .ConfigureAwait(false);
 

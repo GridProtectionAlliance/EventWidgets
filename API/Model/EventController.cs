@@ -32,8 +32,6 @@ using RoutePrefix = Microsoft.AspNetCore.Mvc.RouteAttribute;
 using ServerResponse = System.Threading.Tasks.Task;
 #else
 using System.Web.Http;
-using API = openXDA.APIAuthentication.XDAAPIHelper;
-using Controller = System.Web.Http.ApiController;
 using ServerResponse = System.Threading.Tasks.Task<System.Net.Http.HttpResponseMessage>;
 #endif
 
@@ -64,7 +62,7 @@ namespace Widgets.API.Model
         /// <see href="https://github.com/GridProtectionAlliance/gsf/blob/master/Source/Libraries/GSF.Web/Model/ModelController.cs">GSF ModelController</see>
         /// that is view-only.
         /// </remarks>
-        [RoutePrefix("{**catchAll}")]
+        [Route("{**catchAll}")]
         [HttpGet, HttpPost]
         public async ServerResponse HandleRequest([FromBody] JObject postData, CancellationToken cancellationToken) => await ForwardRequest(postData, cancellationToken);
     }
