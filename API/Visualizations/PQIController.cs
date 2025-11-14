@@ -35,7 +35,6 @@ using RoutePrefix = Microsoft.AspNetCore.Mvc.RouteAttribute;
 using ServerResponse = System.Threading.Tasks.Task;
 #else
 using System.Web.Http;
-using API = openXDA.APIAuthentication.XDAAPIHelper;
 using Controller = System.Web.Http.ApiController;
 using ServerResponse = System.Threading.Tasks.Task<System.Net.Http.HttpResponseMessage>;
 #endif

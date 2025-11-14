@@ -67,7 +67,7 @@ namespace Widgets.API.Library
         /// </summary>
         protected readonly string m_xdaRoute;
         #if IS_GEMSTONE
-        protected XDAAPI API { get; set; }
+        protected XDAAPI XDAAPIHelper { get; set; }
         /// <summary>
         /// Dependency injection constructor for use in .NETCore Applications.
         /// </summary>
@@ -77,7 +77,7 @@ namespace Widgets.API.Library
         /// <param name="retriever">An <see cref="IAPICredentialRetriever"/> that is responsible for retriving credentials used to make API calls to XDA.</param>
         public RedirectionController(IAPICredentialRetriever retriever) : this()
         {
-            API = new XDAAPI(retriever);
+            XDAAPIHelper = new XDAAPI(retriever);
         }
         #endif
         
