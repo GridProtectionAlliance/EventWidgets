@@ -53,89 +53,92 @@ const ITOA: EventWidget.IWidget<ISetting> = {
         SQLCommand: ''
     },
     Settings: (props) => {
-        return <>
-            {props.Settings.Filter?.map((item, i) => 
-                <div className="row fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }} key={`filter_${i}`}> 
-                    <div className="col-6">
-                        <Input<IValue>
-                            Record={{ Value: item }}
-                            Field={'Value'}
-                            Setter={(record) => {
-                                const u = _.cloneDeep(props.Settings.Filter);
-                                u[i] = record.Value as string;
-                                props.SetSettings({ ...props.Settings, Filter: u })
-                            }}
-                            Valid={() => true}
-                                Label={'Cause Code ' + i} />
+        return (
+            <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
+                <div className="col h-100" style={{ overflow: 'scroll' }}>
+                    {props.Settings.Filter?.map((item, i) =>
+                        <div className="row fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }} key={`filter_${i}`}>
+                            <div className="col-6">
+                                <Input<IValue>
+                                    Record={{ Value: item }}
+                                    Field={'Value'}
+                                    Setter={(record) => {
+                                        const u = _.cloneDeep(props.Settings.Filter);
+                                        u[i] = record.Value as string;
+                                        props.SetSettings({ ...props.Settings, Filter: u })
+                                    }}
+                                    Valid={() => true}
+                                    Label={'Cause Code ' + i} />
+                            </div>
+                            <div className="col-6 m-auto">
+                                <button className="btn btn-small btn-danger" onClick={() => {
+                                    const u = _.cloneDeep(props.Settings.Filter);
+                                    u.splice(i, 1);
+                                    props.SetSettings({ ...props.Settings, Filter: u })
+                                }}><ReactIcons.TrashCan /></button>
+                            </div>
                         </div>
-                        <div className="col-6 m-auto">
-                        <button className="btn btn-small btn-danger" onClick={() => {
-                            const u = _.cloneDeep(props.Settings.Filter);
-                            u.splice(i, 1);
-                            props.SetSettings({ ...props.Settings, Filter: u })
-                        }}><ReactIcons.TrashCan/></button>
-                    </div>
-                </div>
-            )}
-            
-            <div className="row">
-                <div className="col">
-                    <button className="btn btn-primary" onClick={() => {
-                        const u = _.cloneDeep(props.Settings.Filter);
-                        u.push('');
-                        props.SetSettings({ ...props.Settings, Filter: u })
-                    }}>Add Cause Filter</button>
-                </div>
-            </div>
+                    )}
 
-            {props.Settings.TimeWindow?.map((item, i) =>
-                <div className="row fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }} key={`time_${i}`}>
-                    <div className="col-6">
-                        <Input<IValue>
-                            Record={{ Value: item }}
-                            Field={'Value'}
-                            Setter={(record) => {
+                    <div className="row">
+                        <div className="col">
+                            <button className="btn btn-primary" onClick={() => {
+                                const u = _.cloneDeep(props.Settings.Filter);
+                                u.push('');
+                                props.SetSettings({ ...props.Settings, Filter: u })
+                            }}>Add Cause Filter</button>
+                        </div>
+                    </div>
+
+                    {props.Settings.TimeWindow?.map((item, i) =>
+                        <div className="row fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }} key={`time_${i}`}>
+                            <div className="col-6">
+                                <Input<IValue>
+                                    Record={{ Value: item }}
+                                    Field={'Value'}
+                                    Setter={(record) => {
+                                        const u = _.cloneDeep(props.Settings.TimeWindow);
+                                        u[i] = record.Value as number;
+                                        props.SetSettings({ ...props.Settings, TimeWindow: u })
+                                    }}
+                                    Type={'number'}
+                                    Valid={() => true}
+                                    Label={'Window ' + i + ' (s)'} />
+                            </div>
+                            <div className="col-6 m-auto">
+                                <button className="btn btn-small btn-danger" onClick={() => {
+                                    const u = _.cloneDeep(props.Settings.TimeWindow);
+                                    u.splice(i, 1);
+                                    props.SetSettings({ ...props.Settings, TimeWindow: u })
+                                }}><ReactIcons.TrashCan /></button>
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="row">
+                        <div className="col">
+                            <button className="btn btn-primary" onClick={() => {
                                 const u = _.cloneDeep(props.Settings.TimeWindow);
-                                u[i] = record.Value as number;
+                                u.push(0);
                                 props.SetSettings({ ...props.Settings, TimeWindow: u })
-                            }}
-                            Type={'number'}
-                            Valid={() => true}
-                            Label={'Window ' + i + ' (s)'} />
+                            }}>Add Time Window</button>
+                        </div>
                     </div>
-                    <div className="col-6 m-auto">
-                        <button className="btn btn-small btn-danger" onClick={() => {
-                            const u = _.cloneDeep(props.Settings.TimeWindow);
-                            u.splice(i, 1);
-                            props.SetSettings({ ...props.Settings, TimeWindow: u })
-                        }}><ReactIcons.TrashCan /></button>
+
+                    <div className="row">
+                        <div className="col">
+                            <TextArea<ISetting>
+                                Rows={4}
+                                Record={props.Settings}
+                                Field="SQLCommand"
+                                Label="SQL Command"
+                                Valid={() => true}
+                                Setter={props.SetSettings}
+                            />
+                        </div>
                     </div>
                 </div>
-            )}
-
-            <div className="row">
-                <div className="col">
-                    <button className="btn btn-primary" onClick={() => {
-                        const u = _.cloneDeep(props.Settings.TimeWindow);
-                        u.push(0);
-                        props.SetSettings({ ...props.Settings, TimeWindow: u })
-                    }}>Add Time Window</button>
-                </div>
-            </div>
-
-            <div className="row">
-                <div className="col">
-                    <TextArea<ISetting>
-                        Rows={4}
-                        Record={props.Settings}
-                        Field="SQLCommand"
-                        Label="SQL Command"
-                        Valid={() => true}
-                        Setter={props.SetSettings}
-                    />
-                </div>
-            </div>
-        </>
+            </div>);
     },
     Widget: (props: EventWidget.IWidgetProps<ISetting>) => {
         const [data, setData] = React.useState<ItoaInfo[]>([]);
