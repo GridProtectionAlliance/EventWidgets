@@ -23,20 +23,16 @@
 //
 //******************************************************************************************************
 
-using System;
-using System.Net.Http;
 using System.Threading;
+using Widgets.API.Library;
 
 #if IS_GEMSTONE
 using Microsoft.AspNetCore.Mvc;
 using openXDA.APIAuthentication;
-using Widgets.API.Library;
 using RoutePrefix = Microsoft.AspNetCore.Mvc.RouteAttribute;
 using ServerResponse = System.Threading.Tasks.Task;
 #else
 using System.Web.Http;
-using API = openXDA.APIAuthentication.XDAAPIHelper;
-using Controller = System.Web.Http.ApiController;
 using ServerResponse = System.Threading.Tasks.Task<System.Net.Http.HttpResponseMessage>;
 #endif
 
