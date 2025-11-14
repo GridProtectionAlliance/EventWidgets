@@ -192,8 +192,8 @@ const PQAI: EventWidget.IWidget<ISetting> = {
         , [props.Settings.Groups, selectedIndex])
 
         return (
-            <div className="row">
-                <div className="col-4" style={{ display: "flex", flexDirection: "column", overflow: "hidden" }}>
+            <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
+                <div className="col-4 h-100" style={{ display: "flex", flexDirection: "column" }}>
                     <div className="row">
                         <div className="col">
                             <button
@@ -223,7 +223,7 @@ const PQAI: EventWidget.IWidget<ISetting> = {
                         ># of Points</Column>
                     </Table>
                 </div>
-                <div className="col-4" style={{display: "flex", flexDirection: "column", overflow: "hidden" }}>
+                <div className="col-4 h-100" style={{display: "flex", flexDirection: "column" }}>
                     {props.Settings.Groups?.[selectedIndex] == null ? null :
                         <>
                             <div className="row">
@@ -315,7 +315,7 @@ const PQAI: EventWidget.IWidget<ISetting> = {
                         </>
                     }
                 </div>
-                <div className="col-4" style={{ display: "flex", flexDirection: "column", overflow: "hidden" }}>
+                <div className="col-4 h-100" style={{ display: "flex", flexDirection: "column" }}>
                     {props.Settings.Groups?.[selectedIndex] == null ? null :
                         <>
                             <div className="row">
@@ -331,7 +331,11 @@ const PQAI: EventWidget.IWidget<ISetting> = {
                                     <button
                                         className={"btn btn-block btn-danger"}
                                         onClick={() => setGroup(null, selectedIndex)}
-                                    >Remove Group</button>
+                                    >
+                                        <span>
+                                            <ReactIcons.TrashCan Color="#FFFFFF" Size={20} />
+                                        </span>
+                                    </button>
                                 </div>
                             </div>
                             <div className="row w-100">
@@ -524,7 +528,7 @@ function PlotComponent(props: IPlotProps) {
                             );
                         }
                     )}
-                    {Object.keys(props.EventPoints)
+                    {Object.keys(props.EventPoints ?? {})
                         .filter(key => !props.EventPoints[key].hasMatch)
                         .map(key => 
                             <CircleGroup
