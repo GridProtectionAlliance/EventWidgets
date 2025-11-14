@@ -28,17 +28,16 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading;
+using Widgets.API.Library;
+using Newtonsoft.Json.Linq;
 
 #if IS_GEMSTONE
 using Gemstone.Web;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json.Linq;
-using Widgets.API.Library;
 using RoutePrefix = Microsoft.AspNetCore.Mvc.RouteAttribute;
 using ServerResponse = System.Threading.Tasks.Task;
 #else
 using System.Web.Http;
-using API = openXDA.APIAuthentication.XDAAPIHelper;
 using Controller = System.Web.Http.ApiController;
 using ServerResponse = System.Threading.Tasks.Task<System.Net.Http.HttpResponseMessage>;
 #endif
@@ -76,7 +75,7 @@ namespace Widgets.API.Visualizations
             using (HttpRequestMessage request = new HttpRequestMessage())
             {
                 ConfigureRequest(request);
-                using (HttpResponseMessage response = HttpClient.Send(request, HttpCompletionOption.ResponseContentRead, cancellationToken))
+                using (HttpResponseMessage response = await HttpClient.SendAsync(request, HttpCompletionOption.ResponseContentRead, cancellationToken))
                 {
                     #if IS_GEMSTONE
                     await Response.SetValues(response, cancellationToken);
