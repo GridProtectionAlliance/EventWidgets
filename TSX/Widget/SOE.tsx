@@ -50,76 +50,75 @@ const SOE: EventWidget.IWidget<ISetting> = {
     },
     Settings: (props) => {
         return (
-            <>
-                {props.Settings.FilterOut?.map((item, i) =>
-                    <div className="row fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }} key={`filter_${i}`}>
-                        <div className="col-6">
-                            <Input<IValue>
-                                Record={{ Value: item }}
-                                Field={'Value'}
-                                Setter={(record) => {
+            <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
+                <div className="col h-100" style={{ overflow: 'scroll' }}>
+                    {props.Settings.FilterOut?.map((item, i) =>
+                        <div className="row fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }} key={`filter_${i}`}>
+                            <div className="col-6">
+                                <Input<IValue>
+                                    Record={{ Value: item }}
+                                    Field={'Value'}
+                                    Setter={(record) => {
+                                        const u = _.cloneDeep(props.Settings.FilterOut);
+                                        u[i] = record.Value as string;
+                                        props.SetSettings({ ...props.Settings, FilterOut: u });
+                                    }}
+                                    Valid={() => true}
+                                    Label={'Filter ' + i} />
+                            </div>
+                            <div className="col-6">
+                                <button className="btn btn-small btn-danger" onClick={() => {
                                     const u = _.cloneDeep(props.Settings.FilterOut);
-                                    u[i] = record.Value as string;
+                                    u.splice(i, 1);
                                     props.SetSettings({ ...props.Settings, FilterOut: u });
-                                }}
-                                Valid={() => true}
-                                Label={'Filter ' + i} />
+                                }}><ReactIcons.TrashCan /></button>
+                            </div>
                         </div>
-                        <div className="col-6">
-                            <button className="btn btn-small btn-danger" onClick={() => {
+                    )}
+                    <div className="row">
+                        <div className="col">
+                            <button className="btn btn-primary" onClick={() => {
                                 const u = _.cloneDeep(props.Settings.FilterOut);
-                                u.splice(i, 1);
+                                u.push('');
                                 props.SetSettings({ ...props.Settings, FilterOut: u });
-                            }}><ReactIcons.TrashCan /></button>
+                            }}>Add Exclusion Filter</button>
                         </div>
                     </div>
-                )}
-                <div className="row">
-                    <div className="col">
-                        <button className="btn btn-primary" onClick={() => {
-                            const u = _.cloneDeep(props.Settings.FilterOut);
-                            u.push('');
-                            props.SetSettings({ ...props.Settings, FilterOut: u });
-                        }}>Add Exclusion Filter</button>
-                    </div>
-                </div>
-
-                {props.Settings.TimeWindow?.map((item, i) =>
-                    <div className="row fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }} key={`time_${i}`}>
-                        <div className="col-6">
-                            <Input<IValue>
-                                Record={{ Value: item }}
-                                Field={'Value'}
-                                Setter={(record) => {
+                    {props.Settings.TimeWindow?.map((item, i) =>
+                        <div className="row fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }} key={`time_${i}`}>
+                            <div className="col-6">
+                                <Input<IValue>
+                                    Record={{ Value: item }}
+                                    Field={'Value'}
+                                    Setter={(record) => {
+                                        const u = _.cloneDeep(props.Settings.TimeWindow);
+                                        u[i] = record.Value as number;
+                                        props.SetSettings({ ...props.Settings, TimeWindow: u });
+                                    }}
+                                    Valid={() => true}
+                                    Type={'number'}
+                                    Label={'Window ' + i + ' (s)'} />
+                            </div>
+                            <div className="col-6 m-auto">
+                                <button className="btn btn-small btn-danger" onClick={() => {
                                     const u = _.cloneDeep(props.Settings.TimeWindow);
-                                    u[i] = record.Value as number;
+                                    u.splice(i, 1);
                                     props.SetSettings({ ...props.Settings, TimeWindow: u });
-                                }}
-                                Valid={() => true}
-                                Type={'number'}
-                                Label={'Window ' + i + ' (s)'} />
+                                }}><ReactIcons.TrashCan /></button>
+                            </div>
                         </div>
-                        <div className="col-6 m-auto">
-                            <button className="btn btn-small btn-danger" onClick={() => {
+                    )}
+                    <div className="row">
+                        <div className="col">
+                            <button className="btn btn-primary" onClick={() => {
                                 const u = _.cloneDeep(props.Settings.TimeWindow);
-                                u.splice(i, 1);
+                                u.push(0);
                                 props.SetSettings({ ...props.Settings, TimeWindow: u });
-                            }}><ReactIcons.TrashCan /></button>
+                            }}>Add Time Window</button>
                         </div>
-                    </div>
-                )}
-
-                <div className="row">
-                    <div className="col">
-                        <button className="btn btn-primary" onClick={() => {
-                            const u = _.cloneDeep(props.Settings.TimeWindow);
-                            u.push(0);
-                            props.SetSettings({ ...props.Settings, TimeWindow: u });
-                        }}>Add Time Window</button>
                     </div>
                 </div>
-
-            </>
+            </div>
         );
     },
     Widget: (props: EventWidget.IWidgetProps<ISetting>) => {
