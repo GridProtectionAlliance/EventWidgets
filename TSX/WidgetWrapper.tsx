@@ -49,12 +49,13 @@ import { IWigetStore } from './Store';
 import EventInfo from './Widget/EventInfo';
 import ITOA from './Widget/ITOA';
 import { ErrorBoundary } from '@gpa-gemstone/common-pages';
+import TrendGraph from './Widget/TrendGraph';
 
 const AllWidgets: EventWidget.IWidget<any>[] = [LineParameters , 
     EventSearchOpenSEE, ESRIMap, FaultInfo, EventSearchAssetFaultSegments,
     AssetVoltageDisturbances, EventSearchCorrelatedSags, SOE, EventSearchPQI, Lightning, EventSearchFileInfo, EventSearchNoteWindow,
     StructureInfo, PQICurve, InterruptionReport, EventSearchRelayPerformance, EventSearchBreakerPerformance, EventSearchCapBankAnalyticOverview,
-    AssetHistoryStats, AssetHistoryTable, MatlabAnalyticResults, EventInfo, ITOA];
+    AssetHistoryStats, AssetHistoryTable, MatlabAnalyticResults, EventInfo, ITOA, TrendGraph];
 
 interface IProps {
     Widget: EventWidget.IWidgetView,

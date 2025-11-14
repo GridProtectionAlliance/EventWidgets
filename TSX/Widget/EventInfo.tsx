@@ -73,7 +73,7 @@ const EventInfo: EventWidget.IWidget<{}> = {
         const dispatch = useDispatch<Dispatch<any>>();
 
         React.useEffect(() => {
-            if (eventTypeStatus === 'unintiated' || eventTypeStatus == 'changed')
+            if (eventTypeStatus === 'uninitiated' || eventTypeStatus == 'changed')
                 dispatch(props.Store.EventTypeSlice.Fetch());
         }, [eventTypeStatus]);
 

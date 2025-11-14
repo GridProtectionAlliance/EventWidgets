@@ -30,6 +30,11 @@ interface ICurve {
     Data: number[][]   
 }
 
+const baseColors = ["#A30000", "#0029A3", "#007A29", "#d3d3d3", "#edc240",
+    "#afd8f8", "#cb4b4b", "#4da74d", "#9440ed", "#BD9B33", "#EE2E2F",
+    "#008C48", "#185AA9", "#F47D23", "#662C91", "#A21D21", "#B43894",
+    "#737373"]
+
 const PQICurves: EventWidget.IWidget<{}> = {
     Name: 'PQICurves', 
     DefaultSettings: {},
@@ -43,12 +48,6 @@ const PQICurves: EventWidget.IWidget<{}> = {
         const [maxV, setMaxV] = React.useState<number>(1);
         React.useLayoutEffect(() => { setW(card?.current?.offsetWidth ?? 0)  });
 
-        const baseColors = ["#A30000", "#0029A3", "#007A29", "#d3d3d3", "#edc240",
-            "#afd8f8", "#cb4b4b", "#4da74d", "#9440ed", "#BD9B33", "#EE2E2F",
-            "#008C48", "#185AA9", "#F47D23", "#662C91", "#A21D21", "#B43894",
-            "#737373"]
-
-
         React.useEffect(() => {
             return GetData();
         }, [props.EventID]);
@@ -56,7 +55,7 @@ const PQICurves: EventWidget.IWidget<{}> = {
         function GetData() {
             const handle = $.ajax({
                 type: "GET",
-                url: `${props.HomePath}api/PQI/GetCurves/${props.EventID}`,
+                url: `${props.HomePath}api/EventWidgets/PQI/GetCurves/${props.EventID}`,
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
                 cache: true,
@@ -76,6 +75,7 @@ const PQICurves: EventWidget.IWidget<{}> = {
             if (curves.length > 0)
                 setMaxV(1.1*Math.max(...curves.map(c => Math.max(...c.Data.map(p => p[1])))))
         }, [curves]);
+
         return (
             <div className="card">
                 <div className="card-header fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>
