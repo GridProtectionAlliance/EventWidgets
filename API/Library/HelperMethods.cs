@@ -55,7 +55,7 @@ namespace Widgets.API.Library
             #if IS_GEMSTONE
             endPoint = controller.Request.Path.Value;
             #else
-            endPoint = controller.Request.AbsolutePath;
+            endPoint = controller.Request.RequestUri.AbsolutePath;
             #endif
 
             return endPoint.Substring(baseRoute.Length + 1);
