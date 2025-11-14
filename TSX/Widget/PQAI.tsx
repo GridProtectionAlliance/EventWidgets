@@ -21,10 +21,13 @@
 //
 //******************************************************************************************************
 
+import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { SpacedColor } from '@gpa-gemstone/helper-functions';
 import { ColorPicker, Input } from '@gpa-gemstone/react-forms';
 import { CircleGroup, Plot } from '@gpa-gemstone/react-graph';
+import { ICircleStyle } from '@gpa-gemstone/react-graph/lib/CircleGroups';
+import { GenericController, LoadingIcon, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
 import { Column, Table } from '@gpa-gemstone/react-table';
 import _ from 'lodash';
 import React from 'react';
@@ -39,6 +42,19 @@ interface IGroup {
     Label?: string,
     Identifier: string,
     Color: string
+}
+
+interface ITagData {
+    cluster_label: string,
+    pca_components: number[]
+}
+
+interface ITagPlotData {
+    [key: string]: {
+        hasMatch: boolean,
+        datum: [number, number],
+        color: string
+    }
 }
 
 type IDataPoint = [number, number];
@@ -179,10 +195,12 @@ const PQAI: EventWidget.IWidget<ISetting> = {
             <div className="row">
                 <div className="col-4" style={{ display: "flex", flexDirection: "column", overflow: "hidden" }}>
                     <div className="row">
-                        <button
-                            className={"btn btn-block btn-info"}
-                            onClick={() => setGroup({ Color: SpacedColor(1, 0.5), Data: [], Label: null, Identifier: null })}
-                        >Add New Group</button>
+                        <div className="col">
+                            <button
+                                className={"btn btn-block btn-info"}
+                                onClick={() => setGroup({ Color: SpacedColor(1, 0.5), Data: [], Label: null, Identifier: null })}
+                                >Add New Group</button>
+                        </div>
                     </div>
                     <Table<IGroup>
                         Data={props.Settings.Groups}
@@ -287,10 +305,12 @@ const PQAI: EventWidget.IWidget<ISetting> = {
                                 ><></></Column>
                             </Table>
                             <div className="row">
-                                <button
-                                    className={"btn btn-block btn-info"}
-                                    onClick={() => setDatum([0,0])}
-                                >Add Data Point</button>
+                                <div className="col">
+                                    <button
+                                        className={"btn btn-block btn-info"}
+                                        onClick={() => setDatum([0,0])}
+                                        >Add Data Point</button>
+                                </div>
                             </div>
                         </>
                     }
@@ -324,45 +344,104 @@ const PQAI: EventWidget.IWidget<ISetting> = {
         );
     },
     Widget: (props: EventWidget.IWidgetProps<ISetting>) => {
-        return null;
+        const [tagData, setTagData] = React.useState<ITagData[]>([]);
+        const [tagStatus, setTagStatus] = React.useState<Application.Types.Status>('uninitiated');
+        const controller = React.useMemo(() =>
+            new GenericController<OpenXDA.Types.EventEventTag>(`${props.HomePath}api/EventWidgets/EventEventTag`, "ID", true)
+            , [props.HomePath]);
+
+        const plotTagData: ITagPlotData = React.useMemo(() => {
+            const tags: ITagPlotData = {};
+            tagData.forEach(tag => {
+                const matchIndex = props.Settings.Groups
+                    .findIndex(group =>
+                        group.Identifier.localeCompare(tag.cluster_label, undefined, { sensitivity: 'base' }) === 0
+                    );
+                tags[tag.cluster_label] = {
+                    hasMatch: matchIndex >= 0,
+                    datum: [tag.pca_components[0], tag.pca_components[1]],
+                    color: props.Settings.Groups?.[matchIndex] ?? tagData?.[tag.cluster_label] ?? SpacedColor(1, 0.75)
+                };
+            });
+            return tags;
+        }, [tagData, props.Settings.Groups]);
+
+        React.useEffect(() => {
+            setTagStatus('loading');
+            const handle = controller.DBSearch([{
+                FieldName: 'TagName',
+                SearchText: 'epri.pqai',
+                Operator: '=',
+                Type: 'string',
+                IsPivotColumn: false
+            }], undefined, undefined, props.EventID);
+            
+            handle.done((tags: OpenXDA.Types.EventEventTag[]) => {
+                setTagData(tags.map(tag => JSON.parse(tag.TagData)));
+                setTagStatus('idle');
+            }).fail((err) => {
+                console.log("then e")
+                setTagStatus('error');
+                console.error(err);
+            });
+
+            return () => { if (handle?.abort != null) handle.abort(); }
+        }, [props.EventID]);
+
+        if (tagStatus === 'error')
+            return (
+                <ServerErrorIcon Show={true} />
+            );
+
+        if (tagStatus !== 'idle')
+            return (
+                <LoadingIcon Show={true} />
+            );
+
+        return (
+            <PlotComponent ShowLegend={true} Groups={props.Settings.Groups} EventPoints={plotTagData} />
+        );
     }
 }
 
 const legendWidth = 150;
 interface IPlotProps {
-    ShowLegend: boolean
+    ShowLegend: boolean,
     Groups: IGroup[]
-}
-interface IEnabled {
-    [key: string]: boolean
+    EventPoints?: ITagPlotData
 }
 
 function PlotComponent(props: IPlotProps) {
     const containerRef = React.useRef<HTMLTableSectionElement | undefined>(undefined);
-    const [width, setWidth] = React.useState<number>(250);
-    const [enabled, setEnabled] = React.useState<IEnabled>({});
+    const [dims, setDims] = React.useState<{ width: number, height: number, leftOverWidth: number }>({ width: 250, height: 250, leftOverWidth: 0 });
+
+    const getStyling = React.useCallback((groupIndex: number) => {
+        if (props.EventPoints == null) return null;
+
+        return (_, circleInd) => ({
+            Opacity: circleInd >= props.Groups[groupIndex].Data.length ? 1 : 0.5
+        });
+    }, [props.Groups, props.EventPoints]);
 
     const defaultTDomain: [number, number] = React.useMemo(() => {
         const xValues = props.Groups
-            .filter(group => enabled?.[group.Identifier] ?? false)
             .flatMap(group => group.Data)
             .map(point => point[0]);
         const min = Math.min(...xValues);
         const max = Math.max(...xValues);
         const margin = 0.1*(max-min)
         return [min - margin, max + margin];
-    }, [enabled]);
+    }, []);
 
     const defaultYDomain: [number, number] = React.useMemo(() => {
         const yValues = props.Groups
-            .filter(group => enabled?.[group.Identifier] ?? false)
             .flatMap(group => group.Data)
             .map(point => point[1]);
         const min = Math.min(...yValues);
         const max = Math.max(...yValues);
         const margin = 0.1 * (max - min)
         return [min - margin, max + margin];
-    }, [enabled]);
+    }, []);
 
     React.useEffect(() => {
         let resizeObserver: ResizeObserver;
@@ -374,7 +453,23 @@ function PlotComponent(props: IPlotProps) {
 
                     // gets dims of div without rounding
                     const dims = containerRef.current?.getBoundingClientRect();
-                    setWidth(dims.width ?? 250);
+                    const legend = props.ShowLegend ? legendWidth : 0;
+                    let width = (dims.width ?? 250) - legend;
+                    let height = dims.height ?? 250;
+                    if (width > 500 && width > dims.height) {
+                        width = Math.max(500, dims.height);
+                        height = width;
+                    }
+                    else {
+                        height = width;
+                    }
+                    width += legend;
+                    const leftOverWidth = (dims.width ?? 250) - width;
+                    setDims({
+                        leftOverWidth: leftOverWidth,
+                        width: width,
+                        height: height
+                    });
                 }, 100)
             );
             resizeObserver.observe(containerRef.current);
@@ -385,25 +480,18 @@ function PlotComponent(props: IPlotProps) {
             clearInterval(intervalHandle);
             if (resizeObserver != null && resizeObserver.disconnect != null) resizeObserver.disconnect();
         };
-    }, []);
-
-    React.useEffect(() => {
-        const enabled: IEnabled = {};
-        props.Groups.forEach(group =>
-            enabled[group.Identifier] = enabled?.[group.Identifier] ?? true
-        );
-        setEnabled(enabled);
-    }, [props.Groups]);
+    }, [props.ShowLegend]);
 
     return (
         <div className="card w-100">
             <div className="card-header fixed-top" style={{ position: "sticky", background: "#f7f7f7" }}>
                 PQAI Analytic
             </div>
-            <div className="card-body p-0" ref={containerRef}>
+            <div className="card-body row p-0" ref={containerRef}>
+                <div className="col" style={{ height: dims.height, maxWidth: dims.leftOverWidth / 2, padding: '0px', position: "static", display: "block" }} />
                 <Plot
-                    height={width + (props.ShowLegend ? legendWidth : 0)}
-                    width={width}
+                    height={dims.height}
+                    width={dims.width}
                     showBorder={false}
                     showGrid={true}
                     yDomain={"Manual"}
@@ -411,6 +499,7 @@ function PlotComponent(props: IPlotProps) {
                     defaultTdomain={defaultTDomain}
                     defaultYdomain={defaultYDomain}
                     legend={props.ShowLegend ? "right" : "hidden"}
+                    legendWidth={legendWidth}
                     Tlabel={"PCA Component 1"}
                     Ylabel={"PCA Component 2"}
                     showMouse={false}
@@ -419,10 +508,33 @@ function PlotComponent(props: IPlotProps) {
                     useMetricFactors={false}
                 >
                     {props.Groups
-                        .filter(group => enabled?.[group.Identifier] ?? false)
-                        .map((group, index) =>
-                            <CircleGroup key={index} Data={group.Data} Color={group.Color} Legend={group.Label ?? group.Identifier} Opacity={0.25} />
+                        .map((group, index) => {
+                            const data = [...group.Data];
+                            if (props.EventPoints?.[group.Identifier] != null)
+                                data.push(props.EventPoints[group.Identifier].datum);
+                            console.log(data);
+
+                            return (
+                                <CircleGroup
+                                    key={index}
+                                    Data={data}
+                                    GetCircleStyle={getStyling(index)}
+                                    Color={group.Color}
+                                    Legend={group.Label ?? group.Identifier} />
+                            );
+                        }
                     )}
+                    {Object.keys(props.EventPoints)
+                        .filter(key => !props.EventPoints[key].hasMatch)
+                        .map(key => 
+                            <CircleGroup
+                                Color={props.EventPoints[key].color}
+                                Data={[props.EventPoints[key].datum]}
+                                Legend={key}
+                                key={key}
+                            />
+                        )
+                    }
                 </Plot>
             </div>
         </div>
