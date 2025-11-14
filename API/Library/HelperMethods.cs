@@ -29,17 +29,6 @@ using Controller = System.Web.Http.ApiController;
 
 namespace Widgets.API.Library
 {
-    /// <summary>
-    /// Controller base that is meant to reroute requests to XDA.
-    /// </summary>
-    /// <Remarks>
-    /// This controller will by default send requests to the exact same route in XDA as specified for it.<br/>
-    /// To change this, decorate it with a <see cref="XDARedirectAttribute"/> with a different route.
-    /// <para>
-    /// If this is NOT in gemstone, you MUST intialize the <see cref="XDAAPIHelper"/> static object in the outside project.<br/>
-    /// Otherwise, please use dependency injection to provide a <see cref="IAPICredentialRetriever"/> into the constructor.
-    /// </para>
-    /// </Remarks>
     public static class HelperMethods
     {
         /// <summary>
