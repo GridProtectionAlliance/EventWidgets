@@ -51,7 +51,7 @@ namespace Widgets.API.Model
         /// Dependency injection constructor for use in .NETCore Applications.
         /// </summary>
         /// <param name="retriever">An <see cref="IAPICredentialRetriever"/> that is responsible for retriving credentials used to make API calls to XDA.</param>
-        public EventController(IAPICredentialRetriever retriever) : base(retriever) { }
+        public EventEventTagController(IAPICredentialRetriever retriever) : base(retriever) { }
         #endif
 
         /// <summary>
