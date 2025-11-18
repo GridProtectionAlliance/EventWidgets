@@ -25,7 +25,6 @@ import { IWigetStore } from './Store';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 
 export namespace EventWidget {
-
     export interface IWidgetView {
         ID: number,
         CategoryID: number,
@@ -86,12 +85,13 @@ export namespace EventWidget {
         Events: OpenXDA.Types.EventSearch[],
         // Output props
         SelectedEvents?: Set<number>,
-        EventCallBack?: (arg: OpenXDA.Types.EventSearch[]) => void,
+        EventCallBack?: (evtArg: OpenXDA.Types.EventSearch[]) => void,
         // Other Props
         HomePath: string,
         Roles: string[],
         Name: string,
-        WidgetID: number
+        WidgetID: number,
+        Title?: string
     }
 
     export interface IWidgetSettingsProps<T> {
