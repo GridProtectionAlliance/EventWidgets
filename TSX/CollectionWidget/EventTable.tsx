@@ -26,6 +26,7 @@ import moment from 'moment';
 import { EventWidget } from '../global';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { Column, Paging, Table } from '@gpa-gemstone/react-table';
+import { LoadingIcon } from '@gpa-gemstone/react-interactive';
 
 // ToDo: Move this to mestone, not possible atm due to jQuery dep.
 // Note: This is from PQDigest, ExportCSV.tsx
@@ -88,15 +89,19 @@ const EventTable: EventWidget.ICollectionWidget<{}> = {
         return (
             <div className="card h-100" style={{ display: 'flex', flexDirection: "column" }}>
                 <div className="card-header">
-                    {'Displaying Events(s) ' +
+                    {props.Title == null ?
+                        'Displaying Events(s) ' +
                         (props.SearchInformation.TotalRecords > 0 ?
                             (props.SearchInformation.RecordsPerPage * props.SearchState.Page + 1) : 0) +
                         ' - ' +
                         (props.SearchInformation.RecordsPerPage * props.SearchState.Page + props.Events.length) + 
-                        ' out of ' + props.SearchInformation.TotalRecords}
+                        ' out of ' + props.SearchInformation.TotalRecords
+                        : props.Title
+                    }
                     <button className="btn btn-primary" style={{ position: 'absolute', top: 5, right: 5 }} onClick={() => ExportToCsv(props.Events, 'EventSearch.csv')}>Export CSV</button>
                 </div>
                 <div className="card-body p-0" style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+                    <LoadingIcon Show={props.SearchInformation.Status !== 'idle'} />
                     <Table<OpenXDA.Types.EventSearch>
                         Data={props.Events}
                         SortKey={props.SearchState.SortKey}

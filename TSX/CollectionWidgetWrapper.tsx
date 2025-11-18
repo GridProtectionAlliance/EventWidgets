@@ -23,20 +23,26 @@
 
 import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { ErrorBoundary } from '@gpa-gemstone/common-pages';
-import { GenericController, LoadingIcon, Search, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
+import { GenericController, Search, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
 import { cloneDeep } from 'lodash';
 import * as React from 'react';
+import EventCountChart from './CollectionWidget/EventCountChart';
+import EventCountTable from './CollectionWidget/EventCountTable';
 import EventTable from './CollectionWidget/EventTable';
+import MagDurChart from './CollectionWidget/MagDurChart';
 import PQHealthIndex from './CollectionWidget/PQHealthIndex';
 import { EventWidget } from './global';
 
-export const AllWidgets: EventWidget.ICollectionWidget<any>[] = [EventTable, PQHealthIndex];
+export const AllWidgets: EventWidget.ICollectionWidget<any>[] = [
+    EventTable, PQHealthIndex, MagDurChart, EventCountTable, EventCountChart
+];
 
 interface IProps {
     Widget: EventWidget.IWidgetView,
     EventCallBack?: (arg: OpenXDA.Types.EventSearch[]) => void,
     SelectedEvents?: Set<number>,
     EventFilter: EventWidget.ICollectionFilter,
+    Title?: string,
     HomePath: string,
     Roles: string[]
 }
@@ -127,7 +133,8 @@ const CollectionWidgetRouter: React.FC<IProps> = (props: IProps) => {
         }
 
         setSearchInfo(i => ({...i, Status: 'loading'}));
-        let handle;
+        let handle: JQuery.jqXHR;
+        let abort = false;
         if (Widget.DataType === 'XDA-Paged')
             handle = EventController.PagedSearch(TransformFilter(props.EventFilter), searchState.SortKey, searchState.Ascending, searchState.Page).done((result) => {
                 setEvents(JSON.parse(result.Data as unknown as string));
@@ -151,9 +158,17 @@ const CollectionWidgetRouter: React.FC<IProps> = (props: IProps) => {
             return;
         }
 
-        handle.fail(() => setSearchInfo(i => ({ ...i, Status: 'error' })));
+        handle.fail((_handle, _status, reason) => {
+            if (!abort)
+                setSearchInfo(i => ({ ...i, Status: 'error' }));
+        });
 
-        return () => { if (handle != null && handle?.abort != null) handle.abort(); }
+        return () => {
+            if (handle != null && handle?.abort != null) {
+                abort = true;
+                handle.abort();
+            }
+        }
     }, [searchState, props.EventFilter, Widget?.DataType])
 
     if (Widget == null || searchInfo.Status === 'error')
@@ -172,25 +187,12 @@ const CollectionWidgetRouter: React.FC<IProps> = (props: IProps) => {
             </div>
         );
 
-    if (searchInfo.Status === 'loading' || searchInfo.Status === 'uninitiated')
-        return (
-            <div className="card">
-                <div className="card-header">
-                    {props.Widget.Name}
-                </div>
-                <div className="card-body">
-                    <LoadingIcon Show={true} Size={150} />
-                </div>
-            </div>
-        );
-
-
-
     return (
         <ErrorBoundary
             ErrorMessage={`Widget ${props.Widget.Name} has encoutered an error.`}
         >
             <Widget.Widget
+                Title={props.Title}
                 Settings={Settings}
                 Events={events}
                 SearchInformation={searchInfo}
