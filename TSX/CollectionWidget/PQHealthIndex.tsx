@@ -174,34 +174,6 @@ const PQHealthIndex: EventWidget.ICollectionWidget<ISettings> = {
             };
         }, []);
 
-        /*
-        React.useEffect(() => {
-            // Todo: this endpoint doesn't respect the URI in settings, its hardcoded server side
-            const handle = $.ajax({
-                type: "GET",
-                url: `${props.HomePath}api/EventWidgets/PQIHealth/sites`,
-                dataType: 'json',
-                cache: false,
-                async: true
-            }).done((pqSites: string) => {
-                let pqFilteredSites: IPQHealthSite[] = JSON.parse(pqSites);
-                if (props.CurrentFilter.MeterFilter != null) 
-                    pqFilteredSites = pqFilteredSites
-                        .filter(site => props.CurrentFilter.MeterFilter.findIndex(meter => meter.AssetKey === site.sitename) > -1);
-                setSites(currentSites => (
-                    pqFilteredSites
-                        .map(site => ({
-                            Value: site.siteid,
-                            Label: site.sitename,
-                            Selected: currentSites.find(oldSite => oldSite.Value === site.siteid)?.Selected ?? true
-                        }))
-                ));
-            });
-
-            return () => { if (handle?.abort != null) handle.abort(); }
-        }, [props.Settings.PQHealthURL, props.CurrentFilter.MeterFilter]);
-        */
-
         React.useEffect(() => {
             const processedData: IProcessedData = {
                 RadialLines: {}, Max: 0, ScalarLines: {}, DataLines: {}, BarData: {}
@@ -220,6 +192,7 @@ const PQHealthIndex: EventWidget.ICollectionWidget<ISettings> = {
                 siteids: siteIds
             }, "&", "=", { encodeURIComponent: queryString.escape });
 
+            // ToDo: This does not respect setting currently, change it do to do post security update
             const handle = $.ajax({
                 type: "GET",
                 url: `${props.HomePath}api/EventWidgets/PQIHealth/reportsummary?${q}`,
@@ -300,11 +273,11 @@ const PQHealthIndex: EventWidget.ICollectionWidget<ISettings> = {
         return (
             <div className="card h-100 w-100" style={{ display: 'flex', flexDirection: "column" }}>
                 <div className="card-header">
-                    EPRI PQ Health Index
+                    {props.Title == null ? "EPRI PQ Health Index" : props.Title}
                 </div>
-                <div className="card-body" style={{ flex: 1, overflow: 'hidden', padding: "0px 15px 0px 15px" }}>
-                    <div className="row h-100" style={{ display: 'flex', overflow: 'hidden', flexDirection: "row", padding: "0px 15px 0px 15px" }}>
-                        <div className="col-6 m-0 h-100" style={{ display: 'flex', overflow: 'hidden', flexDirection: "column", padding: "10px 10px 10px 15px" }}>
+                <div className="card-body" style={{ flex: 1, overflow: 'hidden' }}>
+                    <div className="row h-100" style={{ display: 'flex', overflow: 'hidden', flexDirection: "row" }}>
+                        <div className="col-6 m-0 h-100" style={{ display: 'flex', overflow: 'hidden', flexDirection: "column" }}>
                             <div className="row">
                                 <button className="btn btn-sm btn-info" onClick={() =>setShowModal(true)}>
                                     {`Search Sites (${sites.IDs.length} selected)`}
@@ -378,7 +351,7 @@ const PQHealthIndex: EventWidget.ICollectionWidget<ISettings> = {
                             width={115}
                             orientation={'vertical'}
                         />
-                        <div className="col h-100" style={{ flex: 1, overflow: 'hidden', padding: "10px 10px 10px 0px" }} ref={barRef}>
+                        <div className="col h-100" style={{ flex: 1, overflow: 'hidden' }} ref={barRef}>
                             <Plot height={dimensions.Bar.Height-20} width={dimensions.Bar.Width} showBorder={false}
                                 yDomain={'HalfAutoValue'}
                                 XAxisType={"value"}
