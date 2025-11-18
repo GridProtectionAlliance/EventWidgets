@@ -26,7 +26,6 @@ import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { SpacedColor } from '@gpa-gemstone/helper-functions';
 import { ColorPicker, Input } from '@gpa-gemstone/react-forms';
 import { CircleGroup, Plot } from '@gpa-gemstone/react-graph';
-import { ICircleStyle } from '@gpa-gemstone/react-graph/lib/CircleGroups';
 import { GenericController, LoadingIcon, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
 import { Column, Table } from '@gpa-gemstone/react-table';
 import _ from 'lodash';
