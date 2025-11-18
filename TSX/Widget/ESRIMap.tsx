@@ -23,6 +23,7 @@
 
 import React from 'react';
 import leaflet from 'leaflet';
+import 'proj4leaflet';
 import { basemapLayer, dynamicMapLayer } from 'esri-leaflet';
 import moment from 'moment';
 import { EventWidget } from '../global';
@@ -266,6 +267,7 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
                     cache: false,
                     async: true
                 }).always(rsp => {
+                    /*
                     const buffer = leaflet.Proj.geoJson(poly(JSON.parse(rsp.responseText).geometries[0]), {
                         style: function (feature) {
                             return { color: feature.properties.color, opacity: feature.properties.opacity };
@@ -274,6 +276,7 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
 
                     buffer.addTo(map.current);
                     map.current.fitBounds(buffer.getBounds());
+                    */
                 });
 
             })
