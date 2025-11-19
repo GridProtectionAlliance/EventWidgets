@@ -22,7 +22,7 @@
 //******************************************************************************************************
 
 import { Input, MultiSearchableSelect, Select } from '@gpa-gemstone/react-forms';
-import { Infobox, Line, Plot, BarAggregate, Legend, LineLegend } from '@gpa-gemstone/react-graph';
+import { Infobox, Line, Plot, BarAggregate, Legend, LineLegend, HorizontalMarker } from '@gpa-gemstone/react-graph';
 import _ from 'lodash';
 import queryString from 'querystring';
 import React from 'react';
@@ -349,7 +349,11 @@ const PQHealthIndex: EventWidget.ICollectionWidget<ISettings> = {
                                                 display: 'inline-block', background: `rgba(255, 255, 255, ${0})`, color: "black",
                                                 overflow: 'visible', whiteSpace: 'pre-wrap', fontSize: `1em`
                                             }}>
-                                                {key}
+                                                {() => {
+                                                    let displayKey = key.charAt(0).toUpperCase() + key.slice(1).toLowerCase();
+                                                    if (displayKey.length > 5) return displayKey.slice(0, 5) + ".";
+                                                    return displayKey
+                                                }}
                                             </div>
                                         </Infobox>
                                     )
@@ -388,19 +392,24 @@ const PQHealthIndex: EventWidget.ICollectionWidget<ISettings> = {
                                 hideXAxis={true}
                                 defaultMouseMode={"select"}
                                 menuLocation={"hide"}
-                                useMetricFactors={false}>
-                                    {Object.keys(data.BarData).filter(key => visible[key]).map((key, index) =>
-                                        (<BarAggregate
-                                            AggregationType={"min_max_avg"}
-                                            Data={data.BarData[key]}
-                                            BarOrigin={index}
-                                            BarWidth={1}
-                                            XBarOrigin={'left'}
-                                            Color={GetColor(legendColorKeys[key])}
-                                            StrokeColor={"black"}
-                                            key={`bar_${key}`}
-                                        />)
-                                    )}
+                                useMetricFactors={false}
+                            >
+                                {visible?.Threshold != null && visible.Threshold ? 
+                                    <HorizontalMarker Value={1} color={GetColor(legendColorKeys?.Threshold)} lineStyle={':'} width={5} /> :
+                                    <></>
+                                }
+                                {Object.keys(data.BarData).filter(key => visible[key]).map((key, index) =>
+                                    (<BarAggregate
+                                        AggregationType={"min_max_avg"}
+                                        Data={data.BarData[key]}
+                                        BarOrigin={index}
+                                        BarWidth={1}
+                                        XBarOrigin={'left'}
+                                        Color={GetColor(legendColorKeys[key])}
+                                        StrokeColor={"black"}
+                                        key={`bar_${key}`}
+                                    />)
+                                )}
                             </Plot>
                         </div>
                     </div>
