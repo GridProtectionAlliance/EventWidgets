@@ -63,7 +63,6 @@ interface IProps {
     Height: number,
     DisturbanceID: number,
     FaultID: number,
-    StartTime: number,
     HomePath: string,
     Roles: string[],
     Store: IWigetStore
@@ -110,7 +109,6 @@ const WidgetRouter: React.FC<IProps> = (props: IProps) => {
         >
             <Widget.Widget
                 Settings={Settings}
-                StartTime={props.StartTime}
                 EventID={props.EventID}
                 HomePath={props.HomePath}
                 MaxHeight={props.Height - 37.5}

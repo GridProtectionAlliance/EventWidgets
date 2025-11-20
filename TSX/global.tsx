@@ -39,7 +39,6 @@ export namespace EventWidget {
         MaxHeight?: number,
         DisturbanceID?: number,
         FaultID?: number,
-        StartTime: number,
         HomePath: string,
         Roles: string[],
         Name: string,
