@@ -64,6 +64,7 @@ namespace Widgets.API.Model
         /// </remarks>
         [Route("{**catchAll}")]
         [HttpGet, HttpPost]
-        public async ServerResponse HandleRequest([FromBody] JObject postData, CancellationToken cancellationToken) => await ForwardRequest(postData, cancellationToken);
+        public async ServerResponse HandleRequest([FromBody] JObject postData, CancellationToken cancellationToken) => 
+            await ForwardRequest(postData, cancellationToken).ConfigureAwait(false);
     }
 }

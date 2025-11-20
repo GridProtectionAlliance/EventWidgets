@@ -63,7 +63,8 @@ namespace Widgets.API.Visualizations
         /// </summary>
         [Route("TrendChannels/{eventID:int}")]
         [HttpGet]
-        public async ServerResponse FetchTrendChannels(CancellationToken cancellationToken) => await ForwardRequest(cancellationToken);
+        public async ServerResponse FetchTrendChannels(CancellationToken cancellationToken) => 
+            await ForwardRequest(cancellationToken).ConfigureAwait(false);
 
         /// <summary>
         /// Redirection endpoint that handles forwarding requests for trending information to XDA.
@@ -76,6 +77,7 @@ namespace Widgets.API.Visualizations
         /// EndTime: A <see cref="DateTime"/> of the end of data points to be queried.<br/>
         /// </param>
         [Route("QueryPoints"), HttpPost]
-        public async ServerResponse ForwardQueryPoints([FromBody] JObject query, CancellationToken token) => await ForwardRequest(query, token).ConfigureAwait(false);
+        public async ServerResponse ForwardQueryPoints([FromBody] JObject query, CancellationToken token) =>
+            await ForwardRequest(query, token).ConfigureAwait(false);
     }
 }
