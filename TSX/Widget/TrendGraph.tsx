@@ -25,13 +25,11 @@ import { Application, HIDS, OpenXDA } from '@gpa-gemstone/application-typings';
 import { SpacedColor } from '@gpa-gemstone/helper-functions';
 import { Input } from '@gpa-gemstone/react-forms';
 import { Line, Plot, VerticalMarker } from '@gpa-gemstone/react-graph';
-import { LoadingIcon } from '@gpa-gemstone/react-interactive';
+import { LoadingIcon, Alert } from '@gpa-gemstone/react-interactive';
 import _ from 'lodash';
 import moment from 'moment';
 import React from 'react';
 import { EventWidget } from '../global';
-
-const sendToServerFormat = "YYYY-MM-DD[T]HH:mm:ss.SSS";
 
 interface ISetting {
     MeasurementType: 'Current' | 'Voltage' | 'TripCoilCurrent',
@@ -43,7 +41,6 @@ interface IDataStructure {
     Voltage: IInnerDataStructure,
     Current: IInnerDataStructure,
     TripCoilCurrent: IInnerDataStructure,
-    EventTime: number,
     TimeLimits: [number, number]
 }
 
@@ -133,56 +130,40 @@ const TrendGraph: EventWidget.IWidget<ISetting> = {
 
         React.useEffect(() => {
             setStatus('loading');
-            let channels: OpenXDA.Types.Channel[];
             const data: IDataStructure = {
                 Voltage: {},
                 Current: {},
                 TripCoilCurrent: {},
-                EventTime: moment.utc(props.StartTime).valueOf(),
-                TimeLimits: [
-                    moment.utc(props.StartTime).subtract(props.Settings.StartHoursBefore, 'hours').valueOf(),
-                    moment.utc(props.StartTime).add(props.Settings.EndHoursAfter, 'hours').valueOf()
-                ]
+                TimeLimits: [0, 1]
             };
-            const dataHandle: JQuery.jqXHR = $.ajax({
+
+            const channelHandle: JQuery.jqXHR = $.ajax({
                 type: "GET",
-                url: `${homePath}api/EventWidgets/Channel/TrendChannels/${props.EventID}`,
+                url: `${homePath}api/EventWidgets/HIDS/TrendChannels/${props.EventID}`,
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
                 cache: false,
                 async: true
             });
-            
-            dataHandle.then((chan: OpenXDA.Types.Channel[]) => {
-                channels = chan;
-                if (channels.length == 0) {
-                    setData(data);
-                    setStatus('idle');
-                    return;
-                }
 
-                const startTime = moment.utc(props.StartTime).subtract(props.Settings.StartHoursBefore, 'hours').format(sendToServerFormat);
-                const endTime = moment.utc(props.StartTime).add(props.Settings.EndHoursAfter, 'hours').format(sendToServerFormat);
+            const trendDataHandle: JQuery.jqXHR = $.ajax({
+                type: "POST",
+                url: `${homePath}api/EventWidgets/HIDS/QueryPoints`,
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify({
+                    EventID: props.EventID,
+                    HoursBefore: props.Settings.StartHoursBefore,
+                    HoursAfter: props.Settings.EndHoursAfter
+                }),
+                dataType: 'text',
+                cache: false,
+                async: true
+            });
 
-                return $.ajax({
-                    type: "POST",
-                    url: `${homePath}api/EventWidgets/HIDS/QueryPoints`,
-                    contentType: "application/json; charset=utf-8",
-                    data: JSON.stringify({
-                        Channels: channels.map(channel => channel.ID),
-                        StartTime: startTime,
-                        StopTime: endTime
-                    }),
-                    dataType: 'text',
-                    cache: false,
-                    async: true
-                });
-            }, (err) => {
-                console.error(err);
-                throw new Error(`Unable to retrieve trending data for event with id ${props.EventID}`);
-            }).then(rawData => {
-                const newPoints: string[] = rawData.split("\n");
-                const organizedData = {};
+            Promise.all([channelHandle, trendDataHandle]).then(allData => {
+                const newPoints: string[] = allData[1].split("\n");
+                const channels: OpenXDA.Types.Channel[] = allData[0];
+                const organizedData: { [key: string]: [number, number][] } = {};
 
                 newPoints.forEach(jsonPoint => {
                     let point: HIDS.Types.IPQData | undefined = undefined;
@@ -203,33 +184,54 @@ const TrendGraph: EventWidget.IWidget<ISetting> = {
                     }
                 });
 
+                let lowerTemporalBound = Number.MAX_SAFE_INTEGER;
+                let upperTemporalBound = Number.MIN_SAFE_INTEGER;
+
                 ['Voltage', 'Current', 'TripCoilCurrent'].forEach(measurementType => {
                     const relevantChannels = channels.filter(channel => channel.MeasurementType === measurementType);
                     const prefix = measurementType === "Voltage" ? "V" : "I";
                     Object.keys(organizedData).forEach(tag => {
                         const index = relevantChannels.findIndex(chan => chan.ID === Number("0x" + tag));
                         if (index >= 0) {
+                            const firstTimeStamp = organizedData[tag][0][0];
+                            const lastTimeStamp = organizedData[tag][organizedData[tag].length - 1][0];
+                            if (firstTimeStamp < lowerTemporalBound)
+                                lowerTemporalBound = firstTimeStamp;
+                            if (lastTimeStamp > upperTemporalBound)
+                                upperTemporalBound = lastTimeStamp;
                             data[measurementType][prefix + relevantChannels[index].Phase] = organizedData[tag];
                         }
                     });
                 });
+                // No data
+                if (lowerTemporalBound === Number.MAX_SAFE_INTEGER || upperTemporalBound === Number.MIN_SAFE_INTEGER)
+                    data.TimeLimits = [0, 1];
+                else
+                    data.TimeLimits = [lowerTemporalBound, upperTemporalBound];
                 setData(data);
                 setStatus('idle');
             }, (err) => {
                 console.error(err);
-                throw new Error(`Unable to retrieve trending data for event with id ${props.EventID}`);
+                setStatus('error');
             });
 
             return () => {
-                if (dataHandle?.abort != null) dataHandle.abort();
+                if (channelHandle?.abort != null) channelHandle.abort();
+                if (trendDataHandle?.abort != null) trendDataHandle.abort();
             }
-        }, [props.EventID, props.Settings, props.StartTime]);
+        }, [props.EventID, props.Settings]);
 
         return (
             <div className="card" ref={containerRef}>
                 <div className="card-header fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>
                     Trending Data
                 </div>
+                <LoadingIcon Show={status === 'loading' || status === 'uninitiated'} />
+                {status === 'error' ?
+                    <div className="card-body p-0">
+                        <Alert Class='alert-danger'>Error retrieving trending data.</Alert>
+                    </div> : <></>
+                }
                 {status === 'idle' ?
                     <div className="card-body p-0">
                         {Object.keys(data.Voltage).length > 0 ?
@@ -240,7 +242,6 @@ const TrendGraph: EventWidget.IWidget<ISetting> = {
                                 legend={'bottom'}
                                 Tlabel={'Time'}
                                 Ylabel={'Voltage (V)'} showMouse={false} zoom={false} pan={false} useMetricFactors={false}>
-                                <VerticalMarker Value={data.EventTime} color={'000000'} lineStyle={':'} width={3} />
                                 {Object.keys(data.Voltage).map((s) =>
                                     <Line highlightHover={false} showPoints={false} lineStyle={'-'} color={getColor(s)} data={data.Voltage[s]} legend={s} key={s} />
                                 )}
@@ -253,7 +254,6 @@ const TrendGraph: EventWidget.IWidget<ISetting> = {
                                 legend={'bottom'}
                                 Tlabel={'Time'}
                                 Ylabel={'Current (I)'} showMouse={false} zoom={false} pan={false} useMetricFactors={false}>
-                                <VerticalMarker Value={data.EventTime} color={'000000'} lineStyle={':'} width={3} />
                                 {Object.keys(data.Current).map((s) =>
                                     <Line highlightHover={false} showPoints={false} lineStyle={'-'} color={getColor(s)} data={data.Current[s]} legend={s} key={s} />
                                 )}
@@ -266,12 +266,11 @@ const TrendGraph: EventWidget.IWidget<ISetting> = {
                                 legend={'bottom'}
                                 Tlabel={'Time'}
                                 Ylabel={'Current (I)'} showMouse={false} zoom={false} pan={false} useMetricFactors={false}>
-                                <VerticalMarker Value={data.EventTime} color={'000000'} lineStyle={':'} width={3} />
                                 {Object.keys(data.Voltage).map((s) =>
                                     <Line highlightHover={false} showPoints={false} lineStyle={'-'} color={getColor(s)} data={data.TripCoilCurrent[s]} legend={s} key={s} />
                                 )}
                             </Plot> : null}
-                    </div> : <LoadingIcon Show={true} />
+                    </div> : <></>
                 }
             </div>
         );
