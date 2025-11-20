@@ -44,7 +44,7 @@ namespace Widgets.API.Visualizations
     /// Controller that handles fetching HIDS trending data from XDA.
     /// </summary>
     [RoutePrefix("api/EventWidgets/HIDS")]
-    [XDARedirect("api/HIDS")]
+    [XDARedirect("api/Widgets/Trending")]
     public class HIDSController : RedirectionController
     {
         #if IS_GEMSTONE
@@ -54,6 +54,16 @@ namespace Widgets.API.Visualizations
         /// <param name="retriever">An <see cref="IAPICredentialRetriever"/> that is responsible for retriving credentials used to make API calls to XDA.</param>
         public HIDSController(IAPICredentialRetriever retriever) : base(retriever) { }
         #endif
+
+        /// <summary>
+        /// Endpoint produces a list of RMS line to neutral trend 
+        /// <see href="https://github.com/GridProtectionAlliance/openXDA/blob/master/Source/Libraries/openXDA.Model/Channels/Channel.cs">channels</see>
+        /// associated with the provided 
+        /// <see href="https://github.com/GridProtectionAlliance/openXDA/blob/master/Source/Libraries/openXDA.Model/Events/Event.cs">event</see> ID.
+        /// </summary>
+        [Route("TrendChannels/{eventID:int}")]
+        [HttpGet]
+        public async ServerResponse FetchTrendChannels(CancellationToken cancellationToken) => await ForwardRequest(cancellationToken);
 
         /// <summary>
         /// Redirection endpoint that handles forwarding requests for trending information to XDA.
