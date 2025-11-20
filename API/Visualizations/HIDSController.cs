@@ -71,10 +71,14 @@ namespace Widgets.API.Visualizations
         /// </summary>
         /// <param name="query">
         /// Query that contains a Object that contains the following fields:<br/>
-        /// Channels: A list of <see cref="List{T}"/> of 
-        /// <see href="https://github.com/GridProtectionAlliance/openXDA/blob/master/Source/Libraries/openXDA.Model/Channels/Channel.cs">channel</see> IDs.<br/>
-        /// StartTime: A <see cref="DateTime"/> of the start of data points to be queried.<br/>
-        /// EndTime: A <see cref="DateTime"/> of the end of data points to be queried.<br/>
+        /// EventID: A id of an XDA
+        /// <see href="https://github.com/GridProtectionAlliance/openXDA/blob/master/Source/Libraries/openXDA.Model/Event/Event.cs">event</see>.<br/>
+        /// HoursBefore: An <see cref="int"/> of the number of hours before the provided XDA
+        /// <see href="https://github.com/GridProtectionAlliance/openXDA/blob/master/Source/Libraries/openXDA.Model/Event/Event.cs">event</see>
+        /// to pull data for.<br/>
+        /// HoursAfter: An <see cref="int"/> of the number of hours after the provided XDA
+        /// <see href="https://github.com/GridProtectionAlliance/openXDA/blob/master/Source/Libraries/openXDA.Model/Event/Event.cs">event</see>
+        /// to pull data for.<br/>
         /// </param>
         [Route("QueryPoints"), HttpPost]
         public async ServerResponse ForwardQueryPoints([FromBody] JObject query, CancellationToken token) =>
