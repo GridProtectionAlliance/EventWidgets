@@ -26,7 +26,6 @@ import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { SpacedColor } from '@gpa-gemstone/helper-functions';
 import { ColorPicker, Input } from '@gpa-gemstone/react-forms';
 import { CircleGroup, Plot } from '@gpa-gemstone/react-graph';
-import { ICircleStyle } from '@gpa-gemstone/react-graph/lib/CircleGroups';
 import { GenericController, LoadingIcon, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
 import { Column, Table } from '@gpa-gemstone/react-table';
 import _ from 'lodash';
@@ -68,7 +67,6 @@ const PQAI: EventWidget.IWidget<ISetting> = {
     Settings: (props: EventWidget.IWidgetSettingsProps<ISetting>) => {
         const [selectedIndex, setSelectedIndex] = React.useState<number>(0);
         const [selectedFile, setSelectedFile] = React.useState<string>('');
-        const [fileParseError, setFileParseError] = React.useState<boolean>(false);
 
         React.useEffect(() => {
             const e: string[] = [];
@@ -139,7 +137,6 @@ const PQAI: EventWidget.IWidget<ISetting> = {
         }, [props.Settings.Groups, selectedIndex, setGroup]);
 
         const handleFile = React.useCallback((evt: React.ChangeEvent<HTMLInputElement>) => {
-            console.log("yeet");
             const handler = () => {
                 if (evt.target.value == null) return false;
                 let fileName = evt.target.value.split("\\").pop();
@@ -184,7 +181,6 @@ const PQAI: EventWidget.IWidget<ISetting> = {
             }
 
             const failure = handler();
-            setFileParseError(failure);
         }, [props.Settings.Groups, selectedIndex, setGroup]);
 
         const displayedGroup = React.useMemo(() => 
@@ -384,7 +380,6 @@ const PQAI: EventWidget.IWidget<ISetting> = {
                 setTagData(tags.map(tag => JSON.parse(tag.TagData)));
                 setTagStatus('idle');
             }).fail((err) => {
-                console.log("then e")
                 setTagStatus('error');
                 console.error(err);
             });
@@ -423,7 +418,8 @@ function PlotComponent(props: IPlotProps) {
         if (props.EventPoints == null) return null;
 
         return (_, circleInd) => ({
-            Opacity: circleInd >= props.Groups[groupIndex].Data.length ? 1 : 0.5
+            Opacity: circleInd >= props.Groups[groupIndex].Data.length ? 1 : 0.5,
+            BorderColor: circleInd >= props.Groups[groupIndex].Data.length ? "black" : undefined
         });
     }, [props.Groups, props.EventPoints]);
 
@@ -516,7 +512,6 @@ function PlotComponent(props: IPlotProps) {
                             const data = [...group.Data];
                             if (props.EventPoints?.[group.Identifier] != null)
                                 data.push(props.EventPoints[group.Identifier].datum);
-                            console.log(data);
 
                             return (
                                 <CircleGroup
@@ -530,12 +525,13 @@ function PlotComponent(props: IPlotProps) {
                     )}
                     {Object.keys(props.EventPoints ?? {})
                         .filter(key => !props.EventPoints[key].hasMatch)
-                        .map(key => 
+                        .map(key =>
                             <CircleGroup
                                 Color={props.EventPoints[key].color}
                                 Data={[props.EventPoints[key].datum]}
                                 Legend={key}
                                 key={key}
+                                GetCircleStyle={() => ({ BorderColor: "black" })}
                             />
                         )
                     }
