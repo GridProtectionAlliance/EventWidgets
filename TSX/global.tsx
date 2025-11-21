@@ -56,36 +56,15 @@ export namespace EventWidget {
         TypeFilter?: OpenXDA.Types.EventType[]
     }
 
-    // What kind of search should be performed, outside of the filters provided externally
-    export interface ICollectionSearchState {
-        SortKey: keyof OpenXDA.Types.EventSearch,
-        Ascending: boolean,
-        // Only valid if paged
-        Page: number
-    }
-
-    // Details about the search
-    export interface ICollectionSearchInformation {
-        Status: Application.Types.Status
-        TotalRecords: number,
-        // Following only valid if DataType is XDA-Paged
-        RecordsPerPage?: number,
-        NumberOfPages?: number,
-    }
-
     export interface ICollectionWidgetProps<T> {
         // Widget Props
         Settings: T,
         // Control Props
         CurrentFilter: ICollectionFilter,
-        // Search Props
-        SearchState: ICollectionSearchState,
-        SetSearchState: (arg: ICollectionSearchState) => void,
-        SearchInformation: ICollectionSearchInformation,
-        Events: OpenXDA.Types.EventSearch[],
-        // Output props
-        SelectedEvents?: Set<number>,
-        EventCallBack?: (evtArg: OpenXDA.Types.EventSearch[]) => void,
+        EventID?: number,
+        DisturbanceID?: number,
+        FaultID?: number,
+        Callback?: (eventID: number, disturbanceID?: number, faultID?: number) => void,
         // Other Props
         HomePath: string,
         Roles: string[],
@@ -110,11 +89,7 @@ export namespace EventWidget {
         Widget: React.FC<ICollectionWidgetProps<T>>,
         Settings: React.FC<IWidgetSettingsProps<T>>,
         DefaultSettings: T,
-        Name: string,
-        /**
-         *  Data-type specifies supported event data fetching. If set to "Custom", Search props are not valid.
-         */
-        DataType: 'XDA-Paged' | 'XDA-Search' | 'Custom'
+        Name: string
     }
 
 }
