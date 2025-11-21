@@ -37,7 +37,6 @@ type MeterCount = {
 
 const EventCountTable: EventWidget.ICollectionWidget<{}> = {
     Name: 'EventCountTable',
-    DataType: 'Custom',
     DefaultSettings: {},
     Settings: (_props: EventWidget.IWidgetSettingsProps<{}>) => {
         return (<></>);
