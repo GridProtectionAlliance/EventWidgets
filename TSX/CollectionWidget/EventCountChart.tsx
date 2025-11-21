@@ -54,7 +54,6 @@ const halfMonthWidth = (moment.utc("2025 Nov", "YYYY MMM").valueOf() - moment.ut
 
 const EventCountChart: EventWidget.ICollectionWidget<{}> = {
     Name: 'EventCountChart',
-    DataType: 'Custom',
     DefaultSettings: {},
     Settings: (_props: EventWidget.IWidgetSettingsProps<{}>) => {
         return (<></>);

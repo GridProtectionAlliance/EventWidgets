@@ -26,7 +26,7 @@ import { Line, Plot, Circle, AggregatingCircles } from '@gpa-gemstone/react-grap
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings'
 import { EventWidget } from '../global';
 import { CheckBox, Input } from '@gpa-gemstone/react-forms';
-import { GenericController, LoadingIcon } from '@gpa-gemstone/react-interactive';
+import { GenericController, LoadingIcon, Search } from '@gpa-gemstone/react-interactive';
 import _ from 'lodash';
 
 interface ISettings {
@@ -50,7 +50,6 @@ interface ICircleProps {
 
 const MagDurChart: EventWidget.ICollectionWidget<ISettings> = {
     Name: 'MagDurChart',
-    DataType: 'XDA-Search',
     DefaultSettings: { Aggregate: true, ChartLimit: 100 },
     Settings: (props: EventWidget.IWidgetSettingsProps<ISettings>) => {
         return (
@@ -78,12 +77,46 @@ const MagDurChart: EventWidget.ICollectionWidget<ISettings> = {
         const empty = React.useCallback(() => {/*Do Nothing*/ }, []);
         const [dims, setDims] = React.useState<{ Width: number, Height: number }>({Width: 100, Height: 100});
         const [curves, setCurves] = React.useState<ICurveData>({});
-        const [curveStatus, setCurveStatus] = React.useState<Application.Types.Status>('uninitiated');
-        const [data, setData] = React.useState<ICircleProps[]>([]);
+        const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
+        const [events, setEvents] = React.useState<OpenXDA.Types.EventSearch[]>([]);
+
+        const EventController = React.useMemo(() => new GenericController<OpenXDA.Types.EventSearch>(
+            `${props.HomePath}api/EventWidgets/Event`, "StartTime", true
+        ), [props.HomePath]);
 
         const magDurController = React.useMemo(() => new GenericController<OpenXDA.Types.MagDurCurve>(
             `${props.HomePath}api/EventWidgets/MagDurCurve`, "Name", true
         ), [props.HomePath]);
+
+        const data: ICircleProps[] = React.useMemo(() =>
+            events
+                .filter(e => props.EventID !== e.ID)
+                .map((e) => ({
+                    data: [e.DurationSeconds, e.PerUnitMagnitude],
+                    color: 'red',
+                    radius: 5,
+                    onClick: () => {
+                        if (props.Callback != null)
+                            props.Callback(e.ID);
+                    }
+                })
+        ), [events, props.EventID, props.Callback]);
+
+        const selectedCircle = React.useMemo(() => {
+            if (props.EventID == null) return <></>;
+
+            const index = events.findIndex(e => props.EventID === e.ID);
+            if (index < 0) return <></>;
+
+            return (
+                <Circle
+                    data={[events[index].DurationSeconds, events[index].PerUnitMagnitude]}
+                    color={'blue'}
+                    radius={5}
+                    key={events[index].ID}
+                />
+            )
+        }, [events, props.EventID]);
 
         // Resize ref for graph dims
         React.useEffect(() => {
@@ -113,12 +146,12 @@ const MagDurChart: EventWidget.ICollectionWidget<ISettings> = {
         }, []);
 
         React.useEffect(() => {
-            setCurveStatus('loading');
+            setStatus('loading');
             const handle = magDurController.Fetch();
 
             handle.then((curveData) => {
                 const curveDict: ICurveData = {}; 
-                setCurveStatus('idle');
+                setStatus('idle');
                 curveData.forEach(curveDatum => {
                     curveDict[curveDatum.Name] = {
                         Color: curveDatum.Color,
@@ -127,7 +160,7 @@ const MagDurChart: EventWidget.ICollectionWidget<ISettings> = {
                 });
                 setCurves(curveDict);
             }, () => {
-                setCurveStatus('error');
+                setStatus('error');
             });
 
             return () => {
@@ -136,20 +169,22 @@ const MagDurChart: EventWidget.ICollectionWidget<ISettings> = {
         }, []);
 
         React.useEffect(() => {
-            const events = props.SelectedEvents == null ?
-                props.Events :
-                props.Events.filter(e => !props.SelectedEvents.has(e.ID));
+            setStatus('loading');
+            const handle: JQuery.jqXHR = EventController
+                .DBSearch(TransformFilter(props.CurrentFilter))
+                .done((result) => {
+                    setEvents(result.slice(0, props.Settings.ChartLimit));
+                    setStatus('idle');
+                }).fail(() => {
+                    setStatus('error');
+                });
 
-            setData(events.slice(0, props.Settings.ChartLimit).map((e) => ({
-                data: [e.DurationSeconds, e.PerUnitMagnitude],
-                color: 'red',
-                radius: 5,
-                onClick: () => {
-                    if (props.EventCallBack != null)
-                        props.EventCallBack([e]);
-                }
-            })));
-        }, [props.Events, props.Settings.ChartLimit])
+
+            return () => {
+                if (handle != null && handle?.abort != null)
+                    handle.abort();
+            }
+        }, [props.Settings.ChartLimit, props.CurrentFilter]);
 
         return (
             <div className="card h-100 w-100" style={{ display: 'flex', flexDirection: "column" }}>
@@ -157,7 +192,7 @@ const MagDurChart: EventWidget.ICollectionWidget<ISettings> = {
                     {props.Title == null ? "Magnitude Duration Chart" : props.Title}
                 </div>
                 <div className="card-body" style={{ display: 'flex', flexDirection: "column", flex: 1, overflow: 'hidden' }}>
-                    <LoadingIcon Show={curveStatus !== 'idle' || props.SearchInformation.Status !== 'idle'} />
+                    <LoadingIcon Show={status !== 'idle'} />
                     <div className="row" style={{ flex: 1, overflow: 'hidden' }} ref={chart}>
                         <Plot
                             height={dims.Height}
@@ -198,16 +233,7 @@ const MagDurChart: EventWidget.ICollectionWidget<ISettings> = {
                                 canAggregate={props.Settings.Aggregate ? CanAggregate : IsSame}
                                 onAggregation={AggregateCurves}
                             />
-                            {props.SelectedEvents != null ?
-                                props.Events.filter(e => props.SelectedEvents.has(e.ID)).map((p) => (
-                                    <Circle
-                                        data={[p.DurationSeconds, p.PerUnitMagnitude]}
-                                        color={'blue'}
-                                        radius={5}
-                                        key={p.ID}
-                                    />
-                                )) : null
-                            }
+                            {selectedCircle}
                         </Plot>
                     </div>
                     <div className="alert alert-primary">
@@ -262,4 +288,42 @@ function AggregateCurves(d, { XTransformation, YTransformation, YInverseTransfor
         opacity: 0.5,
         onClick: handler
     };
+}
+
+function TransformFilter(filt: EventWidget.ICollectionFilter): Search.IFilter<OpenXDA.Types.EventSearch>[] {
+    const newFilt: Search.IFilter<OpenXDA.Types.EventSearch>[] = [];
+    if (filt?.TimeFilter != null)
+        newFilt.push({
+            FieldName: 'StartTime',
+            SearchText: filt.TimeFilter.StartTime,
+            Operator: '>=',
+            Type: 'datetime',
+            IsPivotColumn: false
+        }, {
+            FieldName: 'StartTime',
+            SearchText: filt.TimeFilter.EndTime,
+            Operator: '<=',
+            Type: 'datetime',
+            IsPivotColumn: false
+        });
+
+    if (filt?.MeterFilter != null)
+        newFilt.push({
+            FieldName: 'MeterID',
+            SearchText: `(${filt.MeterFilter.map(meter => meter.ID).join(',')})`,
+            Operator: 'IN',
+            Type: 'number',
+            IsPivotColumn: false
+        });
+
+    if (filt?.TypeFilter != null)
+        newFilt.push({
+            FieldName: 'EventTypeID',
+            SearchText: `(${filt.TypeFilter.map(type => type.ID).join(',')})`,
+            Operator: 'IN',
+            Type: 'number',
+            IsPivotColumn: false
+        });
+
+    return newFilt;
 }
