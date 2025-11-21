@@ -49,12 +49,13 @@ import { IWigetStore } from './Store';
 import EventInfo from './Widget/EventInfo';
 import ITOA from './Widget/ITOA';
 import { ErrorBoundary } from '@gpa-gemstone/common-pages';
+import TrendGraph from './Widget/TrendGraph';
 
 const AllWidgets: EventWidget.IWidget<any>[] = [LineParameters , 
     EventSearchOpenSEE, ESRIMap, FaultInfo, EventSearchAssetFaultSegments,
     AssetVoltageDisturbances, EventSearchCorrelatedSags, SOE, EventSearchPQI, Lightning, EventSearchFileInfo, EventSearchNoteWindow,
     StructureInfo, PQICurve, InterruptionReport, EventSearchRelayPerformance, EventSearchBreakerPerformance, EventSearchCapBankAnalyticOverview,
-    AssetHistoryStats, AssetHistoryTable, MatlabAnalyticResults, EventInfo, ITOA];
+    AssetHistoryStats, AssetHistoryTable, MatlabAnalyticResults, EventInfo, ITOA, TrendGraph];
 
 interface IProps {
     Widget: EventWidget.IWidgetView,
@@ -62,7 +63,6 @@ interface IProps {
     Height: number,
     DisturbanceID: number,
     FaultID: number,
-    StartTime: number,
     HomePath: string,
     Roles: string[],
     Store: IWigetStore
@@ -109,7 +109,6 @@ const WidgetRouter: React.FC<IProps> = (props: IProps) => {
         >
             <Widget.Widget
                 Settings={Settings}
-                StartTime={props.StartTime}
                 EventID={props.EventID}
                 HomePath={props.HomePath}
                 MaxHeight={props.Height - 37.5}
