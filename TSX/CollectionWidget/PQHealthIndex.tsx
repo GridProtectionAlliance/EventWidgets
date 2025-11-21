@@ -77,7 +77,6 @@ interface IDimensions {
 
 const PQHealthIndex: EventWidget.ICollectionWidget<ISettings> = {
     Name: 'PQHealthIndex',
-    DataType: 'Custom',
     DefaultSettings: { PQHealthURL: 'http://pqihealth.demo.gridprotectionalliance.org', AF_PQSiteField: "PQIHealthSite" },
     Settings: (props: EventWidget.IWidgetSettingsProps<ISettings>) => {
 
