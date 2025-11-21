@@ -39,69 +39,18 @@ export const AllWidgets: EventWidget.ICollectionWidget<any>[] = [
 
 interface IProps {
     Widget: EventWidget.IWidgetView,
-    EventCallBack?: (arg: OpenXDA.Types.EventSearch[]) => void,
-    SelectedEvents?: Set<number>,
+    EventID?: number,
+    DisturbanceID?: number,
+    FaultID?: number,
+    Callback?: (eventID: number, disturbanceID?: number, faultID?: number) => void,
     EventFilter: EventWidget.ICollectionFilter,
     Title?: string,
     HomePath: string,
     Roles: string[]
 }
 
-function TransformFilter(filt: EventWidget.ICollectionFilter): Search.IFilter<OpenXDA.Types.EventSearch>[] {
-    const newFilt: Search.IFilter<OpenXDA.Types.EventSearch>[] = [];
-    if (filt?.TimeFilter != null)
-        newFilt.push({
-            FieldName: 'StartTime',
-            SearchText: filt.TimeFilter.StartTime,
-            Operator: '>=',
-            Type: 'datetime',
-            IsPivotColumn: false
-        }, {
-            FieldName: 'StartTime',
-            SearchText: filt.TimeFilter.EndTime,
-            Operator: '<=',
-            Type: 'datetime',
-            IsPivotColumn: false
-        });
-
-    if (filt?.MeterFilter != null)
-        newFilt.push({
-            FieldName: 'MeterID',
-            SearchText: `(${filt.MeterFilter.map(meter => meter.ID).join(',')})`,
-            Operator: 'IN',
-            Type: 'number',
-            IsPivotColumn: false
-        });
-
-    if (filt?.TypeFilter != null)
-        newFilt.push({
-            FieldName: 'EventTypeID',
-            SearchText: `(${filt.TypeFilter.map(type => type.ID).join(',')})`,
-            Operator: 'IN',
-            Type: 'number',
-            IsPivotColumn: false
-        });
-
-    return newFilt;
-}
-
 const CollectionWidgetRouter: React.FC<IProps> = (props: IProps) => {
-    const [events, setEvents] = React.useState<OpenXDA.Types.EventSearch[]>([]);
-    const [searchState, setSearchState] = React.useState<EventWidget.ICollectionSearchState>({
-        SortKey: 'StartTime',
-        Ascending: true,
-        Page: 0
-    });
-    const [searchInfo, setSearchInfo] = React.useState<EventWidget.ICollectionSearchInformation>({
-        TotalRecords: 0,
-        Status: 'uninitiated'
-    });
-
     const Widget = React.useMemo(() => AllWidgets.find(item => item.Name === props.Widget.Type), [props.Widget.ID]);
-
-    const EventController = React.useMemo(() => new GenericController<OpenXDA.Types.EventSearch>(
-        `${props.HomePath}api/EventWidgets/Event`, "StartTime", true
-    ), [props.HomePath]);
 
     const Settings = React.useMemo(() => {
         if (props.Widget.Setting == null)
@@ -125,68 +74,6 @@ const CollectionWidgetRouter: React.FC<IProps> = (props: IProps) => {
         return s;
     }, [Widget, props.Widget.Setting]);
 
-    React.useEffect(() => {
-        if (Widget == null) return;
-        if (Widget.DataType === 'Custom') {
-            setSearchInfo(i => ({ ...i, Status: 'idle' }));
-            return;
-        }
-
-        setSearchInfo(i => ({...i, Status: 'loading'}));
-        let handle: JQuery.jqXHR;
-        let abort = false;
-        if (Widget.DataType === 'XDA-Paged')
-            handle = EventController.PagedSearch(TransformFilter(props.EventFilter), searchState.SortKey, searchState.Ascending, searchState.Page).done((result) => {
-                setEvents(JSON.parse(result.Data as unknown as string));
-                setSearchInfo({
-                    RecordsPerPage: result.RecordsPerPage,
-                    NumberOfPages: result.NumberOfPages,
-                    TotalRecords: result.TotalRecords,
-                    Status: 'idle'
-                });
-            });
-        else if (Widget.DataType === 'XDA-Search')
-            handle = EventController.DBSearch(TransformFilter(props.EventFilter), searchState.SortKey, searchState.Ascending).done((result) => {
-                setEvents(result);
-                setSearchInfo({
-                    TotalRecords: result.length,
-                    Status: 'idle'
-                });
-            });
-        else {
-            console.error("Unrecognized data type in Widget Collection Wrapper: " + Widget.DataType)
-            return;
-        }
-
-        handle.fail((_handle, _status, reason) => {
-            if (!abort)
-                setSearchInfo(i => ({ ...i, Status: 'error' }));
-        });
-
-        return () => {
-            if (handle != null && handle?.abort != null) {
-                abort = true;
-                handle.abort();
-            }
-        }
-    }, [searchState, props.EventFilter, Widget?.DataType])
-
-    if (Widget == null || searchInfo.Status === 'error')
-        return (
-            <div className="card">
-                <div className="card-header">
-                    {props.Widget.Name} - Error
-                </div>
-                <div className="card-body">
-                    <ServerErrorIcon Show={true}
-                        Label={ Widget == null ?
-                            `Widget ${props.Widget.Name} is not available. Please contact your system administrator.` :
-                            `Unable to complete search. Please contact your system administrator.`}
-                        Size={150} />
-                </div>
-            </div>
-        );
-
     return (
         <ErrorBoundary
             ErrorMessage={`Widget ${props.Widget.Name} has encoutered an error.`}
@@ -194,12 +81,10 @@ const CollectionWidgetRouter: React.FC<IProps> = (props: IProps) => {
             <Widget.Widget
                 Title={props.Title}
                 Settings={Settings}
-                Events={events}
-                SearchInformation={searchInfo}
-                SearchState={searchState}
-                SetSearchState={setSearchState}
-                EventCallBack={props.EventCallBack}
-                SelectedEvents={props.SelectedEvents}
+                Callback={props.Callback}
+                EventID={props.EventID}
+                DisturbanceID={props.DisturbanceID}
+                FaultID={props.FaultID}
                 CurrentFilter={props.EventFilter}
                 HomePath={props.HomePath}
                 Roles={props.Roles}
