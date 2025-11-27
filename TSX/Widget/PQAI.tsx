@@ -24,7 +24,7 @@
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { SpacedColor } from '@gpa-gemstone/helper-functions';
-import { ColorPicker, Input } from '@gpa-gemstone/react-forms';
+import { ColorPicker, Input, FileUpload } from '@gpa-gemstone/react-forms';
 import { CircleGroup, Plot } from '@gpa-gemstone/react-graph';
 import { GenericController, LoadingIcon, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
 import { Column, Table } from '@gpa-gemstone/react-table';
@@ -66,7 +66,6 @@ const PQAI: EventWidget.IWidget<ISetting> = {
     },
     Settings: (props: EventWidget.IWidgetSettingsProps<ISetting>) => {
         const [selectedIndex, setSelectedIndex] = React.useState<number>(0);
-        const [selectedFile, setSelectedFile] = React.useState<string>('');
 
         React.useEffect(() => {
             const e: string[] = [];
@@ -136,29 +135,20 @@ const PQAI: EventWidget.IWidget<ISetting> = {
             setGroup(newRecord, selectedIndex);
         }, [props.Settings.Groups, selectedIndex, setGroup]);
 
-        const handleFile = React.useCallback((evt: React.ChangeEvent<HTMLInputElement>) => {
-            const handler = () => {
-                if (evt.target.value == null) return false;
-                let fileName = evt.target.value.split("\\").pop();
-                if (fileName == "") return false;
-
-                setSelectedFile(fileName);
-
-                //Retrieve the first (and only!) File from the FileList object
-                var f = evt.target.files[0];
-
-                if (!f) return false;
+        const handleFile = React.useCallback((f: File) => {
+            return new Promise((resolve, reject) => {
+                if (!f) reject("File is nullish");
 
                 let r = new FileReader();
-                let failure = false;
+
+                let failure = false
                 r.onload = (e) => {
                     const lines = new TextDecoder('utf-8')
                         .decode(e.target.result as ArrayBuffer)
                         .split('\n')
                         .slice(1); // skip header line
 
-                    if (lines.length <= 0)
-                        failure = true;
+                    if (lines.length <= 0) failure = true;
                     else {
                         const points: [number, number][] = lines.map(line => {
                             const data = line.split(',');
@@ -172,15 +162,15 @@ const PQAI: EventWidget.IWidget<ISetting> = {
                         if (!failure) {
                             const newRecord = { ...props.Settings.Groups?.[selectedIndex] };
                             newRecord.Data = points;
-                            setGroup(newRecord, selectedIndex)
+                            setGroup(newRecord, selectedIndex);
                         }
                     }
                 }
                 r.readAsArrayBuffer(f);
-                return failure;
-            }
 
-            const failure = handler();
+                if (failure) reject("Error processing file");
+                else resolve(undefined);
+            });
         }, [props.Settings.Groups, selectedIndex, setGroup]);
 
         const displayedGroup = React.useMemo(() => 
@@ -242,16 +232,7 @@ const PQAI: EventWidget.IWidget<ISetting> = {
                             </div>
                             <div className="row">
                                 <div className="col">
-                                    <div className="form-group" style={{ width: '100%' }}>
-                                        <div className="custom-file">
-                                            <input
-                                                type="file"
-                                                className="custom-file-input"
-                                                onChange={handleFile}
-                                            />
-                                            <label className={"custom-file-label" + (selectedFile.length > 0 ? " selected" : "")} > {selectedFile.length > 0 ? selectedFile : `Upload CSV`}</label>
-                                        </div>
-                                    </div>
+                                    <FileUpload OnLoadHandler={handleFile} FileTypeAttribute={'.csv'} />
                                 </div>
                             </div>
                             <Table<IDataPoint>
