@@ -412,7 +412,7 @@ function PlotComponent(props: IPlotProps) {
         const max = Math.max(...xValues);
         const margin = 0.1*(max-min)
         return [min - margin, max + margin];
-    }, []);
+    }, [props.Groups, props.EventPoints]);
 
     const defaultYDomain: [number, number] = React.useMemo(() => {
         const yValues = props.Groups
@@ -422,7 +422,7 @@ function PlotComponent(props: IPlotProps) {
         const max = Math.max(...yValues);
         const margin = 0.1 * (max - min)
         return [min - margin, max + margin];
-    }, []);
+    }, [props.Groups, props.EventPoints]);
 
     React.useEffect(() => {
         let resizeObserver: ResizeObserver;
