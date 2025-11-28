@@ -28,9 +28,10 @@ export namespace EventWidget {
     export interface IWidgetView {
         ID: number,
         CategoryID: number,
+        CategoryName: string,
         Name: string,
         Type: string,
-        Setting: string,
+        Setting: string
     }
 
     export interface IWidgetProps<T> {
