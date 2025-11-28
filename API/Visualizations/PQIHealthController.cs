@@ -30,6 +30,8 @@ using System.Text;
 using System.Threading;
 using Widgets.API.Library;
 using Newtonsoft.Json.Linq;
+using Microsoft.Graph.Models;
+
 
 #if IS_GEMSTONE
 using Gemstone.Web;
@@ -53,21 +55,15 @@ namespace Widgets.API.Visualizations
         private static HttpClient HttpClient { get; } = new HttpClient();
 
         [Route("sites"), Route("reportsummary")]
-        [HttpGet]
+        [HttpPost]
         public async ServerResponse ForwardRequest([FromBody] JObject postData, CancellationToken cancellationToken)
         {
             string endPoint = this.GetEndpoint("api/EventWidgets/PQIHealth");
             string queryString = this.GetQueryString();
 
-            StringContent content = null;
-            if (postData is not null)
-                content = new StringContent(postData.ToString(), Encoding.UTF8, "application/json");
-
             void ConfigureRequest(HttpRequestMessage request)
             {
-                request.Content = content;
-                request.Method = HttpMethod.Get;
-                request.RequestUri = new Uri("http://172.21.1.164:8080/epriwhit/v1" + "/" + endPoint + queryString);
+                request.RequestUri = new Uri(postData["Site"] + "/" + endPoint + queryString);
                 MediaTypeWithQualityHeaderValue acceptHeader = new MediaTypeWithQualityHeaderValue("application/json");
                 request.Headers.Accept.Add(acceptHeader);
             }

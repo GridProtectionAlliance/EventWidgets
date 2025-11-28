@@ -27,10 +27,10 @@ import _ from 'lodash';
 import queryString from 'querystring';
 import React from 'react';
 import { EventWidget } from '../global';
-import { Gemstone, OpenXDA, PQI, SystemCenter } from '@gpa-gemstone/application-typings';
+import { Application, Gemstone, OpenXDA, PQI } from '@gpa-gemstone/application-typings';
 import { GetColor } from '@gpa-gemstone/helper-functions';
 import moment from 'moment';
-import { GenericController, Modal } from '@gpa-gemstone/react-interactive';
+import { Alert, LoadingIcon, Modal } from '@gpa-gemstone/react-interactive';
 
 const spiderDictionary = { cp95_val: "CP95", avg_val: "Avg", cp05_val: "CP05" }
 const barDictionary = { max_val: "Max", cp95_val: "CP95", avg_val: "Avg", cp05_val: "CP05", min_val: "Min" }
@@ -115,33 +115,43 @@ const PQHealthIndex: EventWidget.ICollectionWidget<ISettings> = {
             return obj;
         });
         const [sites, setSites] = React.useState<ISiteSearch>({ IDs: [], Labels: [] });
+        const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
         const [showModal, setShowModal] = React.useState<boolean>(false);
         const [dimensions, setDimensions] = React.useState<IDimensions>({ Spider: { Width: 100, Height: 100 }, Bar: { Width: 100, Height: 100 } });
 
         const searchMeters = React.useCallback((search: string): Gemstone.TSX.Interfaces.AbortablePromise<Gemstone.TSX.Interfaces.ILabelValue<string>[]> => {
-            const controller = new GenericController<OpenXDA.Types.Meter>(`${props.HomePath}api/EventWidgets/Meter`, "Name", true);
-
-            const handle = controller.PagedSearch([{
-                FieldName: 'Name',
-                SearchText: `*${search}*`,
-                Operator: 'LIKE',
-                Type: 'string',
-                IsPivotColumn: false
-            },
-            {
-                FieldName: props.Settings.AF_PQSiteField,
-                SearchText: '***',
-                Operator: 'LIKE',
-                Type: 'string',
-                IsPivotColumn: true
-            }]).then(result => {
+            return $.ajax({
+                type: 'POST',
+                url: `${props.HomePath}api/EventWidgets/Meter/PagedList/${0}`,
+                contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                data: JSON.stringify({
+                    Searches: [{
+                        FieldName: 'Name',
+                        SearchText: `*${search}*`,
+                        Operator: 'LIKE',
+                        Type: 'string',
+                        IsPivotColumn: false
+                    },
+                    {
+                        FieldName: props.Settings.AF_PQSiteField,
+                        SearchText: '***',
+                        Operator: 'LIKE',
+                        Type: 'string',
+                        IsPivotColumn: true
+                    }],
+                    OrderBy: "Name",
+                    Ascending: true,
+                    ReturnPivotCols: true
+                }),
+                cache: false,
+                async: true
+            }).then(result => {
                 return JSON
                     .parse(result.Data as unknown as string)
                     .filter(meter => sites.IDs.findIndex(id => id === meter['AFV_' + props.Settings.AF_PQSiteField]) === -1)
                     .map((meter) => ({ Label: `${meter.Name} (${meter.AssetKey})`, Value: meter['AFV_' + props.Settings.AF_PQSiteField] }));
             });
-
-            return handle;
         }, [props.HomePath, props.Settings.AF_PQSiteField, sites]);
 
         // Resize ref for graph dims
@@ -192,15 +202,22 @@ const PQHealthIndex: EventWidget.ICollectionWidget<ISettings> = {
                 siteids: siteIds
             }, "&", "=", { encodeURIComponent: queryString.escape });
 
+            setStatus('loading');
+
             // ToDo: This does not respect setting currently, change it do to do post security update
             const handle = $.ajax({
-                type: "GET",
+                type: "POST",
                 url: `${props.HomePath}api/EventWidgets/PQIHealth/reportsummary?${q}`,
                 contentType: "application/json; charset=utf-8",
+                data: JSON.stringify({
+                    Site: props.Settings.PQHealthURL,
+                }),
                 dataType: 'json',
                 cache: false,
                 async: true
-            }).done((rawData: string) => {
+            });
+
+            handle.then((rawData: string) => {
                 const parsedData: IPQHealthIndexData[] = JSON.parse(rawData);
 
                 /* HANDLING SPIDER PLOT */
@@ -265,7 +282,8 @@ const PQHealthIndex: EventWidget.ICollectionWidget<ISettings> = {
 
                 });
                 setData(processedData);
-            });
+                setStatus('idle')
+            }, () => setStatus('error'));
 
             return () => { if (handle?.abort != null) handle.abort(); }
         }, [sites, props.CurrentFilter.TimeFilter]);
@@ -283,7 +301,20 @@ const PQHealthIndex: EventWidget.ICollectionWidget<ISettings> = {
                                     {`Search Sites (${sites.IDs.length} selected)`}
                                 </button>
                             </div>
-                            <div className="row" style={{ flex: 1, overflow: 'hidden'}} ref={spiderRef}>
+                            {status === 'error' ?
+                                <div className="row" style={{ padding: "5px 0 0 0" }}>
+                                    <Alert Class='alert-danger'>Error retrieving index data.</Alert>
+                                </div> :
+                                <></>
+                            }
+                            {sites.IDs.length === 0 ?
+                                <div className="row" style={{ padding: "5px 0 0 0" }}>
+                                    <Alert Class='alert-info'>Select sites to get started.</Alert>
+                                </div> :
+                                <></>
+                            }
+                            <div className="row" style={{ flex: 1, overflow: 'hidden' }} ref={spiderRef}>
+                                <LoadingIcon Show={status === 'loading'} />
                                 <Plot height={dimensions.Spider.Height} width={dimensions.Spider.Width} showBorder={false}
                                     yDomain={'Manual'}
                                     XAxisType={"value"}
@@ -322,11 +353,7 @@ const PQHealthIndex: EventWidget.ICollectionWidget<ISettings> = {
                                                 display: 'inline-block', background: `rgba(255, 255, 255, ${0})`, color: "black",
                                                 overflow: 'visible', whiteSpace: 'pre-wrap', fontSize: `1em`
                                             }}>
-                                                {() => {
-                                                    let displayKey = key.charAt(0).toUpperCase() + key.slice(1).toLowerCase();
-                                                    if (displayKey.length > 5) return displayKey.slice(0, 5) + ".";
-                                                    return displayKey
-                                                }}
+                                                {formatKey(key)}
                                             </div>
                                         </Infobox>
                                     )
@@ -352,7 +379,7 @@ const PQHealthIndex: EventWidget.ICollectionWidget<ISettings> = {
                             orientation={'vertical'}
                         />
                         <div className="col h-100" style={{ flex: 1, overflow: 'hidden' }} ref={barRef}>
-                            <Plot height={dimensions.Bar.Height-20} width={dimensions.Bar.Width} showBorder={false}
+                            <Plot height={dimensions.Bar.Height-20} width={dimensions.Bar.Width-20} showBorder={false}
                                 yDomain={'HalfAutoValue'}
                                 XAxisType={"value"}
                                 defaultTdomain={[0, Object.keys(data.BarData).filter(key => visible[key]).length]}
@@ -410,5 +437,11 @@ const PQHealthIndex: EventWidget.ICollectionWidget<ISettings> = {
         );
     }
 }
+
+const formatKey = (key: string) => {
+    let displayKey = key.charAt(0).toUpperCase() + key.slice(1).toLowerCase();
+    if (displayKey.length > 5) return displayKey.slice(0, 5) + ".";
+    return displayKey
+};
 
 export default PQHealthIndex;
