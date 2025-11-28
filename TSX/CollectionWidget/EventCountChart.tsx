@@ -38,7 +38,8 @@ type TimeCount = {
 }
 
 interface IData {
-    XVal: number
+    XVal: number,
+    Width: number,
     Data: number[]
     Color: string
 }
@@ -49,8 +50,6 @@ interface IEnabled {
         color: string
     }
 }
-
-const halfMonthWidth = (moment.utc("2025 Nov", "YYYY MMM").valueOf() - moment.utc("2025 Oct", "YYYY MMM").valueOf()) /2
 
 const EventCountChart: EventWidget.ICollectionWidget<{}> = {
     Name: 'EventCountChart',
@@ -66,12 +65,18 @@ const EventCountChart: EventWidget.ICollectionWidget<{}> = {
         const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
 
         const chartData: IData[] = React.useMemo(() => {
-            let xVal: number;
-            let topYVal: number;
+            let endVal;
+            let xVal;
             return data
                 .flatMap(datum => {
-                    xVal = moment.utc(`${datum.Year} ${datum.Month}`, "YYYY MMM").valueOf();
-                    topYVal = 0;
+                    const date = moment.utc(`${datum.Year} ${datum.Month}`, "YYYY MMM");
+                    if (endVal == null)
+                        xVal = date.clone().subtract(15, 'days').valueOf();
+                    else
+                        xVal = endVal;
+                    endVal = date.clone().add(15, 'days').valueOf();
+                    const width = endVal - xVal;
+                    let topYVal = 0;
                     return Object
                         .keys(datum)
                         .filter(key => key !== "Year" && key !== "Month" && datum[key] > 0 && enabled[key].enabled)
@@ -80,6 +85,7 @@ const EventCountChart: EventWidget.ICollectionWidget<{}> = {
                             topYVal += datum[key];
                             return {
                                 XVal: xVal,
+                                Width: width,
                                 Data: [bottomYVal, topYVal],
                                 Color: enabled[key].color
                             }
@@ -92,7 +98,7 @@ const EventCountChart: EventWidget.ICollectionWidget<{}> = {
         const tDomain: [number, number] = React.useMemo(() => {
             if (chartData.length === 0)
                 return [0, 1];
-            return [chartData[0].XVal - halfMonthWidth, chartData[chartData.length - 1].XVal + halfMonthWidth];
+            return [chartData[0].XVal, chartData[chartData.length - 1].XVal + chartData[chartData.length - 1].Width];
         }, [chartData])
 
         // Resize ref for graph dims
@@ -223,8 +229,8 @@ const EventCountChart: EventWidget.ICollectionWidget<{}> = {
                                 (<Bar
                                 Data={item.Data}
                                 BarOrigin={item.XVal}
-                                BarWidth={halfMonthWidth}
-                                XBarOrigin={'center'}
+                                BarWidth={item.Width}
+                                XBarOrigin={'left'}
                                 Color={item.Color}
                                 StrokeColor={"black"}
                                 key={index}
