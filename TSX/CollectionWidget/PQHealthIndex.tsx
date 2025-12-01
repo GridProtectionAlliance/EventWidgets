@@ -22,7 +22,7 @@
 //******************************************************************************************************
 
 import { Input, MultiSearchableSelect, Select } from '@gpa-gemstone/react-forms';
-import { Infobox, Line, Plot, BarAggregate, Legend, LineLegend, HorizontalMarker } from '@gpa-gemstone/react-graph';
+import { Infobox, Line, Plot, BarAggregate, Legend, DataLegend, HorizontalMarker } from '@gpa-gemstone/react-graph';
 import _ from 'lodash';
 import queryString from 'querystring';
 import React from 'react';
@@ -371,7 +371,7 @@ const PQHealthIndex: EventWidget.ICollectionWidget<ISettings> = {
                         </div>
                         <Legend
                             LegendElements={Object.keys(legendColorKeys).map(key =>
-                            (<LineLegend color={GetColor(legendColorKeys[key])} lineStyle={key === "Threshold" ? ":" : "-"} setEnabled={(e) => { setVisible(v => ({ ...v, [key]: e })) }}
+                            (<DataLegend color={GetColor(legendColorKeys[key])} legendSymbol={key === "Threshold" ? ":" : "-"} setEnabled={(e) => { setVisible(v => ({ ...v, [key]: e })) }}
                                 hasNoData={false} label={key} enabled={visible[key]} id={key} />)
                             )}
                             height={dimensions.Bar.Height-20}

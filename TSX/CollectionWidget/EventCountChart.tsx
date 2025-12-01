@@ -28,7 +28,7 @@ import _ from 'lodash';
 import * as React from 'react';
 import { EventWidget } from '../global';
 import { SpacedColor } from '@gpa-gemstone/helper-functions';
-import { Bar, Legend, LineLegend, Plot } from '@gpa-gemstone/react-graph';
+import { Bar, Legend, DataLegend, Plot } from '@gpa-gemstone/react-graph';
 
 type TimeCount = {
     Year: string,
@@ -241,9 +241,9 @@ const EventCountChart: EventWidget.ICollectionWidget<{}> = {
                     <div className="row" style={{height: 60}}>
                         <Legend
                             LegendElements={Object.keys(enabled).map(key =>
-                            (<LineLegend
+                            (<DataLegend
                                 color={enabled[key].color}
-                                lineStyle={"-"}
+                                legendSymbol={"square"}
                                 setEnabled={(e) =>
                                     setEnabled(v =>
                                         ({ ...v, [key]: { enabled: e, color: v[key].color } })
