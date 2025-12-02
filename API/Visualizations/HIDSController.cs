@@ -16,10 +16,8 @@
 //
 //  Code Modification History:
 //  ----------------------------------------------------------------------------------------------------
-//  08/22/2023 - Preston Crawford
-//       Generated original version of source code.
 //  10/17/2025 - Gabriel Santos
-//       Removed endpoint, pointing this to an existing endpoint in XDA.
+//       Generated original version of source code.
 //
 //******************************************************************************************************
 

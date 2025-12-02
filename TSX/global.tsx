@@ -22,15 +22,16 @@
 //******************************************************************************************************
 import React from 'react';
 import { IWigetStore } from './Store';
+import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 
 export namespace EventWidget {
-
     export interface IWidgetView {
         ID: number,
         CategoryID: number,
+        CategoryName: string,
         Name: string,
         Type: string,
-        Setting: string,
+        Setting: string
     }
 
     export interface IWidgetProps<T> {
@@ -46,9 +47,38 @@ export namespace EventWidget {
         WidgetID: number
     }
 
-    export interface IWidgetSettingsProps<T> {
+    // External filters into the search
+    export interface ICollectionFilter {
+        TimeFilter?: {
+            StartTime: string,
+            EndTime: string
+        }
+        MeterFilter?: OpenXDA.Types.Meter[],
+        TypeFilter?: OpenXDA.Types.EventType[]
+    }
+
+    export interface ICollectionWidgetProps<T> {
+        // Widget Props
         Settings: T,
-        SetSettings: (settings: T) => void,
+        // Control Props
+        CurrentFilter: ICollectionFilter,
+        EventID?: number,
+        DisturbanceID?: number,
+        FaultID?: number,
+        Callback?: (eventID: number, disturbanceID?: number, faultID?: number) => void,
+        // Other Props
+        HomePath: string,
+        Roles: string[],
+        Name: string,
+        WidgetID: number,
+        Title?: string
+    }
+
+    export interface IWidgetSettingsProps<T> {
+        HomePath: string,
+        SetErrors: (e: string[]) => void,
+        Settings: T,
+        SetSettings: (settings: T) => void
     }
 
     export interface IWidget<T>  {
@@ -56,6 +86,13 @@ export namespace EventWidget {
         Settings: React.FC<IWidgetSettingsProps<T>>,
         DefaultSettings: T,
         Name: string,
+    }
+
+    export interface ICollectionWidget<T> {
+        Widget: React.FC<ICollectionWidgetProps<T>>,
+        Settings: React.FC<IWidgetSettingsProps<T>>,
+        DefaultSettings: T,
+        Name: string
     }
 
 }
