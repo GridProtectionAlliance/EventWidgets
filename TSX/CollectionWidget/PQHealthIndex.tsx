@@ -83,22 +83,26 @@ const PQHealthIndex: EventWidget.ICollectionWidget<ISettings> = {
         return (
             <>
                 <div className="row">
+                    <div className='col'>
                     <Input<ISettings>
                         Record={props.Settings}
                         Field={'PQHealthURL'}
                         Setter={props.SetSettings}
                         Valid={() => true}
                         Label={'PQHealth API URL'} />
+                        </div>
                 </div>
                 {/* ToDo: Change this to a select, grab additional field options that are searchable and belong to meter parent table as options.*/}
                 <div className="row">
-                    <Input<ISettings>
-                        Record={props.Settings}
-                        Field={'AF_PQSiteField'}
-                        Setter={props.SetSettings}
-                        Valid={() => true}
-                        Label={'PQ Site Additional Field'}
-                    />
+                    <div className='col'>
+                        <Input<ISettings>
+                            Record={props.Settings}
+                            Field={'AF_PQSiteField'}
+                            Setter={props.SetSettings}
+                            Valid={() => true}
+                            Label={'PQ Site Additional Field'}
+                        />
+                    </div>
                 </div>
             </>
         );
