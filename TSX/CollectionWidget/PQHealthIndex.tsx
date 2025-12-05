@@ -300,7 +300,7 @@ const PQHealthIndex: EventWidget.ICollectionWidget<ISettings> = {
                 <div className="card-body" style={{ flex: 1, overflow: 'hidden' }}>
                     <div className="row h-100" style={{ display: 'flex', overflow: 'hidden', flexDirection: "row" }}>
                         <div className="col-6 m-0 h-100" style={{ display: 'flex', overflow: 'hidden', flexDirection: "column" }}>
-                            <div className="row">
+                            <div className="row m-0">
                                 <button className="btn btn-sm btn-info" onClick={() =>setShowModal(true)}>
                                     {`Search Sites (${sites.IDs.length} selected)`}
                                 </button>
@@ -317,7 +317,7 @@ const PQHealthIndex: EventWidget.ICollectionWidget<ISettings> = {
                                 </div> :
                                 <></>
                             }
-                            <div className="row" style={{ flex: 1, overflow: 'hidden' }} ref={spiderRef}>
+                            <div className="row m-0" style={{ flex: 1, overflow: 'hidden' }} ref={spiderRef}>
                                 <LoadingIcon Show={status === 'loading'} />
                                 <Plot height={dimensions.Spider.Height} width={dimensions.Spider.Width} showBorder={false}
                                     yDomain={'Manual'}
