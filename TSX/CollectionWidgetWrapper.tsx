@@ -44,7 +44,6 @@ interface IProps {
     FaultID?: number,
     Callback?: (eventID: number, disturbanceID?: number, faultID?: number) => void,
     EventFilter: EventWidget.ICollectionFilter,
-    Title?: string,
     HomePath: string,
     Roles: string[]
 }
@@ -79,7 +78,6 @@ const CollectionWidgetRouter: React.FC<IProps> = (props: IProps) => {
             ErrorMessage={`Widget ${props.Widget.Name} has encoutered an error.`}
         >
             <Widget.Widget
-                Title={props.Title}
                 Settings={Settings}
                 Callback={props.Callback}
                 EventID={props.EventID}
