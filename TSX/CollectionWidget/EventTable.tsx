@@ -82,15 +82,7 @@ const EventTable: EventWidget.ICollectionWidget<{}> = {
         return (
             <div className="card h-100" style={{ display: 'flex', flexDirection: "column" }}>
                 <div className="card-header">
-                    {props.Title == null ?
-                        'Displaying Events(s) ' +
-                        (pageInfo.TotalRecords > 0 ?
-                            (pageInfo.RecordsPerPage * searchState.Page + 1) : 0) +
-                        ' - ' +
-                        (pageInfo.RecordsPerPage * searchState.Page + events.length) + 
-                        ' out of ' + pageInfo.TotalRecords
-                        : props.Title
-                    }
+                    {props.Name}
                     <button className="btn btn-primary" style={{ position: 'absolute', top: 5, right: 5 }} onClick={() => ExportToCsv(events, 'EventSearch.csv')}>Export CSV</button>
                 </div>
                 <div className="card-body p-0" style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>

@@ -295,7 +295,7 @@ const PQHealthIndex: EventWidget.ICollectionWidget<ISettings> = {
         return (
             <div className="card h-100 w-100" style={{ display: 'flex', flexDirection: "column" }}>
                 <div className="card-header">
-                    {props.Title == null ? "EPRI PQ Health Index" : props.Title}
+                    {props.Name}
                 </div>
                 <div className="card-body" style={{ flex: 1, overflow: 'hidden' }}>
                     <div className="row h-100" style={{ display: 'flex', overflow: 'hidden', flexDirection: "row" }}>
@@ -309,15 +309,16 @@ const PQHealthIndex: EventWidget.ICollectionWidget<ISettings> = {
                                 <div className="row" style={{ padding: "5px 0 0 0" }}>
                                     <Alert Class='alert-danger'>Error retrieving index data.</Alert>
                                 </div> :
-                                <></>
-                            }
-                            {sites.IDs.length === 0 ?
-                                <div className="row" style={{ padding: "5px 0 0 0" }}>
-                                    <Alert Class='alert-info'>Select sites to get started.</Alert>
-                                </div> :
-                                <></>
+                                null
                             }
                             <div className="row m-0" style={{ flex: 1, overflow: 'hidden' }} ref={spiderRef}>
+                                {sites.IDs.length === 0 ?
+                                    <Alert Class='alert-info'
+                                        Style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: 0 }}
+                                        ShowX={false}>
+                                        No sites are selected. Please select at least 1 site.</Alert> :
+                                null
+                            }
                                 <LoadingIcon Show={status === 'loading'} />
                                 <Plot height={dimensions.Spider.Height} width={dimensions.Spider.Width} showBorder={false}
                                     yDomain={'Manual'}

@@ -225,7 +225,7 @@ const EventCountChart: EventWidget.ICollectionWidget<{}> = {
         return (
             <div className="card h-100 w-100" style={{ display: 'flex', flexDirection: "column" }}>
                 <div className="card-header">
-                    {props.Title == null ? "Historical Event Counts" : props.Title}
+                    {props.Name}
                 </div>
                 <div className="card-body" style={{ display: 'flex', flexDirection: "column", flex: 1, overflow: 'hidden' }}>
                     <LoadingIcon Show={status !== 'idle'} />
