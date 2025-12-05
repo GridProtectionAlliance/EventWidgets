@@ -28,7 +28,7 @@ import _ from 'lodash';
 import * as React from 'react';
 import { EventWidget } from '../global';
 import { SpacedColor } from '@gpa-gemstone/helper-functions';
-import { Bar, Legend, DataLegend, Plot } from '@gpa-gemstone/react-graph';
+import { Bar, Legend, DataLegend, Plot, Infobox } from '@gpa-gemstone/react-graph';
 
 type TimeCount = {
     Year: string,
@@ -40,8 +40,9 @@ type TimeCount = {
 interface IData {
     XVal: number,
     Width: number,
-    Data: number[]
-    Color: string
+    Data: number[],
+    Color: string,
+    Label?: string
 }
 
 interface IEnabled {
@@ -80,20 +81,41 @@ const EventCountChart: EventWidget.ICollectionWidget<{}> = {
                     return Object
                         .keys(datum)
                         .filter(key => key !== "Year" && key !== "Month" && datum[key] > 0 && enabled[key].enabled)
-                        .map(key => {
+                        .map((key, ind, arr) => {
                             const bottomYVal = topYVal;
                             topYVal += datum[key];
                             return {
                                 XVal: xVal,
                                 Width: width,
                                 Data: [bottomYVal, topYVal],
-                                Color: enabled[key].color
+                                Color: enabled[key].color,
+                                Label: ind === arr.length - 1 ? date.format("MMM YY") : undefined
                             }
                         }
                     );
                 }
             );
         }, [data, enabled]);
+
+        const chartBounds: {
+            Bounds: [number, number],
+            Margin: number
+        } = React.useMemo(() => {
+            const maxY = chartData.reduce((maxVal, datum) => {
+                if (datum.Data[1] > maxVal)
+                    return datum.Data[1];
+                return maxVal;
+            }, 0);
+
+            const margin = maxY * 0.15;
+
+            return {
+                Bounds: [0, maxY + margin],
+                Margin: margin
+            };
+        }, [chartData]);
+
+
 
         const tDomain: [number, number] = React.useMemo(() => {
             if (chartData.length === 0)
@@ -203,7 +225,7 @@ const EventCountChart: EventWidget.ICollectionWidget<{}> = {
         return (
             <div className="card h-100 w-100" style={{ display: 'flex', flexDirection: "column" }}>
                 <div className="card-header">
-                    {props.Title == null ? "Historical Event Counts" : props.Title}
+                    {props.Name}
                 </div>
                 <div className="card-body" style={{ display: 'flex', flexDirection: "column", flex: 1, overflow: 'hidden' }}>
                     <LoadingIcon Show={status !== 'idle'} />
@@ -212,8 +234,9 @@ const EventCountChart: EventWidget.ICollectionWidget<{}> = {
                             height={dimensions.Height}
                             width={dimensions.Width}
                             showBorder={false}
-                            yDomain={'HalfAutoValue'}
+                            yDomain={'Manual'}
                             XAxisType={"time"}
+                            defaultYdomain={chartBounds.Bounds}
                             defaultTdomain={tDomain}
                             legend={'hidden'}
                             showMouse={false}
@@ -221,7 +244,7 @@ const EventCountChart: EventWidget.ICollectionWidget<{}> = {
                             pan={false}
                             showGrid={true}
                             hideYAxis={false}
-                            hideXAxis={false}
+                            hideXAxis={true}
                             defaultMouseMode={"select"}
                             menuLocation={"hide"}
                             useMetricFactors={false}>
@@ -235,6 +258,18 @@ const EventCountChart: EventWidget.ICollectionWidget<{}> = {
                                 StrokeColor={"black"}
                                 key={index}
                             />)
+                            )}
+                            {chartData.filter(item => item.Label != null).map((item, index) =>
+                                (<Infobox key={`l_${index}`} origin={"lower-center"}
+                                    x={item.XVal + item.Width / 2} y={item.Data[1] + chartBounds.Margin * 0.05} opacity={0} childId={`linfo_${index}`}
+                                    >
+                                    <div id={`linfo_${index}`} style={{
+                                            display: 'inline-block', background: `rgba(255, 255, 255, ${0})`, color: "black",
+                                            overflow: 'visible', whiteSpace: 'pre-wrap', fontSize: `1em`
+                                        }}>
+                                        {item.Label}
+                                    </div>
+                                </Infobox>)
                             )}
                         </Plot>
                     </div>

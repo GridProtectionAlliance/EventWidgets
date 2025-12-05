@@ -74,7 +74,21 @@ const EventSearchOpenSEE: EventWidget.IWidget<ISetting> = {
         const [openSeeSettings, setOpenSeeSettings] = React.useState<IPartialOpenseeSettings>(null);
 
         React.useEffect(() => { setOpenSeeSettings(loadSettings()) }, [])
-        React.useLayoutEffect(() => { SetWidth(divref?.current?.offsetWidth ?? 0) });
+        React.useLayoutEffect(() => {
+            if (divref?.current == null)
+                return;
+
+            const rect = divref.current.getBoundingClientRect();
+            const style = window.getComputedStyle(divref.current);
+            const paddingLeft = parseFloat(style.paddingLeft);
+            const paddingRight = parseFloat(style.paddingRight);
+            const borderLeftWidth = parseFloat(style.borderLeftWidth);
+            const borderRightWidth = parseFloat(style.borderRightWidth);
+
+            const width = rect.width - paddingLeft - paddingRight - borderLeftWidth - borderRightWidth;
+
+            SetWidth(width)
+        });
 
         React.useEffect(() => {
             const Vhandle = GetData('Voltage', setVData);

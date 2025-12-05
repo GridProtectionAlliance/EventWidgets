@@ -71,7 +71,6 @@ export namespace EventWidget {
         Roles: string[],
         Name: string,
         WidgetID: number,
-        Title?: string
     }
 
     export interface IWidgetSettingsProps<T> {

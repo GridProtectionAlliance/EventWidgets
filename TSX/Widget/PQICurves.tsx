@@ -82,10 +82,10 @@ const PQICurves: EventWidget.IWidget<{}> = {
                     PQI Impacted Curves:
                 </div>
                 <div className="card-body" ref={card} >
-                    <Plot height={props.MaxHeight - 100} width={w} showBorder={false}
-                        defaultTdomain={[0.00001, 1000]}
+                    <Plot height={250} width={w} showBorder={false}
+                        defaultTdomain={[0.00001, 1]}
                         defaultYdomain={[0, maxV]}
-                        Tmax={1000}
+                        Tmax={1}
                         Tmin={0.00001}
                         Ymax={9999}
                         Ymin={0}
@@ -101,6 +101,7 @@ const PQICurves: EventWidget.IWidget<{}> = {
                         onSelect={() => { }}>
                         {curves.map((c, i) => <Line highlightHover={false}
                             showPoints={false}
+                            autoShowPoints={false}
                             lineStyle={'-'}
                             color={baseColors[i % baseColors.length]}
                             data={c.Data as [number, number][]}

@@ -26,7 +26,7 @@ import { Line, Plot, Circle, AggregatingCircles } from '@gpa-gemstone/react-grap
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings'
 import { EventWidget } from '../global';
 import { CheckBox, Input } from '@gpa-gemstone/react-forms';
-import { GenericController, LoadingIcon, Search } from '@gpa-gemstone/react-interactive';
+import { Alert, GenericController, LoadingIcon, Search } from '@gpa-gemstone/react-interactive';
 import _ from 'lodash';
 
 interface ISettings {
@@ -189,7 +189,7 @@ const MagDurChart: EventWidget.ICollectionWidget<ISettings> = {
         return (
             <div className="card h-100 w-100" style={{ display: 'flex', flexDirection: "column" }}>
                 <div className="card-header">
-                    {props.Title == null ? "Magnitude Duration Chart" : props.Title}
+                    {props.Name}
                 </div>
                 <div className="card-body" style={{ display: 'flex', flexDirection: "column", flex: 1, overflow: 'hidden' }}>
                     <LoadingIcon Show={status !== 'idle'} />
@@ -236,12 +236,12 @@ const MagDurChart: EventWidget.ICollectionWidget<ISettings> = {
                             {selectedCircle}
                         </Plot>
                     </div>
-                    <div className="alert alert-primary">
-                        {data?.length === props.Settings.ChartLimit ?
-                            `Only the first ${props.Settings.ChartLimit}  chronological results are shown - please narrow your search or increase the number of results in the application settings.` :
-                            `{${data?.length ?? 0} results`
-                        }
-                    </div> 
+                    <Alert Class='alert-info'
+                        Style={{ width: '100%', alignItems: 'center', justifyContent: 'center', margin: 0 }}
+                        ShowX={false}>
+                        {data?.length === props.Settings.ChartLimit ? `Only the first ${props.Settings.ChartLimit} chronological results are shown - please narrow your search or increase the number of results in the application settings.` :
+                            `${data?.length ?? 0} events shown`}
+                    </Alert>
                 </div>
             </div>
         )
