@@ -22,13 +22,14 @@
 //******************************************************************************************************
 
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
+import { SpacedColor } from '@gpa-gemstone/helper-functions';
+import { Select } from '@gpa-gemstone/react-forms';
+import { Bar, DataLegend, Legend, Plot } from '@gpa-gemstone/react-graph';
 import { LoadingIcon, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
-import moment from 'moment';
 import _ from 'lodash';
+import moment from 'moment';
 import * as React from 'react';
 import { EventWidget } from '../global';
-import { SpacedColor } from '@gpa-gemstone/helper-functions';
-import { Bar, Legend, DataLegend, Plot } from '@gpa-gemstone/react-graph';
 
 interface TimeCount {
     YInt: number,
@@ -50,8 +51,22 @@ interface ISettings {
 const EventCountChart: EventWidget.ICollectionWidget<ISettings> = {
     Name: 'EventCountChart',
     DefaultSettings: { Granularity: 'Monthly' },
-    Settings: (_props: EventWidget.IWidgetSettingsProps<ISettings>) => {
-        return (<></>);
+    Settings: (props: EventWidget.IWidgetSettingsProps<ISettings>) => {
+        return (
+            <Select<ISettings>
+                Record={props.Settings}
+                Field='Granularity'
+                Options={[
+                    { Value: "Hourly", Label: "By Hour" },
+                    { Value: "Daily", Label: "By Day" },
+                    { Value: "Weekly", Label: "By Week" },
+                    { Value: "Monthly", Label: "By Month" },
+                    { Value: "Yearly", Label: "By Year" },
+                ]}
+                Setter={props.SetSettings}
+                Label="Aggregate Events"
+            />
+        );
     },
     Widget: (props: EventWidget.ICollectionWidgetProps<ISettings>) => {
         const chartRef = React.useRef<HTMLTableSectionElement | undefined>(undefined);
