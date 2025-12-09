@@ -30,18 +30,17 @@ import { EventWidget } from '../global';
 import { SpacedColor } from '@gpa-gemstone/helper-functions';
 import { Bar, Legend, DataLegend, Plot } from '@gpa-gemstone/react-graph';
 
-type TimeCount = {
-    Year: string,
-    Month: string
-} & {
+interface TimeCount {
+    YInt: number,
+    SInt: number,
     [key: string]: number
 }
 
 interface IData {
     XVal: number,
     Width: number,
-    Data: number[]
-    Color: string
+    Data: number[],
+    GetStyle: (_, index: number) => {}
 }
 
 interface ISettings {
@@ -64,32 +63,36 @@ const EventCountChart: EventWidget.ICollectionWidget<ISettings> = {
         const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
 
         const chartData: IData[] = React.useMemo(() => {
-            let endVal;
-            let xVal;
+            if (data.length === 0) return [];
+
+            const keyArray = Object
+                .keys(data[0])
+                .filter(key => key !== "YInt" && key !== "SInt" && data[0][key] > 0 && enabled[key]);
+
             return data
-                .flatMap(datum => {
-                    const date = moment.utc(`${datum.Year} ${datum.Month}`, "YYYY MMM");
-                    if (endVal == null)
-                        xVal = date.clone().subtract(15, 'days').valueOf();
-                    else
-                        xVal = endVal;
-                    endVal = date.clone().add(15, 'days').valueOf();
-                    const width = endVal - xVal;
-                    let topYVal = 0;
-                    return Object
-                        .keys(datum)
-                        .filter(key => key !== "Year" && key !== "Month" && datum[key] > 0 && enabled[key].enabled)
-                        .map(key => {
-                            const bottomYVal = topYVal;
-                            topYVal += datum[key];
-                            return {
-                                XVal: xVal,
-                                Width: width,
-                                Data: [bottomYVal, topYVal],
-                                Color: enabled[key].color
-                            }
-                        }
-                    );
+                .map(datum => {
+                    const date = moment.utc(`${datum.YInt} ${datum.SInt}`, "YYYY M");
+                    const start = date.valueOf();
+                    const end = date.clone().add(1, 'month').valueOf();
+                    const fill = start < tDomain[0] || end > tDomain[1] ? 'Hatched' : undefined;
+                    const width = end - start;
+                    const yValues = [0];
+                    keyArray.forEach((key, index) => {
+                        const newValue = yValues[index] + datum[key];
+                        yValues.push(newValue);
+                    });
+
+                    const styleFunction = (_values, index: number) => ({
+                        ColorOverride: colorRef.current[keyArray[index]],
+                        Fill: fill
+                    });
+
+                    return {
+                        XVal: start,
+                        Width: width,
+                        Data: yValues,
+                        GetStyle: styleFunction
+                    }
                 }
             );
         }, [data, enabled, tDomain]);
@@ -216,8 +219,8 @@ const EventCountChart: EventWidget.ICollectionWidget<ISettings> = {
                                 BarOrigin={item.XVal}
                                 BarWidth={item.Width}
                                 XBarOrigin={'left'}
-                                Color={item.Color}
-                                StrokeColor={"black"}
+                                Color={"black"}
+                                GetBarStyle={item.GetStyle}
                                 key={index}
                             />)
                             )}
