@@ -58,6 +58,7 @@ const EventCountChart: EventWidget.ICollectionWidget<ISettings> = {
         const chartRef = React.useRef<HTMLTableSectionElement | undefined>(undefined);
         const colorRef = React.useRef<{ [key: string]: string }>({});
         const [dimensions, setDimensions] = React.useState<{ Width: number, Height: number }>({ Width: 100, Height: 100 });
+        const [tDomain, setTDomain] = React.useState<[number, number]>([0,1]);
         const [data, setData] = React.useState<TimeCount[]>([]);
         const [enabled, setEnabled] = React.useState<{[key: string]: boolean}>({});
         const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
@@ -91,13 +92,7 @@ const EventCountChart: EventWidget.ICollectionWidget<ISettings> = {
                     );
                 }
             );
-        }, [data, enabled]);
-
-        const tDomain: [number, number] = React.useMemo(() => {
-            if (chartData.length === 0)
-                return [0, 1];
-            return [chartData[0].XVal, chartData[chartData.length - 1].XVal + chartData[chartData.length - 1].Width];
-        }, [chartData])
+        }, [data, enabled, tDomain]);
 
         // Resize ref for graph dims
         React.useEffect(() => {
@@ -160,6 +155,7 @@ const EventCountChart: EventWidget.ICollectionWidget<ISettings> = {
                     })
                 );
                 setEnabled(newEnabled);
+                setTDomain([startMoment.valueOf(), endMoment.valueOf()]);
                 setData(data);
                 setStatus('idle');
             }).fail(() => {
