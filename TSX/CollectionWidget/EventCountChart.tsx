@@ -56,9 +56,10 @@ const EventCountChart: EventWidget.ICollectionWidget<ISettings> = {
     },
     Widget: (props: EventWidget.ICollectionWidgetProps<ISettings>) => {
         const chartRef = React.useRef<HTMLTableSectionElement | undefined>(undefined);
+        const colorRef = React.useRef<{ [key: string]: string }>({});
         const [dimensions, setDimensions] = React.useState<{ Width: number, Height: number }>({ Width: 100, Height: 100 });
         const [data, setData] = React.useState<TimeCount[]>([]);
-        const [enabled, setEnabled] = React.useState<IEnabled>({});
+        const [enabled, setEnabled] = React.useState<{[key: string]: boolean}>({});
         const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
 
         const chartData: IData[] = React.useMemo(() => {
@@ -156,15 +157,13 @@ const EventCountChart: EventWidget.ICollectionWidget<ISettings> = {
             });
 
             handle.done((data: Array<TimeCount>) => {
-                const newEnabled: IEnabled = { ...enabled };
+                const newEnabled: {[key: string]: boolean} = { ...enabled };
                 data.forEach(datum => Object
                     .keys(datum)
-                    .filter(key => newEnabled?.[key] == null && key !== "Year" && key !== "Month" && datum[key] > 0)
+                    .filter(key => newEnabled?.[key] == null && key !== "YInt" && key !== "SInt" && datum[key] > 0)
                     .forEach(key => {
-                        newEnabled[key] = {
-                            color: getColor(key),
-                            enabled: true
-                        }
+                        newEnabled[key] = true;
+                        colorRef.current[key] = getColor(key);
                     })
                 );
                 setEnabled(newEnabled);
@@ -239,16 +238,16 @@ const EventCountChart: EventWidget.ICollectionWidget<ISettings> = {
                         <Legend
                             LegendElements={Object.keys(enabled).map(key =>
                             (<DataLegend
-                                color={enabled[key].color}
+                                color={colorRef.current[key]}
                                 legendSymbol={"square"}
                                 setEnabled={(e) =>
                                     setEnabled(v =>
-                                        ({ ...v, [key]: { enabled: e, color: v[key].color } })
+                                        ({ ...v, [key]: e })
                                     )
                                 }
                                 hasNoData={false}
                                 label={key}
-                                enabled={enabled[key].enabled}
+                                enabled={enabled[key]}
                                 id={key}
                             />)
                             )}
