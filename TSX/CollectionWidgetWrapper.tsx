@@ -21,9 +21,7 @@
 //
 //******************************************************************************************************
 
-import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { ErrorBoundary } from '@gpa-gemstone/common-pages';
-import { GenericController, Search, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
 import { cloneDeep } from 'lodash';
 import * as React from 'react';
 import EventCountChart from './CollectionWidget/EventCountChart';
