@@ -44,20 +44,17 @@ interface IData {
     Color: string
 }
 
-interface IEnabled {
-    [key: string]: {
-        enabled: boolean
-        color: string
-    }
+interface ISettings {
+    Granularity: 'Hourly' | 'Daily' | 'Weekly' | 'Monthly' | 'Yearly'
 }
 
-const EventCountChart: EventWidget.ICollectionWidget<{}> = {
+const EventCountChart: EventWidget.ICollectionWidget<ISettings> = {
     Name: 'EventCountChart',
-    DefaultSettings: {},
-    Settings: (_props: EventWidget.IWidgetSettingsProps<{}>) => {
+    DefaultSettings: { Granularity: 'Monthly' },
+    Settings: (_props: EventWidget.IWidgetSettingsProps<ISettings>) => {
         return (<></>);
     },
-    Widget: (props: EventWidget.ICollectionWidgetProps<{}>) => {
+    Widget: (props: EventWidget.ICollectionWidgetProps<ISettings>) => {
         const chartRef = React.useRef<HTMLTableSectionElement | undefined>(undefined);
         const [dimensions, setDimensions] = React.useState<{ Width: number, Height: number }>({ Width: 100, Height: 100 });
         const [data, setData] = React.useState<TimeCount[]>([]);
