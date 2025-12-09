@@ -130,16 +130,8 @@ const EventCountChart: EventWidget.ICollectionWidget<ISettings> = {
             if (props.CurrentFilter.TimeFilter == null)
                 return;
 
-            const floorStartTime = moment
-                .utc(props.CurrentFilter.TimeFilter.StartTime, OpenXDA.Consts.DateTimeFormat)
-                .startOf("month")
-                .format(OpenXDA.Consts.DateTimeFormat);
-
-            const ceilEndTime = moment
-                .utc(props.CurrentFilter.TimeFilter.EndTime, OpenXDA.Consts.DateTimeFormat)
-                .add(1, "month")
-                .startOf("month")
-                .format(OpenXDA.Consts.DateTimeFormat);
+            const startMoment = moment.utc(props.CurrentFilter.TimeFilter.StartTime, OpenXDA.Consts.DateTimeFormat);
+            const endMoment = moment.utc(props.CurrentFilter.TimeFilter.EndTime, OpenXDA.Consts.DateTimeFormat);
 
             setStatus('loading');
             const handle = $.ajax({
@@ -148,8 +140,9 @@ const EventCountChart: EventWidget.ICollectionWidget<ISettings> = {
                 contentType: "application/json; charset=utf-8",
                 data: JSON.stringify({
                     MeterIDs: props.CurrentFilter?.MeterFilter?.map(meter => meter.ID) ?? [],
-                    StartTime: floorStartTime,
-                    EndTime: ceilEndTime
+                    StartTime: startMoment.format(OpenXDA.Consts.DateTimeFormat),
+                    EndTime: endMoment.format(OpenXDA.Consts.DateTimeFormat),
+                    Granularity: props.Settings.Granularity
                 }),
                 dataType: 'json',
                 cache: true,
