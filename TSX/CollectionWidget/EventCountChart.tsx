@@ -33,6 +33,7 @@ import { EventWidget } from '../global';
 
 interface TimeCount {
     YInt: number,
+    EInt: number,
     SInt: number,
     [key: string]: number
 }
@@ -44,8 +45,10 @@ interface IData {
     GetStyle: (_, index: number) => {}
 }
 
+type TGranularity = 'Hourly' | 'Daily' | 'Weekly' | 'Monthly' | 'Yearly';
+
 interface ISettings {
-    Granularity: 'Hourly' | 'Daily' | 'Weekly' | 'Monthly' | 'Yearly'
+    Granularity: TGranularity
 }
 
 const EventCountChart: EventWidget.ICollectionWidget<ISettings> = {
@@ -82,15 +85,19 @@ const EventCountChart: EventWidget.ICollectionWidget<ISettings> = {
 
             const keyArray = Object
                 .keys(data[0])
-                .filter(key => key !== "YInt" && key !== "SInt" && data[0][key] > 0 && enabled[key]);
+                .filter(key => key !== "YInt" && key !== 'EInt' && key !== "SInt" && enabled[key]);
 
             return data
-                .map(datum => {
-                    const date = moment.utc(`${datum.YInt} ${datum.SInt}`, "YYYY M");
-                    const start = date.valueOf();
-                    const end = date.clone().add(1, 'month').valueOf();
-                    const fill = start < tDomain[0] || end > tDomain[1] ? 'Hatched' : undefined;
-                    const width = end - start;
+                .map((datum, index) => {
+                    const start = formatMoment(datum.YInt, datum.SInt, datum.EInt, props.Settings.Granularity);
+
+                    const startTicks = start.valueOf();
+                    const endTicks = (data.length > index + 1 ?
+                        formatMoment(data[index + 1].YInt, data[index + 1].SInt, data[index + 1].EInt, props.Settings.Granularity) :
+                        start.clone().add(1, addVerb(props.Settings.Granularity))).valueOf();
+
+                    const fill = startTicks < tDomain[0] || endTicks > tDomain[1] ? "Hatched" : undefined;
+
                     const yValues = [0];
                     keyArray.forEach((key, index) => {
                         const newValue = yValues[index] + datum[key];
@@ -103,14 +110,14 @@ const EventCountChart: EventWidget.ICollectionWidget<ISettings> = {
                     });
 
                     return {
-                        XVal: start,
-                        Width: width,
+                        XVal: startTicks,
+                        Width: endTicks - startTicks,
                         Data: yValues,
                         GetStyle: styleFunction
                     }
                 }
             );
-        }, [data, enabled, tDomain]);
+        }, [data, enabled, tDomain, props.Settings.Granularity]);
 
         // Resize ref for graph dims
         React.useEffect(() => {
@@ -149,7 +156,7 @@ const EventCountChart: EventWidget.ICollectionWidget<ISettings> = {
             setStatus('loading');
             const handle = $.ajax({
                 type: "POST",
-                url: `${homePath}api/EventWidgets/Event/EventCountByMonth`,
+                url: `${homePath}api/EventWidgets/Event/EventCountAggregate`,
                 contentType: "application/json; charset=utf-8",
                 data: JSON.stringify({
                     MeterIDs: props.CurrentFilter?.MeterFilter?.map(meter => meter.ID) ?? [],
@@ -166,7 +173,7 @@ const EventCountChart: EventWidget.ICollectionWidget<ISettings> = {
                 const newEnabled: {[key: string]: boolean} = { ...enabled };
                 data.forEach(datum => Object
                     .keys(datum)
-                    .filter(key => newEnabled?.[key] == null && key !== "YInt" && key !== "SInt" && datum[key] > 0)
+                    .filter(key => newEnabled?.[key] == null && key !== "YInt" && key !== "EInt" && key !== "SInt" && datum[key] > 0)
                     .forEach(key => {
                         newEnabled[key] = true;
                         colorRef.current[key] = getColor(key);
@@ -266,6 +273,42 @@ const EventCountChart: EventWidget.ICollectionWidget<ISettings> = {
                 </div>
             </div>
         )
+    }
+}
+
+function formatMoment(intY: number, intS: number, intE: number, granularity: TGranularity): moment.Moment {
+    switch (granularity) {
+        case 'Hourly':
+            return moment.utc(`${intY} ${intS} ${intE}`, "YYYY DDD HH");
+        case 'Daily':
+            return moment.utc(`${intY} ${intS}`, "YYYY DDD");
+        case 'Weekly':
+            return moment.utc(`${intY} ${intS}`, "YYYY DDD");
+        default:
+            console.warn("Unrecognized granularity detected, unexpected behavior may occur: " + granularity);
+            // fall-through
+        case 'Monthly':
+            return moment.utc(`${intY} ${intS}`, "YYYY M");
+        case 'Yearly':
+            return moment.utc(`${intY}`, "YYYY");
+    }
+}
+
+function addVerb(granularity: TGranularity): "hour"|"day"|"week"|"month"|"year" {
+    switch (granularity) {
+        case 'Hourly':
+            return "hour";
+        case 'Daily':
+            return "day";
+        case 'Weekly':
+            return "week";
+        default:
+            console.warn("Unrecognized granularity detected, unexpected behavior may occur: " + granularity);
+        // fall-through
+        case 'Monthly':
+            return "month";
+        case 'Yearly':
+            return "year";
     }
 }
 
