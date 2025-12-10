@@ -220,7 +220,7 @@ const EventCountChart: EventWidget.ICollectionWidget<ISettings> = {
                     <div className="row" style={{ flex: 1, overflow: 'hidden' }} ref={chartRef}>
                         <Plot
                             height={dimensions.Height}
-                            width={dimensions.Width}
+                            width={dimensions.Width-20}
                             showBorder={false}
                             yDomain={'HalfAutoValue'}
                             XAxisType={"time"}
