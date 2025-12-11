@@ -104,7 +104,7 @@ const EventCountChart: EventWidget.ICollectionWidget<ISettings> = {
                     });
 
                     const styleFunction = (_values, index: number) => ({
-                        ColorOverride: colorRef.current[keyArray[index]],
+                        Color: colorRef.current[keyArray[index]],
                         Fill: fill
                     });
 
