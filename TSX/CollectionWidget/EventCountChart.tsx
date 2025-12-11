@@ -31,10 +31,9 @@ import moment from 'moment';
 import * as React from 'react';
 import { EventWidget } from '../global';
 
-interface TimeCount {
-    YInt: number,
-    EInt: number,
-    SInt: number,
+type TimeCount = {
+    aggTime: string
+} & {
     [key: string]: number
 }
 
@@ -85,15 +84,15 @@ const EventCountChart: EventWidget.ICollectionWidget<ISettings> = {
 
             const keyArray = Object
                 .keys(data[0])
-                .filter(key => key !== "YInt" && key !== 'EInt' && key !== "SInt" && enabled[key]);
+                .filter(key => key !== "aggTime" && enabled[key]);
 
             return data
                 .map((datum, index) => {
-                    const start = formatMoment(datum.YInt, datum.SInt, datum.EInt, props.Settings.Granularity);
+                    const start = moment.utc(datum.aggTime, OpenXDA.Consts.DateTimeFormat);
 
                     const startTicks = start.valueOf();
                     const endTicks = (data.length > index + 1 ?
-                        formatMoment(data[index + 1].YInt, data[index + 1].SInt, data[index + 1].EInt, props.Settings.Granularity) :
+                        moment.utc(data[index+1].aggTime, OpenXDA.Consts.DateTimeFormat) :
                         start.clone().add(1, addVerb(props.Settings.Granularity))).valueOf();
 
                     const fill = startTicks < tDomain[0] || endTicks > tDomain[1] ? "Hatched" : undefined;
@@ -173,7 +172,7 @@ const EventCountChart: EventWidget.ICollectionWidget<ISettings> = {
                 const newEnabled: {[key: string]: boolean} = { ...enabled };
                 data.forEach(datum => Object
                     .keys(datum)
-                    .filter(key => newEnabled?.[key] == null && key !== "YInt" && key !== "EInt" && key !== "SInt" && datum[key] > 0)
+                    .filter(key => newEnabled?.[key] == null && key !== "aggTime" && datum[key] > 0)
                     .forEach(key => {
                         newEnabled[key] = true;
                         colorRef.current[key] = getColor(key);
@@ -208,7 +207,6 @@ const EventCountChart: EventWidget.ICollectionWidget<ISettings> = {
                     </div>
                 </div>
             );
-
 
         return (
             <div className="card h-100 w-100" style={{ display: 'flex', flexDirection: "column" }}>
@@ -273,24 +271,6 @@ const EventCountChart: EventWidget.ICollectionWidget<ISettings> = {
                 </div>
             </div>
         )
-    }
-}
-
-function formatMoment(intY: number, intS: number, intE: number, granularity: TGranularity): moment.Moment {
-    switch (granularity) {
-        case 'Hourly':
-            return moment.utc(`${intY} ${intS} ${intE}`, "YYYY DDD HH");
-        case 'Daily':
-            return moment.utc(`${intY} ${intS}`, "YYYY DDD");
-        case 'Weekly':
-            return moment.utc(`${intY} ${intS}`, "YYYY DDD");
-        default:
-            console.warn("Unrecognized granularity detected, unexpected behavior may occur: " + granularity);
-            // fall-through
-        case 'Monthly':
-            return moment.utc(`${intY} ${intS}`, "YYYY M");
-        case 'Yearly':
-            return moment.utc(`${intY}`, "YYYY");
     }
 }
 
