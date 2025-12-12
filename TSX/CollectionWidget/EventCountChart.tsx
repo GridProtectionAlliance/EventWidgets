@@ -22,7 +22,7 @@
 //******************************************************************************************************
 
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
-import { SpacedColor } from '@gpa-gemstone/helper-functions';
+import { SpacedColor, GetColor } from '@gpa-gemstone/helper-functions';
 import { Select } from '@gpa-gemstone/react-forms';
 import { Bar, DataLegend, Legend, Plot } from '@gpa-gemstone/react-graph';
 import { LoadingIcon, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
@@ -293,12 +293,22 @@ function addVerb(granularity: TGranularity): "hour"|"day"|"week"|"month"|"year" 
 }
 
 function getColor(type: string) {
-    if (type.toLowerCase() == "sag") return 'purple';
-    if (type.toLowerCase() == "swell") return 'green';
-    if (type.toLowerCase() == "transient") return 'orange';
-    if (type.toLowerCase() == "interruption") return 'red';
-    if (type.toLowerCase() == "fault") return 'blue';
-    else return SpacedColor(1, 0.75);
+    switch (type.toLowerCase()) {
+        case 'interruption':
+            return GetColor(14);
+        case 'swell':
+            return GetColor(15);
+        case 'fault':
+            return GetColor(16);
+        case 'transient':
+            return GetColor(17);
+        case 'sag':
+            return GetColor(18);
+        case 'other':
+            return GetColor(21);
+        default:
+            return SpacedColor(1, 0.75);
+    }
 }
 
 export default EventCountChart;
