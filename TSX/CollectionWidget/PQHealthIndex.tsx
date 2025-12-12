@@ -410,7 +410,6 @@ const PQHealthIndex: EventWidget.ICollectionWidget<ISettings> = {
                                         BarWidth={1}
                                         XBarOrigin={'left'}
                                         Color={GetColor(legendColorKeys[key])}
-                                        StrokeColor={"black"}
                                         key={`bar_${key}`}
                                     />)
                                 )}

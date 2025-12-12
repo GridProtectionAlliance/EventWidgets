@@ -27,8 +27,6 @@ import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 export namespace EventWidget {
     export interface IWidgetView {
         ID: number,
-        CategoryID: number,
-        CategoryName: string,
         Name: string,
         Type: string,
         Setting: string

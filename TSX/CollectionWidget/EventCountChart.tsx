@@ -22,17 +22,17 @@
 //******************************************************************************************************
 
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
+import { SpacedColor, GetColor } from '@gpa-gemstone/helper-functions';
+import { Select } from '@gpa-gemstone/react-forms';
+import { Bar, DataLegend, Legend, Plot } from '@gpa-gemstone/react-graph';
 import { LoadingIcon, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
-import moment from 'moment';
 import _ from 'lodash';
+import moment from 'moment';
 import * as React from 'react';
 import { EventWidget } from '../global';
-import { SpacedColor } from '@gpa-gemstone/helper-functions';
-import { Bar, Legend, DataLegend, Plot } from '@gpa-gemstone/react-graph';
 
 type TimeCount = {
-    Year: string,
-    Month: string
+    aggTime: string
 } & {
     [key: string]: number
 }
@@ -40,66 +40,83 @@ type TimeCount = {
 interface IData {
     XVal: number,
     Width: number,
-    Data: number[]
-    Color: string
+    Data: number[],
+    GetStyle: (_, index: number) => {}
 }
 
-interface IEnabled {
-    [key: string]: {
-        enabled: boolean
-        color: string
-    }
+type TGranularity = 'Hourly' | 'Daily' | 'Weekly' | 'Monthly' | 'Yearly';
+
+interface ISettings {
+    Granularity: TGranularity
 }
 
-const EventCountChart: EventWidget.ICollectionWidget<{}> = {
+const EventCountChart: EventWidget.ICollectionWidget<ISettings> = {
     Name: 'EventCountChart',
-    DefaultSettings: {},
-    Settings: (_props: EventWidget.IWidgetSettingsProps<{}>) => {
-        return (<></>);
+    DefaultSettings: { Granularity: 'Monthly' },
+    Settings: (props: EventWidget.IWidgetSettingsProps<ISettings>) => {
+        return (
+            <Select<ISettings>
+                Record={props.Settings}
+                Field='Granularity'
+                Options={[
+                    { Value: "Hourly", Label: "By Hour" },
+                    { Value: "Daily", Label: "By Day" },
+                    { Value: "Weekly", Label: "By Week" },
+                    { Value: "Monthly", Label: "By Month" },
+                    { Value: "Yearly", Label: "By Year" },
+                ]}
+                Setter={props.SetSettings}
+                Label="Aggregate Events"
+            />
+        );
     },
-    Widget: (props: EventWidget.ICollectionWidgetProps<{}>) => {
+    Widget: (props: EventWidget.ICollectionWidgetProps<ISettings>) => {
         const chartRef = React.useRef<HTMLTableSectionElement | undefined>(undefined);
+        const colorRef = React.useRef<{ [key: string]: string }>({});
         const [dimensions, setDimensions] = React.useState<{ Width: number, Height: number }>({ Width: 100, Height: 100 });
+        const [tDomain, setTDomain] = React.useState<[number, number]>([0,1]);
         const [data, setData] = React.useState<TimeCount[]>([]);
-        const [enabled, setEnabled] = React.useState<IEnabled>({});
+        const [enabled, setEnabled] = React.useState<{[key: string]: boolean}>({});
         const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
 
         const chartData: IData[] = React.useMemo(() => {
-            let endVal;
-            let xVal;
+            if (data.length === 0) return [];
+
+            const keyArray = Object
+                .keys(data[0])
+                .filter(key => key !== "aggTime" && enabled[key]);
+
             return data
-                .flatMap(datum => {
-                    const date = moment.utc(`${datum.Year} ${datum.Month}`, "YYYY MMM");
-                    if (endVal == null)
-                        xVal = date.clone().subtract(15, 'days').valueOf();
-                    else
-                        xVal = endVal;
-                    endVal = date.clone().add(15, 'days').valueOf();
-                    const width = endVal - xVal;
-                    let topYVal = 0;
-                    return Object
-                        .keys(datum)
-                        .filter(key => key !== "Year" && key !== "Month" && datum[key] > 0 && enabled[key].enabled)
-                        .map(key => {
-                            const bottomYVal = topYVal;
-                            topYVal += datum[key];
-                            return {
-                                XVal: xVal,
-                                Width: width,
-                                Data: [bottomYVal, topYVal],
-                                Color: enabled[key].color
-                            }
-                        }
-                    );
+                .map((datum, index) => {
+                    const start = moment.utc(datum.aggTime, OpenXDA.Consts.DateTimeFormat);
+
+                    const startTicks = start.valueOf();
+                    const endTicks = (data.length > index + 1 ?
+                        moment.utc(data[index+1].aggTime, OpenXDA.Consts.DateTimeFormat) :
+                        start.clone().add(1, addVerb(props.Settings.Granularity))).valueOf();
+
+                    const fill = startTicks < tDomain[0] || endTicks > tDomain[1] ? "Hatched" : undefined;
+
+                    const yValues = [0];
+                    keyArray.forEach((key, index) => {
+                        const newValue = yValues[index] + datum[key];
+                        yValues.push(newValue);
+                    });
+
+                    const styleFunction = (_values, index: number) => ({
+                        Color: colorRef.current[keyArray[index]],
+                        Fill: fill
+                    });
+
+                    return {
+                        XVal: startTicks,
+                        Width: endTicks - startTicks,
+                        Data: yValues,
+                        GetStyle: styleFunction
+                    }
                 }
             );
-        }, [data, enabled]);
-
-        const tDomain: [number, number] = React.useMemo(() => {
-            if (chartData.length === 0)
-                return [0, 1];
-            return [chartData[0].XVal, chartData[chartData.length - 1].XVal + chartData[chartData.length - 1].Width];
-        }, [chartData])
+        }, [data, enabled, tDomain, props.Settings.Granularity]);
 
         // Resize ref for graph dims
         React.useEffect(() => {
@@ -132,26 +149,19 @@ const EventCountChart: EventWidget.ICollectionWidget<{}> = {
             if (props.CurrentFilter.TimeFilter == null)
                 return;
 
-            const floorStartTime = moment
-                .utc(props.CurrentFilter.TimeFilter.StartTime, OpenXDA.Consts.DateTimeFormat)
-                .startOf("month")
-                .format(OpenXDA.Consts.DateTimeFormat);
-
-            const ceilEndTime = moment
-                .utc(props.CurrentFilter.TimeFilter.EndTime, OpenXDA.Consts.DateTimeFormat)
-                .add(1, "month")
-                .startOf("month")
-                .format(OpenXDA.Consts.DateTimeFormat);
+            const startMoment = moment.utc(props.CurrentFilter.TimeFilter.StartTime, OpenXDA.Consts.DateTimeFormat);
+            const endMoment = moment.utc(props.CurrentFilter.TimeFilter.EndTime, OpenXDA.Consts.DateTimeFormat);
 
             setStatus('loading');
             const handle = $.ajax({
                 type: "POST",
-                url: `${homePath}api/EventWidgets/Event/EventCountByMonth`,
+                url: `${homePath}api/EventWidgets/Event/EventCountAggregate`,
                 contentType: "application/json; charset=utf-8",
                 data: JSON.stringify({
                     MeterIDs: props.CurrentFilter?.MeterFilter?.map(meter => meter.ID) ?? [],
-                    StartTime: floorStartTime,
-                    EndTime: ceilEndTime
+                    StartTime: startMoment.format(OpenXDA.Consts.DateTimeFormat),
+                    EndTime: endMoment.format(OpenXDA.Consts.DateTimeFormat),
+                    Granularity: props.Settings.Granularity
                 }),
                 dataType: 'json',
                 cache: true,
@@ -159,18 +169,17 @@ const EventCountChart: EventWidget.ICollectionWidget<{}> = {
             });
 
             handle.done((data: Array<TimeCount>) => {
-                const newEnabled: IEnabled = { ...enabled };
+                const newEnabled: {[key: string]: boolean} = { ...enabled };
                 data.forEach(datum => Object
                     .keys(datum)
-                    .filter(key => newEnabled?.[key] == null && key !== "Year" && key !== "Month" && datum[key] > 0)
+                    .filter(key => newEnabled?.[key] == null && key !== "aggTime" && datum[key] > 0)
                     .forEach(key => {
-                        newEnabled[key] = {
-                            color: getColor(key),
-                            enabled: true
-                        }
+                        newEnabled[key] = true;
+                        colorRef.current[key] = getColor(key);
                     })
                 );
                 setEnabled(newEnabled);
+                setTDomain([startMoment.valueOf(), endMoment.valueOf()]);
                 setData(data);
                 setStatus('idle');
             }).fail(() => {
@@ -199,7 +208,6 @@ const EventCountChart: EventWidget.ICollectionWidget<{}> = {
                 </div>
             );
 
-
         return (
             <div className="card h-100 w-100" style={{ display: 'flex', flexDirection: "column" }}>
                 <div className="card-header">
@@ -210,7 +218,7 @@ const EventCountChart: EventWidget.ICollectionWidget<{}> = {
                     <div className="row" style={{ flex: 1, overflow: 'hidden' }} ref={chartRef}>
                         <Plot
                             height={dimensions.Height}
-                            width={dimensions.Width}
+                            width={dimensions.Width-20}
                             showBorder={false}
                             yDomain={'HalfAutoValue'}
                             XAxisType={"time"}
@@ -231,8 +239,8 @@ const EventCountChart: EventWidget.ICollectionWidget<{}> = {
                                 BarOrigin={item.XVal}
                                 BarWidth={item.Width}
                                 XBarOrigin={'left'}
-                                Color={item.Color}
-                                StrokeColor={"black"}
+                                Color={"black"}
+                                GetBarStyle={item.GetStyle}
                                 key={index}
                             />)
                             )}
@@ -242,16 +250,16 @@ const EventCountChart: EventWidget.ICollectionWidget<{}> = {
                         <Legend
                             LegendElements={Object.keys(enabled).map(key =>
                             (<DataLegend
-                                color={enabled[key].color}
+                                color={colorRef.current[key]}
                                 legendSymbol={"square"}
                                 setEnabled={(e) =>
                                     setEnabled(v =>
-                                        ({ ...v, [key]: { enabled: e, color: v[key].color } })
+                                        ({ ...v, [key]: e })
                                     )
                                 }
                                 hasNoData={false}
                                 label={key}
-                                enabled={enabled[key].enabled}
+                                enabled={enabled[key]}
                                 id={key}
                             />)
                             )}
@@ -266,13 +274,41 @@ const EventCountChart: EventWidget.ICollectionWidget<{}> = {
     }
 }
 
+function addVerb(granularity: TGranularity): "hour"|"day"|"week"|"month"|"year" {
+    switch (granularity) {
+        case 'Hourly':
+            return "hour";
+        case 'Daily':
+            return "day";
+        case 'Weekly':
+            return "week";
+        case 'Monthly':
+            return "month";
+        case 'Yearly':
+            return "year";
+        default:
+            console.warn("Unrecognized granularity detected, unexpected behavior may occur: " + granularity);
+            return "month";
+    }
+}
+
 function getColor(type: string) {
-    if (type.toLowerCase() == "sag") return 'purple';
-    if (type.toLowerCase() == "swell") return 'green';
-    if (type.toLowerCase() == "transient") return 'orange';
-    if (type.toLowerCase() == "interruption") return 'red';
-    if (type.toLowerCase() == "fault") return 'blue';
-    else return SpacedColor(1, 0.75);
+    switch (type.toLowerCase()) {
+        case 'interruption':
+            return GetColor(14);
+        case 'swell':
+            return GetColor(15);
+        case 'fault':
+            return GetColor(16);
+        case 'transient':
+            return GetColor(17);
+        case 'sag':
+            return GetColor(18);
+        case 'other':
+            return GetColor(21);
+        default:
+            return SpacedColor(1, 0.75);
+    }
 }
 
 export default EventCountChart;
