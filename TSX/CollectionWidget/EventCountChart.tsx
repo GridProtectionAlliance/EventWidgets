@@ -282,13 +282,13 @@ function addVerb(granularity: TGranularity): "hour"|"day"|"week"|"month"|"year" 
             return "day";
         case 'Weekly':
             return "week";
-        default:
-            console.warn("Unrecognized granularity detected, unexpected behavior may occur: " + granularity);
-        // fall-through
         case 'Monthly':
             return "month";
         case 'Yearly':
             return "year";
+        default:
+            console.warn("Unrecognized granularity detected, unexpected behavior may occur: " + granularity);
+            return "month";
     }
 }
 
