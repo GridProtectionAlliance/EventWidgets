@@ -66,6 +66,7 @@ namespace Widgets.API.Library
         /// Without decoration with a <see cref="XDARedirectAttribute"/>, this route is the same as <see cref="m_baseRoute"/>.
         /// </summary>
         protected readonly string m_xdaRoute;
+
         #if IS_GEMSTONE
         protected XDAAPI XDAAPIHelper { get; set; }
         /// <summary>
@@ -122,12 +123,21 @@ namespace Widgets.API.Library
         }
 
         /// <summary>
-        /// Handles route redirection. <br/>
-        /// Convenience call to <see cref="ForwardRequest(JObject, CancellationToken)"/>.
+        /// Handles route redirection.
         /// </summary>
+        /// <remarks>Convenience call to <see cref="ForwardRequest(JObject, CancellationToken)"/></remarks>
         /// <param name="cancellationToken">Token to cancel the request.</param>
         /// <returns><see cref="ServerResponse"/> that depends on the target framework.</returns>
         public async ServerResponse ForwardRequest(CancellationToken token) =>
             await ForwardRequest(null, token).ConfigureAwait(false);
+
+        /// <summary>
+        /// Function that handles route redirection.
+        /// </summary>
+        /// <param name="postData">Post data of the request.</param>
+        /// <param name="cancellationToken">Token to cancel the request.</param>
+        /// <returns><see cref="ServerResponse"/> that depends on the target framework.</returns>
+        public async ServerResponse ForwardRequest(CancellationToken cancellationToken, PostData postData) =>
+            await ForwardRequest(JObject.FromObject(postData), cancellationToken);
     }
 }
