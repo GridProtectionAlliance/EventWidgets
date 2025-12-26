@@ -36,22 +36,20 @@ const EventSearchPQI: EventWidget.IWidget<{}> = {
         const [data, setData] = React.useState<PQI.Types.Equipment[]>([]);
 
         React.useEffect(() => {
-            const handle = getData();
-            return () => { if (handle != null && handle.abort != null) handle.abort(); }
-        }, [])
-
-        function getData() {
-
-            return $.ajax({
-                type: "GET",
-                url: `${props.HomePath}api/EventWidgets/PQI/GetEquipment/${props.EventID}`,
+            const handle = $.ajax({
+                type: "POST",
+                url: `${props.HomePath}api/EventWidgets/PQI/GetEquipment`,
                 contentType: "application/json; charset=utf-8",
+                data: JSON.stringify({
+                    EventID: props.EventID,
+                }),
                 dataType: 'json',
                 cache: true,
                 async: true
             }).done((d) => { setData(d); });
 
-        }
+            return () => { if (handle != null && handle.abort != null) handle.abort(); }
+        }, [props.EventID]);
 
         return (
             <div className="card">

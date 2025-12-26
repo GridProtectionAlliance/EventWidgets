@@ -49,27 +49,26 @@ const PQICurves: EventWidget.IWidget<{}> = {
         React.useLayoutEffect(() => { setW(card?.current?.offsetWidth ?? 0)  });
 
         React.useEffect(() => {
-            return GetData();
-        }, [props.EventID]);
-
-        function GetData() {
             const handle = $.ajax({
-                type: "GET",
-                url: `${props.HomePath}api/EventWidgets/PQI/GetCurves/${props.EventID}`,
+                type: "POST",
+                url: `${props.HomePath}api/EventWidgets/PQI/GetCurves`,
                 contentType: "application/json; charset=utf-8",
+                data: JSON.stringify({
+                    EventID: props.EventID,
+                }),
                 dataType: 'json',
                 cache: true,
                 async: true
             });
-            
+
             handle.done(data => {
-                setCurves(data.map((c: any) => ({ Name: c['m_Item1']['Name'] as string, Data: c['m_Item2'].map(p => [p['X'] as number, p['Y'] / (c['m_Item1']['NominalVoltage']?? 1) as number]) })))
+                setCurves(data.map((c: any) => ({ Name: c['m_Item1']['Name'] as string, Data: c['m_Item2'].map(p => [p['X'] as number, p['Y'] / (c['m_Item1']['NominalVoltage'] ?? 1) as number]) })))
             });
 
             return function () {
                 if (handle.abort != undefined) handle.abort();
             }
-        }
+        }, [props.EventID]);
 
         React.useEffect(() => {
             if (curves.length > 0)
