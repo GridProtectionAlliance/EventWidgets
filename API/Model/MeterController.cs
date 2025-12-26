@@ -68,12 +68,12 @@ namespace Widgets.API.Model
         [HttpPost]
         public async ServerResponse HandleRequest([FromBody] PostData postData, CancellationToken cancellationToken)
         {
-            if (this.TryGetClaimsPrinciple(out ClaimsPrincipal principal) && XDAAPIHelper.TryRetrieveCustomer(principal, out int customerID) && customerID != -1)
+            if (this.TryGetClaimsPrinciple(out ClaimsPrincipal principal) && XDAAPIHelper.TryRetrieveCustomer(principal, out string customerKey) && customerKey is not null)
             {
                 postData.Searches = postData.Searches.Append(new SQLSearchFilter
                 {
                     FieldName = "ID",
-                    SearchText = $"(Select MeterID FROM CustomerMeter Where CustomerID = {customerID})",
+                    SearchText = $"(Select MeterID FROM CustomerMeter WHERE CustomerID in (Select ID FROM Customer WHERE CustomerKey = '{customerKey}'))",
                     IsPivotColumn = false,
                     Operator = "IN",
                     Type = "query"
