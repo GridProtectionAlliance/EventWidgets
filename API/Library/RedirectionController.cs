@@ -134,10 +134,21 @@ namespace Widgets.API.Library
         /// <summary>
         /// Function that handles route redirection.
         /// </summary>
+        /// <remarks>Convenience call to <see cref="ForwardRequest(JObject, CancellationToken)"/></remarks>
         /// <param name="postData">Post data of the request.</param>
         /// <param name="cancellationToken">Token to cancel the request.</param>
         /// <returns><see cref="ServerResponse"/> that depends on the target framework.</returns>
         public async ServerResponse ForwardRequest(CancellationToken cancellationToken, PostData postData) =>
+            await ForwardRequest(JObject.FromObject(postData), cancellationToken);
+
+        /// <summary>
+        /// Function that handles route redirection.
+        /// </summary>
+        /// <remarks>Convenience call to <see cref="ForwardRequest(JObject, CancellationToken)"/></remarks>
+        /// <param name="postData">Post data of the request.</param>
+        /// <param name="cancellationToken">Token to cancel the request.</param>
+        /// <returns><see cref="ServerResponse"/> that depends on the target framework.</returns>
+        public async ServerResponse ForwardRequest(CancellationToken cancellationToken, EventPost postData) =>
             await ForwardRequest(JObject.FromObject(postData), cancellationToken);
     }
 }
