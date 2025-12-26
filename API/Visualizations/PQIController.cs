@@ -24,11 +24,12 @@
 //******************************************************************************************************
 
 using System.Threading;
+using System.Security.Claims;
+using openXDA.APIAuthentication;
 using Widgets.API.Library;
 
 #if IS_GEMSTONE
 using Microsoft.AspNetCore.Mvc;
-using openXDA.APIAuthentication;
 using RoutePrefix = Microsoft.AspNetCore.Mvc.RouteAttribute;
 using ServerResponse = System.Threading.Tasks.Task;
 #else
@@ -61,9 +62,22 @@ namespace Widgets.API.Visualizations
         /// <see href="https://github.com/GridProtectionAlliance/openXDA/blob/master/Source/Libraries/openXDA.Model/Events/Event.cs">Event</see>
         /// to fetch information.
         /// </remarks>
-        [Route("GetEquipment/{eventID:int}")]
-        [Route("GetCurves/{eventID:int}")]
-        [HttpGet]
-        public async ServerResponse ForwardPQIRequest(CancellationToken token) => await ForwardRequest(token).ConfigureAwait(false);
+        [Route("GetEquipment")]
+        [Route("GetCurves")]
+        [HttpPost]
+        public async ServerResponse ForwardPQIRequest([FromBody] EventPost postData, CancellationToken token)
+        {
+            if (this.TryGetClaimsPrinciple(out ClaimsPrincipal principal) && XDAAPIHelper.TryRetrieveCustomer(principal, out string customerKey) && customerKey is not null)
+                postData.CustomerKey = customerKey;
+
+            ServerResponse resp = ForwardRequest(token, postData);
+
+            #if IS_GEMSTONE
+            await resp.ConfigureAwait(false);
+            return;
+            #else
+            return resp;
+            #endif
+        }
     }
 }
