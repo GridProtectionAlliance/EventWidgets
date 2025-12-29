@@ -45,6 +45,25 @@ namespace Widgets.API.Visualizations
     [XDARedirect("api/Widgets/Trending")]
     public class HIDSController : RedirectionController
     {
+        /// <summary>
+        /// Defines a trend post data object as an extension of an event post object.
+        /// </summary>
+        public class TrendPostData : EventPost
+        {
+            /// <summary>
+            /// An <see cref="int"/> of the number of hours before the provided XDA
+            /// <see href="https://github.com/GridProtectionAlliance/openXDA/blob/master/Source/Libraries/openXDA.Model/Event/Event.cs">event</see>
+            /// to pull data for.
+            /// </summary>
+            public int HoursBefore { get; set; }
+            /// <summary>
+            /// An <see cref="int"/> of the number of hours after the provided XDA
+            /// <see href="https://github.com/GridProtectionAlliance/openXDA/blob/master/Source/Libraries/openXDA.Model/Event/Event.cs">event</see>
+            /// to pull data for.
+            /// </summary>
+            public int HoursAfter { get; set; }
+        }
+
         #if IS_GEMSTONE
         /// <summary>
         /// Dependency injection constructor for use in .NETCore Applications.
@@ -59,27 +78,16 @@ namespace Widgets.API.Visualizations
         /// associated with the provided 
         /// <see href="https://github.com/GridProtectionAlliance/openXDA/blob/master/Source/Libraries/openXDA.Model/Events/Event.cs">event</see> ID.
         /// </summary>
-        [Route("TrendChannels/{eventID:int}")]
-        [HttpGet]
-        public async ServerResponse FetchTrendChannels(CancellationToken cancellationToken) => 
-            await ForwardRequest(cancellationToken).ConfigureAwait(false);
+        [Route("TrendChannels"), HttpPost]
+        public async ServerResponse FetchTrendChannels([FromBody] EventPost postData, CancellationToken token) =>
+            await ForwardRequest(token, postData).ConfigureAwait(false);
 
         /// <summary>
         /// Redirection endpoint that handles forwarding requests for trending information to XDA.
         /// </summary>
-        /// <param name="query">
-        /// Query that contains a Object that contains the following fields:<br/>
-        /// EventID: A id of an XDA
-        /// <see href="https://github.com/GridProtectionAlliance/openXDA/blob/master/Source/Libraries/openXDA.Model/Event/Event.cs">event</see>.<br/>
-        /// HoursBefore: An <see cref="int"/> of the number of hours before the provided XDA
-        /// <see href="https://github.com/GridProtectionAlliance/openXDA/blob/master/Source/Libraries/openXDA.Model/Event/Event.cs">event</see>
-        /// to pull data for.<br/>
-        /// HoursAfter: An <see cref="int"/> of the number of hours after the provided XDA
-        /// <see href="https://github.com/GridProtectionAlliance/openXDA/blob/master/Source/Libraries/openXDA.Model/Event/Event.cs">event</see>
-        /// to pull data for.<br/>
-        /// </param>
+        /// <param name="postData">Contains the <see cref="TrendPostData"/> post data related to this request.</param>
         [Route("QueryPoints"), HttpPost]
-        public async ServerResponse ForwardQueryPoints([FromBody] JObject query, CancellationToken token) =>
-            await ForwardRequest(query, token).ConfigureAwait(false);
+        public async ServerResponse ForwardQueryPoints([FromBody] TrendPostData postData, CancellationToken token) =>
+            await ForwardRequest(token, postData).ConfigureAwait(false);
     }
 }
