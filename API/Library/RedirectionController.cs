@@ -163,5 +163,27 @@ namespace Widgets.API.Library
             return resp;
             #endif
         }
+
+        /// <summary>
+        /// Function that handles route redirection and constraining a request by <see cref="ClaimsPrincipal"/>.
+        /// </summary>
+        /// <remarks>Checks the <see cref="ClaimsPrincipal"/> and set the CustomerKey field of <see cref="JObject"/> if available.</remarks>
+        /// <param name="postData">Post data of the request.</param>
+        /// <param name="cancellationToken">Token to cancel the request.</param>
+        /// <returns><see cref="ServerResponse"/> that depends on the target framework.</returns>
+        public async ServerResponse ForwardAndConstrainRequest(JObject postData, CancellationToken cancellationToken)
+        {
+            if (this.TryGetClaimsPrinciple(out ClaimsPrincipal principal) && XDAAPIHelper.TryRetrieveCustomer(principal, out string customerKey) && customerKey is not null)
+                postData.Add("CustomerKey", customerKey);
+
+            ServerResponse resp = ForwardRequest(postData, cancellationToken);
+
+            #if IS_GEMSTONE
+            await resp.ConfigureAwait(false);
+            return;
+            #else
+            return resp;
+            #endif
+        }
     }
 }
