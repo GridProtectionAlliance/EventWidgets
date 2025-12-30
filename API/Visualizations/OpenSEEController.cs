@@ -60,6 +60,6 @@ namespace Widgets.API.Visualizations
         /// <param name="postData">Contains the <see cref="EventPost"/> post data related to this request.</param>
         [Route("GetData/{type}"), HttpPost]
         public async ServerResponse GetOpenSEEData([FromBody] EventPost postData, CancellationToken token) =>
-            await ForwardRequest(token, postData).ConfigureAwait(false);
+            await ForwardAndConstrainRequest(postData, token).ConfigureAwait(false);
     }
 }

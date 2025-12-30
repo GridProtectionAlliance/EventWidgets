@@ -31,7 +31,6 @@ using Newtonsoft.Json.Linq;
 using openXDA.APIAuthentication;
 using System.Security.Claims;
 
-
 #if IS_GEMSTONE
 using Gemstone.Web;
 using Microsoft.AspNetCore.Mvc;
@@ -144,13 +143,13 @@ namespace Widgets.API.Library
             await ForwardRequest(JObject.FromObject(postData), cancellationToken);
 
         /// <summary>
-        /// Function that handles route redirection.
+        /// Function that handles route redirection and constraining a request by <see cref="ClaimsPrincipal"/>.
         /// </summary>
         /// <remarks>Checks the <see cref="ClaimsPrincipal"/> and set the CustomerKey field of <see cref="EventPost"/> if available.</remarks>
         /// <param name="postData">Post data of the request.</param>
         /// <param name="cancellationToken">Token to cancel the request.</param>
         /// <returns><see cref="ServerResponse"/> that depends on the target framework.</returns>
-        public async ServerResponse ForwardRequest(CancellationToken cancellationToken, EventPost postData)
+        public async ServerResponse ForwardAndConstrainRequest(EventPost postData, CancellationToken cancellationToken)
         {
             if (this.TryGetClaimsPrinciple(out ClaimsPrincipal principal) && XDAAPIHelper.TryRetrieveCustomer(principal, out string customerKey) && customerKey is not null)
                 postData.CustomerKey = customerKey;

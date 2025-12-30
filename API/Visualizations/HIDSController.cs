@@ -80,7 +80,7 @@ namespace Widgets.API.Visualizations
         /// </summary>
         [Route("TrendChannels"), HttpPost]
         public async ServerResponse FetchTrendChannels([FromBody] EventPost postData, CancellationToken token) =>
-            await ForwardRequest(token, postData).ConfigureAwait(false);
+            await ForwardAndConstrainRequest(postData, token).ConfigureAwait(false);
 
         /// <summary>
         /// Redirection endpoint that handles forwarding requests for trending information to XDA.
@@ -88,6 +88,6 @@ namespace Widgets.API.Visualizations
         /// <param name="postData">Contains the <see cref="TrendPostData"/> post data related to this request.</param>
         [Route("QueryPoints"), HttpPost]
         public async ServerResponse ForwardQueryPoints([FromBody] TrendPostData postData, CancellationToken token) =>
-            await ForwardRequest(token, postData).ConfigureAwait(false);
+            await ForwardAndConstrainRequest(postData, token).ConfigureAwait(false);
     }
 }

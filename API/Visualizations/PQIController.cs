@@ -61,6 +61,6 @@ namespace Widgets.API.Visualizations
         [Route("GetCurves")]
         [HttpPost]
         public async ServerResponse ForwardPQIRequest([FromBody] EventPost postData, CancellationToken token) =>
-            await ForwardRequest(token, postData).ConfigureAwait(false);
+            await ForwardAndConstrainRequest(postData, token).ConfigureAwait(false);
     }
 }
