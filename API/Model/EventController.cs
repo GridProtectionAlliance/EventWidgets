@@ -25,6 +25,8 @@ using System.Threading;
 using Newtonsoft.Json.Linq;
 using Widgets.API.Library;
 using openXDA.APIAuthentication;
+using System.Security.Claims;
+using System.Linq;
 
 #if IS_GEMSTONE
 using Microsoft.AspNetCore.Mvc;
@@ -62,10 +64,45 @@ namespace Widgets.API.Model
         /// <see href="https://github.com/GridProtectionAlliance/gsf/blob/master/Source/Libraries/GSF.Web/Model/ModelController.cs">GSF ModelController</see>
         /// that is view-only.
         /// </remarks>
-        [Route("{**catchAll}")]
-        [HttpGet, HttpPost]
-        public async ServerResponse HandleRequest([FromBody] JObject postData, CancellationToken cancellationToken) => 
-            await ForwardRequest(postData, cancellationToken).ConfigureAwait(false);
+        [Route("{parentID?}/SearchableList")]
+        [Route("SearchableList")]
+        [Route("{parentID?}/PagedList/{page}")]
+        [Route("PagedList/{page}")]
+        [HttpPost]
+        public async ServerResponse HandleRequest([FromBody] PostData postData, CancellationToken cancellationToken)
+        {
+            if (this.TryGetClaimsPrinciple(out ClaimsPrincipal principal) && XDAAPIHelper.TryRetrieveCustomer(principal, out string customerKey) && customerKey is not null)
+            {
+                // This looks strange but we don't have the ability to do OR with this otherwise...
+                postData.Searches = postData.Searches.Append(new SQLSearchFilter
+                {
+                    FieldName = "ID",
+                    SearchText = @$"(
+                        SELECT ID FROM Event WHERE
+                        MeterID IN (
+                            SELECT MeterID FROM CustomerMeter WHERE CustomerID = 
+                                (SELECT ID FROM Customer WHERE CustomerKey = '{customerKey}')
+                        ) OR 
+                        AssetID IN (
+                            SELECT AssetID FROM CustomerAsset WHERE CustomerID = 
+                                (SELECT ID FROM Customer WHERE CustomerKey = '{customerKey}')
+                        )
+                    )",
+                    IsPivotColumn = false,
+                    Operator = "IN",
+                    Type = "query"
+                });
+            }
+
+            ServerResponse resp = ForwardRequest(cancellationToken, postData);
+
+            #if IS_GEMSTONE
+            await resp.ConfigureAwait(false);
+            return;
+            #else
+            return resp;
+            #endif
+        }
 
         /// <summary>
         /// Redirection endpoint that handles event count aggregation widgets.
