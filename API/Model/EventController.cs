@@ -24,9 +24,9 @@
 using System.Threading;
 using Newtonsoft.Json.Linq;
 using Widgets.API.Library;
+using openXDA.APIAuthentication;
 
 #if IS_GEMSTONE
-using openXDA.APIAuthentication;
 using Microsoft.AspNetCore.Mvc;
 using RoutePrefix = Microsoft.AspNetCore.Mvc.RouteAttribute;
 using ServerResponse = System.Threading.Tasks.Task;
@@ -66,5 +66,14 @@ namespace Widgets.API.Model
         [HttpGet, HttpPost]
         public async ServerResponse HandleRequest([FromBody] JObject postData, CancellationToken cancellationToken) => 
             await ForwardRequest(postData, cancellationToken).ConfigureAwait(false);
+
+        /// <summary>
+        /// Redirection endpoint that handles event count aggregation widgets.
+        /// </summary>
+        [Route("EventCount")]
+        [Route("EventCountAggregate")]
+        [HttpPost]
+        public async ServerResponse HandleAggregateRequest([FromBody] JObject postData, CancellationToken cancellationToken) =>
+            await ForwardAndConstrainRequest(postData, cancellationToken).ConfigureAwait(false);
     }
 }
