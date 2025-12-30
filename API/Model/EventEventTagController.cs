@@ -81,7 +81,7 @@ namespace Widgets.API.Model
                                 (SELECT ID FROM Customer WHERE CustomerKey = '{customerKey}')
                         ) OR 
                         AssetID IN (
-                            SELECT MeterID FROM CustomerMeter WHERE CustomerID = 
+                            SELECT AssetID FROM CustomerAsset WHERE CustomerID = 
                                 (SELECT ID FROM Customer WHERE CustomerKey = '{customerKey}')
                         )
                     )",
