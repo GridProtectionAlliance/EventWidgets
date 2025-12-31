@@ -64,7 +64,7 @@ namespace Widgets.API.Model
         /// <see href="https://github.com/GridProtectionAlliance/gsf/blob/master/Source/Libraries/GSF.Web/Model/ModelController.cs">GSF ModelController</see>
         /// that is view-only.
         /// </remarks>
-        [RoutePrefix("PagedList/{page:int}")]
+        [Route("PagedList/{page:int}")]
         [HttpPost]
         public async ServerResponse HandleRequest([FromBody] PostData postData, CancellationToken cancellationToken)
         {
