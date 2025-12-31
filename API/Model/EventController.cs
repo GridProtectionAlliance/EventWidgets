@@ -100,7 +100,7 @@ namespace Widgets.API.Model
             await resp.ConfigureAwait(false);
             return;
             #else
-            return resp;
+            return await resp.ConfigureAwait(false);
             #endif
         }
 

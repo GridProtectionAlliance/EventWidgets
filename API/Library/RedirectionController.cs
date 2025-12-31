@@ -160,7 +160,7 @@ namespace Widgets.API.Library
             await resp.ConfigureAwait(false);
             return;
             #else
-            return resp;
+            return await resp.ConfigureAwait(false);
             #endif
         }
 
@@ -182,7 +182,7 @@ namespace Widgets.API.Library
             await resp.ConfigureAwait(false);
             return;
             #else
-            return resp;
+            return await resp.ConfigureAwait(false);
             #endif
         }
     }
