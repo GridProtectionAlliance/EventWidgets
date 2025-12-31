@@ -26,12 +26,9 @@
 using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Text;
 using System.Threading;
 using Widgets.API.Library;
 using Newtonsoft.Json.Linq;
-using Microsoft.Graph.Models;
-
 
 #if IS_GEMSTONE
 using Gemstone.Web;

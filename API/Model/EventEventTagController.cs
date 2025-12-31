@@ -22,13 +22,12 @@
 //******************************************************************************************************
 
 using System.Threading;
-using Newtonsoft.Json.Linq;
 using Widgets.API.Library;
 using System.Security.Claims;
 using System.Linq;
+using openXDA.APIAuthentication;
 
 #if IS_GEMSTONE
-using openXDA.APIAuthentication;
 using Microsoft.AspNetCore.Mvc;
 using RoutePrefix = Microsoft.AspNetCore.Mvc.RouteAttribute;
 using ServerResponse = System.Threading.Tasks.Task;
