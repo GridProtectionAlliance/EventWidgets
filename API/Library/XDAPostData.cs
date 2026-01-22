@@ -21,9 +21,11 @@
 //
 //******************************************************************************************************
 
-
 #if IS_GEMSTONE
-using Gemstone.StringExtensions;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using Gemstone.Data.Model;
+using Gemstone.Web.APIController;
 #else
 using GSF.Data.Model;
 using GSF.Web.Model;
@@ -36,7 +38,10 @@ namespace Widgets.API.Library
     /// </summary>
     public class XDAPostData
     #if IS_GEMSTONE
-
+        : SearchPost<object> 
+    {
+        public new IEnumerable<XDASQLSearchFilter> Searches { get; set; }
+    }
     #else
         : ModelController<object>.PostData { }
     #endif
@@ -46,7 +51,14 @@ namespace Widgets.API.Library
     /// </summary>
     public class XDASQLSearchFilter
     #if IS_GEMSTONE
-
+        : RecordFilter<object> 
+    {
+        [SetsRequiredMembers]
+        public XDASQLSearchFilter() { SearchParameter = null; }
+        public string SearchText { get; set; }
+        public bool IsPivotColumn { get; set; }
+        public string Type { get; set; }
+    }
     #else
         : SQLSearchFilter { }
     #endif
