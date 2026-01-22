@@ -66,11 +66,11 @@ namespace Widgets.API.Model
         [Route("{parentID?}/SearchableList")]
         [Route("SearchableList")]
         [HttpPost]
-        public async ServerResponse HandleRequest([FromBody] PostData postData, CancellationToken cancellationToken)
+        public async ServerResponse HandleRequest([FromBody] XDAPostData postData, CancellationToken cancellationToken)
         {
             if (this.TryGetClaimsPrinciple(out ClaimsPrincipal principal) && XDAAPIHelper.TryRetrieveCustomer(principal, out string customerKey) && customerKey is not null)
             {
-                postData.Searches = postData.Searches.Append(new SQLSearchFilter
+                postData.Searches = postData.Searches.Append(new XDASQLSearchFilter
                 {
                     FieldName = "EventID",
                     SearchText = @$"(

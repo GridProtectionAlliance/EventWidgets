@@ -66,11 +66,11 @@ namespace Widgets.API.Model
         /// </remarks>
         [Route("PagedList/{page:int}")]
         [HttpPost]
-        public async ServerResponse HandleRequest([FromBody] PostData postData, CancellationToken cancellationToken)
+        public async ServerResponse HandleRequest([FromBody] XDAPostData postData, CancellationToken cancellationToken)
         {
             if (this.TryGetClaimsPrinciple(out ClaimsPrincipal principal) && XDAAPIHelper.TryRetrieveCustomer(principal, out string customerKey) && customerKey is not null)
             {
-                postData.Searches = postData.Searches.Append(new SQLSearchFilter
+                postData.Searches = postData.Searches.Append(new XDASQLSearchFilter
                 {
                     FieldName = "ID",
                     SearchText = $"(Select MeterID FROM CustomerMeter WHERE CustomerID in (Select ID FROM Customer WHERE CustomerKey = '{customerKey}'))",

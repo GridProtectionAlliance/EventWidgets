@@ -139,7 +139,7 @@ namespace Widgets.API.Library
         /// <param name="postData">Post data of the request.</param>
         /// <param name="cancellationToken">Token to cancel the request.</param>
         /// <returns><see cref="ServerResponse"/> that depends on the target framework.</returns>
-        public async ServerResponse ForwardRequest(CancellationToken cancellationToken, PostData postData) =>
+        public async ServerResponse ForwardRequest(CancellationToken cancellationToken, XDAPostData postData) =>
             await ForwardRequest(JObject.FromObject(postData), cancellationToken);
 
         /// <summary>

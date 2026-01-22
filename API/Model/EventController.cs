@@ -69,12 +69,12 @@ namespace Widgets.API.Model
         [Route("{parentID?}/PagedList/{page}")]
         [Route("PagedList/{page}")]
         [HttpPost]
-        public async ServerResponse HandleRequest([FromBody] PostData postData, CancellationToken cancellationToken)
+        public async ServerResponse HandleRequest([FromBody] XDAPostData postData, CancellationToken cancellationToken)
         {
             if (this.TryGetClaimsPrinciple(out ClaimsPrincipal principal) && XDAAPIHelper.TryRetrieveCustomer(principal, out string customerKey) && customerKey is not null)
             {
                 // This looks strange but we don't have the ability to do OR with this otherwise...
-                postData.Searches = postData.Searches.Append(new SQLSearchFilter
+                postData.Searches = postData.Searches.Append(new XDASQLSearchFilter
                 {
                     FieldName = "ID",
                     SearchText = @$"(
