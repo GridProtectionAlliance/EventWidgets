@@ -21,6 +21,8 @@
 //
 //******************************************************************************************************
 
+using System.Security.Claims;
+
 #if IS_GEMSTONE
 using Microsoft.AspNetCore.Mvc;
 #else
@@ -62,6 +64,30 @@ namespace Widgets.API.Library
             #else
             return controller.Request.RequestUri.Query;
             #endif
+        }
+
+        /// <summary>
+        /// Tries to gets the claims principle of the current user.
+        /// </summary>
+        /// <param name="controller"><see cref="Controller"/> from which is this called.</param>
+        /// <param name="principal"><see cref="ClaimsPrincipal"/> of the current user.</param>
+        /// <returns><see cref="bool"/> with the success status of this function.</returns>
+        public static bool TryGetClaimsPrinciple(this Controller controller, out ClaimsPrincipal principal)
+        {
+            try
+            {
+                #if IS_GEMSTONE
+                principal = controller.HttpContext.User;
+                #else
+                principal = (ClaimsPrincipal) controller.User;
+                #endif
+                return true;
+            }
+            catch
+            {
+                principal = null;
+                return false;
+            }
         }
     }
 }

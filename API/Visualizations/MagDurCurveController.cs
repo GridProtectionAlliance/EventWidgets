@@ -66,8 +66,7 @@ namespace Widgets.API.Visualizations
         /// <see href="https://github.com/GridProtectionAlliance/gsf/blob/master/Source/Libraries/GSF.Web/Model/ModelController.cs">GSF ModelController</see>
         /// that is view-only.
         /// </remarks>
-        [RoutePrefix("{**catchAll}")]
-        [HttpGet, HttpPost]
+        [Route("{**catchAll}"), HttpGet]
         public async ServerResponse HandleRequest([FromBody] JObject postData, CancellationToken cancellationToken) => await ForwardRequest(postData, cancellationToken);
     }
 }

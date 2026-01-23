@@ -25,10 +25,10 @@
 
 using System.Threading;
 using Widgets.API.Library;
+using openXDA.APIAuthentication;
 
 #if IS_GEMSTONE
 using Microsoft.AspNetCore.Mvc;
-using openXDA.APIAuthentication;
 using RoutePrefix = Microsoft.AspNetCore.Mvc.RouteAttribute;
 using ServerResponse = System.Threading.Tasks.Task;
 #else
@@ -57,8 +57,9 @@ namespace Widgets.API.Visualizations
         /// Redirection endpoint that handles fetching openSEE event chart data.
         /// </summary>
         /// <param name="type"><see cref="string"/> that represents the measurement type of the channels data is being pulled from. ("Voltage", "Current", "TripCoilCurrent" are valid values)</param>
-        /// <param name="eventID"><see cref="int"/> that represents the ID of the event in the XDA database.</param>
-        [Route("GetData/{type}/{eventID:int}")]
-        public async ServerResponse GetOpenSEEData(CancellationToken token) => await ForwardRequest(token).ConfigureAwait(false);
+        /// <param name="postData">Contains the <see cref="EventPost"/> post data related to this request.</param>
+        [Route("GetData/{type}"), HttpPost]
+        public async ServerResponse GetOpenSEEData([FromBody] EventPost postData, CancellationToken token) =>
+            await ForwardAndConstrainRequest(postData, token).ConfigureAwait(false);
     }
 }

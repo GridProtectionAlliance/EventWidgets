@@ -138,9 +138,12 @@ const TrendGraph: EventWidget.IWidget<ISetting> = {
             };
 
             const channelHandle: JQuery.jqXHR = $.ajax({
-                type: "GET",
-                url: `${homePath}api/EventWidgets/HIDS/TrendChannels/${props.EventID}`,
+                type: "POST",
+                url: `${homePath}api/EventWidgets/HIDS/TrendChannels`,
                 contentType: "application/json; charset=utf-8",
+                data: JSON.stringify({
+                    EventID: props.EventID,
+                }),
                 dataType: 'json',
                 cache: false,
                 async: true

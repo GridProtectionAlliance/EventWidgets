@@ -24,11 +24,11 @@
 //******************************************************************************************************
 
 using System.Threading;
+using openXDA.APIAuthentication;
 using Widgets.API.Library;
 
 #if IS_GEMSTONE
 using Microsoft.AspNetCore.Mvc;
-using openXDA.APIAuthentication;
 using RoutePrefix = Microsoft.AspNetCore.Mvc.RouteAttribute;
 using ServerResponse = System.Threading.Tasks.Task;
 #else
@@ -56,14 +56,11 @@ namespace Widgets.API.Visualizations
         /// <summary>
         /// Redirection endpoint that handles fetching PQI equipment tables and PQI curve information.
         /// </summary>
-        /// <remarks>
-        /// Both endpoints supported require an eventID of a related XDA 
-        /// <see href="https://github.com/GridProtectionAlliance/openXDA/blob/master/Source/Libraries/openXDA.Model/Events/Event.cs">Event</see>
-        /// to fetch information.
-        /// </remarks>
-        [Route("GetEquipment/{eventID:int}")]
-        [Route("GetCurves/{eventID:int}")]
-        [HttpGet]
-        public async ServerResponse ForwardPQIRequest(CancellationToken token) => await ForwardRequest(token).ConfigureAwait(false);
+        /// <param name="postData">Contains the <see cref="EventPost"/> post data related to this request.</param>
+        [Route("GetEquipment")]
+        [Route("GetCurves")]
+        [HttpPost]
+        public async ServerResponse ForwardPQIRequest([FromBody] EventPost postData, CancellationToken token) =>
+            await ForwardAndConstrainRequest(postData, token).ConfigureAwait(false);
     }
 }

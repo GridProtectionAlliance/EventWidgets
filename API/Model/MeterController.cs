@@ -1,5 +1,5 @@
 ﻿//******************************************************************************************************
-//  EventController.cs - Gbtc
+//  MeterController.cs - Gbtc
 //
 //  Copyright © 2023, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -22,17 +22,17 @@
 //******************************************************************************************************
 
 using System.Threading;
-using Newtonsoft.Json.Linq;
+using openXDA.APIAuthentication;
 using Widgets.API.Library;
+using System.Linq;
+using System.Security.Claims;
 
 #if IS_GEMSTONE
-using openXDA.APIAuthentication;
 using Microsoft.AspNetCore.Mvc;
 using RoutePrefix = Microsoft.AspNetCore.Mvc.RouteAttribute;
 using ServerResponse = System.Threading.Tasks.Task;
 #else
 using System.Web.Http;
-using API = openXDA.APIAuthentication.XDAAPIHelper;
 using Controller = System.Web.Http.ApiController;
 using ServerResponse = System.Threading.Tasks.Task<System.Net.Http.HttpResponseMessage>;
 #endif
@@ -64,8 +64,30 @@ namespace Widgets.API.Model
         /// <see href="https://github.com/GridProtectionAlliance/gsf/blob/master/Source/Libraries/GSF.Web/Model/ModelController.cs">GSF ModelController</see>
         /// that is view-only.
         /// </remarks>
-        [RoutePrefix("{**catchAll}")]
-        [HttpGet, HttpPost]
-        public async ServerResponse HandleRequest([FromBody] JObject postData, CancellationToken cancellationToken) => await ForwardRequest(postData, cancellationToken);
+        [Route("PagedList/{page:int}")]
+        [HttpPost]
+        public async ServerResponse HandleRequest([FromBody] XDAPostData postData, CancellationToken cancellationToken)
+        {
+            if (this.TryGetClaimsPrinciple(out ClaimsPrincipal principal) && XDAAPIHelper.TryRetrieveCustomer(principal, out string customerKey) && customerKey is not null)
+            {
+                postData.Searches = postData.Searches.Append(new XDASQLSearchFilter
+                {
+                    FieldName = "ID",
+                    SearchText = $"(Select MeterID FROM CustomerMeter WHERE CustomerID in (Select ID FROM Customer WHERE CustomerKey = '{customerKey}'))",
+                    IsPivotColumn = false,
+                    Operator = "IN",
+                    Type = "query"
+                });
+            }
+
+            ServerResponse resp = ForwardRequest(cancellationToken, postData);
+
+            #if IS_GEMSTONE
+            await resp.ConfigureAwait(false);
+            return;
+            #else
+            return await resp.ConfigureAwait(false);
+            #endif
+        }
     }
 }

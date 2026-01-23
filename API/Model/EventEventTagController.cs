@@ -22,11 +22,12 @@
 //******************************************************************************************************
 
 using System.Threading;
-using Newtonsoft.Json.Linq;
 using Widgets.API.Library;
+using System.Security.Claims;
+using System.Linq;
+using openXDA.APIAuthentication;
 
 #if IS_GEMSTONE
-using openXDA.APIAuthentication;
 using Microsoft.AspNetCore.Mvc;
 using RoutePrefix = Microsoft.AspNetCore.Mvc.RouteAttribute;
 using ServerResponse = System.Threading.Tasks.Task;
@@ -55,15 +56,48 @@ namespace Widgets.API.Model
         #endif
 
         /// <summary>
-        /// Redirection endpoint that handles all requests to this controller.
+        /// Redirection endpoint that handles searchable list requests to this controller.
         /// </summary>
         /// <remarks>
         /// XDA endpoint is a 
         /// <see href="https://github.com/GridProtectionAlliance/gsf/blob/master/Source/Libraries/GSF.Web/Model/ModelController.cs">GSF ModelController</see>
         /// that is view-only.
         /// </remarks>
-        [Route("{**catchAll}")]
-        [HttpGet, HttpPost]
-        public async ServerResponse HandleRequest([FromBody] JObject postData, CancellationToken cancellationToken) => await ForwardRequest(postData, cancellationToken);
+        [Route("{parentID?}/SearchableList")]
+        [Route("SearchableList")]
+        [HttpPost]
+        public async ServerResponse HandleRequest([FromBody] XDAPostData postData, CancellationToken cancellationToken)
+        {
+            if (this.TryGetClaimsPrinciple(out ClaimsPrincipal principal) && XDAAPIHelper.TryRetrieveCustomer(principal, out string customerKey) && customerKey is not null)
+            {
+                postData.Searches = postData.Searches.Append(new XDASQLSearchFilter
+                {
+                    FieldName = "EventID",
+                    SearchText = @$"(
+                        SELECT ID FROM Event WHERE
+                        MeterID IN (
+                            SELECT MeterID FROM CustomerMeter WHERE CustomerID = 
+                                (SELECT ID FROM Customer WHERE CustomerKey = '{customerKey}')
+                        ) OR 
+                        AssetID IN (
+                            SELECT AssetID FROM CustomerAsset WHERE CustomerID = 
+                                (SELECT ID FROM Customer WHERE CustomerKey = '{customerKey}')
+                        )
+                    )",
+                    IsPivotColumn = false,
+                    Operator = "IN",
+                    Type = "query"
+                });
+            }
+
+            ServerResponse resp = ForwardRequest(cancellationToken, postData);
+
+            #if IS_GEMSTONE
+            await resp.ConfigureAwait(false);
+            return;
+            #else
+            return await resp.ConfigureAwait(false);
+            #endif
+        }
     }
 }
