@@ -60,7 +60,8 @@ namespace Widgets.API.Visualizations
 
             void ConfigureRequest(HttpRequestMessage request)
             {
-                request.RequestUri = new Uri(postData["Site"] + "/" + endPoint + queryString);
+                Uri baseUri = new Uri(postData["Site"].ToString());
+                request.RequestUri = new Uri(baseUri, endPoint + queryString);
                 MediaTypeWithQualityHeaderValue acceptHeader = new MediaTypeWithQualityHeaderValue("application/json");
                 request.Headers.Accept.Add(acceptHeader);
             }
