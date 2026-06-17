@@ -62,7 +62,7 @@ const EventSearchFileInfo: EventWidget.IWidget<ISetting> = {
         function GetData() {
             const handle = $.ajax({
                 type: "GET",
-                url: `${props.HomePath}api/FileInfo/GetFileName/${props.EventID}`,
+                url: `${props.HomePath}api/EventWidgets/FileInfo/GetFileName/${props.EventID}`,
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
                 cache: true,
@@ -73,7 +73,7 @@ const EventSearchFileInfo: EventWidget.IWidget<ISetting> = {
 
             const handle2 = $.ajax({
                 type: "GET",
-                url: `${props.HomePath}api/FileInfo/GetMappedChannels/${props.EventID}`,
+                url: `${props.HomePath}api/EventWidgets/FileInfo/GetMappedChannels/${props.EventID}`,
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
                 cache: true,
@@ -84,7 +84,7 @@ const EventSearchFileInfo: EventWidget.IWidget<ISetting> = {
 
             const handle3 = $.ajax({
                 type: "GET",
-                url: `${props.HomePath}api/FileInfo/GetMeterConfiguration/${props.EventID}`,
+                url: `${props.HomePath}api/EventWidgets/FileInfo/GetMeterConfiguration/${props.EventID}`,
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
                 cache: true,

@@ -92,7 +92,7 @@ const EventSearchBreakerPerformance: EventWidget.IWidget<{}> = {
           
             const h = $.ajax({
                 type: "GET",
-                url: `${props.HomePath}api/BreakerPerformance?eventID=${props.EventID}`,
+                url: `${props.HomePath}api/EventWidgets/BreakerPerformance?eventID=${props.EventID}`,
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
                 cache: false,

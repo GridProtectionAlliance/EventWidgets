@@ -61,7 +61,7 @@ const TVALightningChart: EventWidget.IWidget<{}> = {
         function GetData() {
             const handle = $.ajax({
                 type: "GET",
-                url: `${props.HomePath}api/Lightning/${props.EventID}`,
+                url: `${props.HomePath}api/EventWidgets/Lightning/${props.EventID}`,
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
                 cache: true,

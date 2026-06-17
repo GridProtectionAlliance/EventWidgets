@@ -1,5 +1,5 @@
 ﻿//******************************************************************************************************
-//  AssetVoltageDisturbances.cs - Gbtc
+//  AssetHistoryTableController.cs - Gbtc
 //
 //  Copyright © 2023, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -21,45 +21,39 @@
 //
 //******************************************************************************************************
 
+using System.Threading;
+using Newtonsoft.Json.Linq;
+using openXDA.APIAuthentication;
+using Widgets.API.Library;
 
-using GSF.Data;
-using System.Data;
+#if IS_GEMSTONE
+using Microsoft.AspNetCore.Mvc;
+using RoutePrefix = Microsoft.AspNetCore.Mvc.RouteAttribute;
+using ServerResponse = System.Threading.Tasks.Task;
+#else
 using System.Web.Http;
+using ServerResponse = System.Threading.Tasks.Task<System.Net.Http.HttpResponseMessage>;
+#endif
 
-namespace Widgets.Controllers
+namespace Widgets.API.Model
 {
-    [RoutePrefix("api/AssetHistoryTable")]
-    public class AssetHistoryTableController : ApiController
+    /// <summary>
+    /// Controller that redirects asset event history requests to XDA.
+    /// </summary>
+    [XDARedirect("api/Widgets/AssetHistoryTable")]
+    [RoutePrefix("api/EventWidgets/AssetHistoryTable")]
+    public class AssetHistoryTableController : RedirectionController
     {
-        protected string SettingsCategory => "systemSettings";
+#if IS_GEMSTONE
+        /// <summary>
+        /// Dependency injection constructor for use in .NETCore Applications.
+        /// </summary>
+        /// <param name="retriever">An <see cref="IAPICredentialRetriever"/> that is responsible for retriving credentials used to make API calls to XDA.</param>
+        public AssetHistoryTableController(IAPICredentialRetriever retriever) : base(retriever) { }
+#endif
 
         [Route("{EventID:int}/{count:int}"), HttpGet]
-        public DataTable GetAssetHistory(int EventID, int count = 10)
-        {
-            using (AdoDataConnection connection = new(SettingsCategory))
-            {
-                DataTable table = connection.RetrieveData(@" 
-                    SELECT
-                        TOP " + count.ToString() + @"
-	                    EventType.Name as EventType,
-	                    Event.StartTime,
-	                    Event.ID,
-                        Asset.AssetName
-                    FROM
-	                    Event JOIN
-                        Asset ON Event.AssetID = Asset.ID JOIN
-	                    EventType ON Event.EventTypeID = EventType.ID JOIN
-	                    Event as OrgEvt ON Event.MeterID = OrgEvt.MeterID AND Event.AssetID = OrgEvt.AssetID AND Event.ID != OrgEvt.ID
-                    WHERE 
-	                    OrgEvt.ID = {0}
-                    ORDER BY 
-                        Event.StartTime DESC
-                    "
-                    , EventID);
-
-                return table;
-
-            }
-        }
+        public async ServerResponse GetAssetHistory(int EventID, int count, CancellationToken token) =>
+            await ForwardRequest(token).ConfigureAwait(false);
     }
 }

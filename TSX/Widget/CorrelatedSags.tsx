@@ -79,7 +79,7 @@ const EventSearchCorrelatedSags: EventWidget.IWidget<ISetting> = {
 
             correlatedSagsHandle = $.ajax({
                 type: 'GET',
-                url: `${props.HomePath}api/CorrelatedSags?eventId=${props.EventID}&timeTolerance=${props.Settings.OverlappingWindow}`,
+                url: `${props.HomePath}api/EventWidgets/CorrelatedSags?eventId=${props.EventID}&timeTolerance=${props.Settings.OverlappingWindow}`,
                 contentType: 'application/json; charset=utf-8',
                 dataType: 'json',
                 cache: true,

@@ -1,7 +1,7 @@
 //******************************************************************************************************
 //  InterruptionReport.tsx - Gbtc
 //
-//  Copyright © 2020, Grid Protection Alliance.  All Rights Reserved.
+//  Copyright Â© 2020, Grid Protection Alliance.  All Rights Reserved.
 //
 //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
 //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
@@ -57,7 +57,7 @@ const InterruptionReport: EventWidget.IWidget<{}> = {
 
             return $.ajax({
                 type: "GET",
-                url: `${props.HomePath}api/InterruptionReport/GetEvents/${hours}/${props.EventID}`,
+                url: `${props.HomePath}api/EventWidgets/InterruptionReport/GetEvents/${hours}/${props.EventID}`,
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
                 cache: true,

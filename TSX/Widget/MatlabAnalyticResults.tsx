@@ -53,7 +53,7 @@ const MatlabAnalyticResults: EventWidget.IWidget<{}> = {
         function getMatlabAnalytcis(): JQuery.jqXHR<IMatlabAnalytics[]> {
             const handle = $.ajax({
                 type: "GET",
-                url: `${props.HomePath}api/MatlabAnalytics/${props.EventID}`,
+                url: `${props.HomePath}api/EventWidgets/MatlabAnalytics/${props.EventID}`,
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
                 cache: true,

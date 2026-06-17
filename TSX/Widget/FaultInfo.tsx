@@ -66,7 +66,7 @@ const FaultInfo: EventWidget.IWidget<{}> = {
         function GetData() {
             const handle = $.ajax({
                 type: "GET",
-                url: `${props.HomePath}api/FaultInformation/${props.EventID}`,
+                url: `${props.HomePath}api/EventWidgets/FaultInformation/${props.EventID}`,
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
                 cache: true,
@@ -75,7 +75,7 @@ const FaultInfo: EventWidget.IWidget<{}> = {
 
             const handle2 = $.ajax({
                 type: "GET",
-                url: `${props.HomePath}api/FaultInformation/GetLinks/FaultInfo`,
+                url: `${props.HomePath}api/EventWidgets/FaultInformation/GetLinks/FaultInfo`,
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
                 cache: true,

@@ -164,7 +164,7 @@ const ITOA: EventWidget.IWidget<ISetting> = {
         function GetData() {
             const handle = $.ajax({
                 type: "GET",
-                url: `${props.HomePath}api/ITOA/${props.EventID}/${timeWindow}/${props.WidgetID}`,
+                url: `${props.HomePath}api/EventWidgets/ITOA/${props.EventID}/${timeWindow}/${props.WidgetID}`,
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
                 cache: false,

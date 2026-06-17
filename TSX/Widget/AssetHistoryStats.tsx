@@ -58,7 +58,7 @@ const AssetHistoryStats: EventWidget.IWidget<{}> = {
         function getStatsData(time: string) {
             if (time === '1' || time === '12') {
                 $.ajax({
-                    url: `${props.HomePath}api/AssetHistoryStats/${props.EventID}/${time}`,
+                    url: `${props.HomePath}api/EventWidgets/AssetHistoryStats/${props.EventID}/${time}`,
                     method: 'GET',
                     dataType: 'json',
                     success: (data) => {
@@ -71,7 +71,7 @@ const AssetHistoryStats: EventWidget.IWidget<{}> = {
             }
             else {
                 $.ajax({
-                    url: `${props.HomePath}api/AssetHistoryStats/${props.EventID}`,
+                    url: `${props.HomePath}api/EventWidgets/AssetHistoryStats/${props.EventID}`,
                     method: 'GET',
                     dataType: 'json',
                     success: (data) => {

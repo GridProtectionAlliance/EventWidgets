@@ -37,7 +37,7 @@ const StructureInfo: EventWidget.IWidget<{}> = {
         const getFaultInfo = async (): Promise<Array<{ StationName: string, Inception: number, Latitude: number, Longitude: number, Distance: number, AssetName: string }>> => {
             const res = await $.ajax({
                 type: 'GET',
-                url: `${props.HomePath}api/FaultInformation/${props.EventID}`,
+                url: `${props.HomePath}api/EventWidgets/FaultInformation/${props.EventID}`,
                 contentType: 'application/json; charset=utf-8',
                 dataType: 'json',
                 cache: true,
@@ -49,7 +49,7 @@ const StructureInfo: EventWidget.IWidget<{}> = {
         const getNearestStructureInfo = async (station: string, line: string, mileage: number): Promise<Array<{ StrNumber: string, Latitude: number, Longitude: number, Imagepath: string }>> => {
             const res = await $.ajax({
                 type: 'GET',
-                url: `${props.HomePath}api/ESRIMap/NearestStructure/${station}/${line}?mileage=${mileage}`,
+                url: `${props.HomePath}api/EventWidgets/ESRIMap/NearestStructure/${station}/${line}?mileage=${mileage}`,
                 contentType: 'application/json; charset=utf-8',
                 dataType: 'json',
                 cache: true,
@@ -94,7 +94,7 @@ const StructureInfo: EventWidget.IWidget<{}> = {
                             </tr>
                         </tbody>
                     </table>
-                    <img src={`${props.HomePath}api/ESRIMap/Image/${selectedIndex === -1 ? btoa(test) : btoa(structureInfo[selectedIndex].Imagepath)}`} style={{ width: '100%' }} />
+                    <img src={`${props.HomePath}api/EventWidgets/ESRIMap/Image/${selectedIndex === -1 ? btoa(test) : btoa(structureInfo[selectedIndex].Imagepath)}`} style={{ width: '100%' }} />
                 </div>
             </div>
         );

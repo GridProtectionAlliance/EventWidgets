@@ -64,7 +64,7 @@ const AssetHistoryTable: EventWidget.IWidget<ISetting> = {
         function getHistoryData() {
             return $.ajax({
                 type: "GET",
-                url: `${props.HomePath}api/AssetHistoryTable/${props.EventID}/${count}`,
+                url: `${props.HomePath}api/EventWidgets/AssetHistoryTable/${props.EventID}/${count}`,
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
                 cache: true,

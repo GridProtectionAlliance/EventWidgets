@@ -81,7 +81,7 @@ const EventInfo: EventWidget.IWidget<{}> = {
             setLoading(true);
             const h = $.ajax({
                 type: 'GET',
-                url: `${props.HomePath}api/EventInfo/${props.EventID}`,
+                url: `${props.HomePath}api/EventWidgets/EventInfo/${props.EventID}`,
                 contentType: 'application/json; charset=utf-8',
                 dataType: 'json',
                 cache: true,
@@ -117,7 +117,7 @@ const EventInfo: EventWidget.IWidget<{}> = {
 
         function saveChange() {
             $.ajax({
-                url: `${homePath}api/EventInfo/save/${props.EventID}`,
+                url: `${homePath}api/EventWidgets/EventInfo/save/${props.EventID}`,
                 type: 'POST',
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',

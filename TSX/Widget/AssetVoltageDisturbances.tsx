@@ -56,7 +56,7 @@ const AssetVoltageDisturbances: EventWidget.IWidget<{}> = {
         function getDisturbanceData() {
             return $.ajax({
                 type: "GET",
-                url: `${props.HomePath}api/AssetVoltageDisturbances/${props.EventID}`,
+                url: `${props.HomePath}api/EventWidgets/AssetVoltageDisturbances/${props.EventID}`,
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
                 cache: true,

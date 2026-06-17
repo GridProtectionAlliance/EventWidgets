@@ -81,7 +81,7 @@ const EventSearchRelayPerformance: EventWidget.IWidget<ISetting> = {
         function getRelayPerformanceData() {
             return $.ajax({
                 type: "GET",
-                url: `${props.HomePath}api/RelayPerformance?eventId=${props.EventID}`,
+                url: `${props.HomePath}api/EventWidgets/RelayPerformance?eventId=${props.EventID}`,
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
                 cache: true,

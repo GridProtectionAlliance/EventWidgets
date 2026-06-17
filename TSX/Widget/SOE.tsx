@@ -144,7 +144,7 @@ const SOE: EventWidget.IWidget<ISetting> = {
         function GetData() {
             const handle = $.ajax({
                 type: "GET",
-                url: `${props.HomePath}api/SOE/${props.EventID}/${timeWindow}`,
+                url: `${props.HomePath}api/EventWidgets/SOE/${props.EventID}/${timeWindow}`,
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
                 cache: false,
