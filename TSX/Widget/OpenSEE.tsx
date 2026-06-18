@@ -86,7 +86,7 @@ const EventSearchOpenSEE: EventWidget.IWidget<ISetting> = {
                     Field={'OpenSeeUrl'}
                     Setter={(record) => props.SetSettings(record)}
                     Valid={() => true}
-                    Label={'OpenSEE URL'}
+                    Label={'openSEE URL'}
                 />
             </div>
         </div>
