@@ -210,7 +210,7 @@ const EventSearchOpenSEE: EventWidget.IWidget<ISetting> = {
             <div className="card">
                 <div className="card-header fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>
                     <a href={props.Settings.OpenSeeUrl + '?eventid=' + props.EventID} target="_blank">
-                        View in OpenSEE
+                        View in openSEE
                     </a>
                 </div>
                 <div className="card-body p-0">
