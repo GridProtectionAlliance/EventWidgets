@@ -20,7 +20,7 @@
 //       Generated original version of source code.
 //
 //******************************************************************************************************
-
+/*
 import React from 'react';
 import { EventWidget } from '../global';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
@@ -73,6 +73,8 @@ const NoteWidget: EventWidget.IWidget<ISetting> = {
             if (noteType == null && noteTypes.length > 0)
                 setNoteType(noteTypes[0]);
         }, [noteTypes, noteType])
+
+
         function getNoteType(): JQuery.jqXHR<OpenXDA.Types.NoteType[]> {
             const handle = $.ajax({
                 type: "GET",
@@ -163,6 +165,7 @@ const NoteWidget: EventWidget.IWidget<ISetting> = {
             slice = props.Store.LocationNoteSlice;
         else
             return null;
+        
         let id;
         if (noteType.Name == 'Event')
             id = props.EventID;
@@ -174,7 +177,7 @@ const NoteWidget: EventWidget.IWidget<ISetting> = {
             id = ids.LocationID;
 
         return (
-            <div className='card' style={{ maxHeight: props.MaxHeight ?? 500}}>
+            <div className='card' style={{ maxHeight: props.MaxHeight ?? 500 }}>
                 <div className='card-header fixed-top' style={{ position: 'sticky', background: '#f7f7f7' }}>Notes:</div>
                 <div className='card-body'>
                     <div className='row'>
@@ -198,22 +201,25 @@ const NoteWidget: EventWidget.IWidget<ISetting> = {
                                 Field={'ID'} />
                         </div>
                     </div>
-                    {selectedTags.length > 0 ? < Note
-                        MaxHeight={window.innerHeight - 215}
-                        ReferenceTableID={id}
-                        NoteApplications={[noteApp]}
-                        NoteTags={noteTags.filter((t) => selectedTags.find(i => i == t.ID) != null)}
-                        NoteTypes={[noteType]}
-                        NoteSlice={slice}
-                        AllowAdd={isEngineer}
-                        Title={''}
-                        AllowEdit={isEngineer}
-                        AllowRemove={false}
-                        ShowCard={false}
-                        Filter={(n) => selectedTags.find(i => i == n.NoteTagID) != null}
-                    /> : <div className={'alert alert-warning'}>
-                        <p>At least 1 Type needs to be selected.</p>
-                    </div>}
+                    {selectedTags.length > 0 ?
+                        <Note
+                            MaxHeight={window.innerHeight - 215}
+                            ReferenceTableID={id}
+                            NoteApplications={[noteApp]}
+                            NoteTags={noteTags.filter((t) => selectedTags.find(i => i == t.ID) != null)}
+                            NoteTypes={[noteType]}
+                            NoteSlice={slice}
+                            AllowAdd={isEngineer}
+                            Title={''}
+                            AllowEdit={isEngineer}
+                            AllowRemove={false}
+                            ShowCard={false}
+                            Filter={(n) => selectedTags.find(i => i == n.NoteTagID) != null}
+                        /> :
+                        <div className={'alert alert-warning'}>
+                            <p>At least 1 Type needs to be selected.</p>
+                        </div>
+                    }
                 </div>
             </div>
         );
@@ -221,3 +227,4 @@ const NoteWidget: EventWidget.IWidget<ISetting> = {
 }
 
 export default NoteWidget;
+*/

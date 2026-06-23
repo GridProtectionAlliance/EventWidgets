@@ -25,6 +25,8 @@ import React from 'react';
 import moment from 'moment';
 import { EventWidget } from '../global';
 import { Table, Column } from '@gpa-gemstone/react-table';
+import { Application } from '@gpa-gemstone/application-typings';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 
 interface IFaultInfo {
     FaultTime?: string,
@@ -58,89 +60,119 @@ const FaultInfo: EventWidget.IWidget<{}> = {
         const [hidden, setHidden] = React.useState<boolean>(true);
         const [faultInfo, setFaultInfo] = React.useState<IFaultInfo[]>([]);
         const [links, setLinks] = React.useState<ILinks[]>([]);
+        const [faultInfoStatus, setFaultInfoStatus] = React.useState<Application.Types.Status>('uninitiated');
+        const [linksStatus, setLinksStatus] = React.useState<Application.Types.Status>('uninitiated');
 
         React.useEffect(() => {
-            return GetData();
-        }, [props.EventID]);
+            setFaultInfoStatus('loading');
+            setHidden(false);
+            const handle = getFaultInfo(props.HomePath, props.EventID);
 
-        function GetData() {
-            const handle = $.ajax({
-                type: "GET",
-                url: `${props.HomePath}api/EventWidgets/FaultInformation/${props.EventID}`,
-                contentType: "application/json; charset=utf-8",
-                dataType: 'json',
-                cache: true,
-                async: true
-            });
-
-            const handle2 = $.ajax({
-                type: "GET",
-                url: `${props.HomePath}api/EventWidgets/FaultInformation/GetLinks/FaultInfo`,
-                contentType: "application/json; charset=utf-8",
-                dataType: 'json',
-                cache: true,
-                async: true
-            });
-
-            handle.done(data => {
-                if (data.length > 0) {
-                    setHidden(false);
-                }
+            handle.done((data) => {
+                setHidden(data.length === 0);
                 setFaultInfo(data);
+                setFaultInfoStatus('idle');
+            }).fail(() => {
+                setHidden(true);
+                setFaultInfoStatus('error');
             });
 
-            handle2.done(data => setLinks(data));
+            return () => {
+                if (handle?.abort != undefined) {
+                    handle.abort();
+                }
+            };
+        }, [props.EventID, props.HomePath]);
 
-            return function () {
-                if (handle.abort != undefined) handle.abort();
-                if (handle2.abort != undefined) handle2.abort();
+        React.useEffect(() => {
+            setLinksStatus('loading');
+            const handle = getFaultInfoLinks(props.HomePath);
+
+            handle.done((data) => {
+                setLinks(data);
+                setLinksStatus('idle');
+            }).fail(() => setLinksStatus('error'));
+
+            return () => {
+                if (handle?.abort != undefined) {
+                    handle.abort();
+                }
             }
-        }
-
-        function TreeProbability(value: number): string {
-            if (value == null) return 'Undetermined';
-            else if (value > 20) return `High (Rf=${value.toFixed(2)})`;
-            else if (value > 10) return `Medium (Rf=${value.toFixed(2)})`;
-            else return `Low (Rf=${value.toFixed(2)})`;
-        }
+        }, [props.EventID, props.HomePath]);
 
         return (
             <div className="card" hidden={hidden}>
-                <div className="card-header fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>Fault Information:</div>
+                <div className="card-header fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>
+                    Fault Information:
+                    {linksStatus === 'loading' ?
+                        <div className='pull-right'>
+                            <ReactIcons.SpiningIcon Size={'1em'} />
+                        </div>
+                        : null
+                    }
+                </div>
                 <div className="card-body">
-                    <Table<IFaultInfo>
-                        Data={faultInfo}
-                        KeySelector={(item) => item.Key}
-                        OnClick={() => { /* Do Nothing */ }}
-                        OnSort={() => { /* Do Nothing */ }}
-                        SortKey={''}
-                        Ascending={true}
-                        TableClass="table"
-                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        TbodyStyle={{ display: 'block', overflowY: 'scroll', width: '100%', maxHeight: props.MaxHeight ?? 500 }}
-                        RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    >
-                        <Column<IFaultInfo>
-                            Key={'Key'}
-                            AllowSort={false}
-                            Field={'Key'}
-                            HeaderStyle={{ width: 'auto' }}
-                            RowStyle={{ width: 'auto' }}
-                        > {" "}
-                        </Column>
-                        <Column<IFaultInfo>
-                            Key={'Value'}
-                            AllowSort={false}
-                            Field={'Value'}
-                            HeaderStyle={{ width: 'auto' }}
-                            RowStyle={{ width: 'auto' }}
-                        > {" "}
-                        </Column>
-                    </Table>
+                    {faultInfoStatus === 'loading' ?
+                        <div className='d-flex align-items-center justify-content-center' style={{ height: props.MaxHeight ?? 250 }}>
+                            <ReactIcons.SpiningIcon Size={'50%'} />
+                        </div>
+                        :
+                        <Table<IFaultInfo>
+                            Data={faultInfo}
+                            KeySelector={(item) => item.Key}
+                            OnClick={() => { /* Do Nothing */ }}
+                            OnSort={() => { /* Do Nothing */ }}
+                            SortKey={''}
+                            Ascending={true}
+                            TableClass="table"
+                            TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                            TbodyStyle={{ display: 'block', overflowY: 'scroll', width: '100%', maxHeight: props.MaxHeight ?? 500 }}
+                            RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        >
+                            <Column<IFaultInfo>
+                                Key={'Key'}
+                                AllowSort={false}
+                                Field={'Key'}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                            > {" "}
+                            </Column>
+                            <Column<IFaultInfo>
+                                Key={'Value'}
+                                AllowSort={false}
+                                Field={'Value'}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                            > {" "}
+                            </Column>
+                        </Table>
+                    }
                 </div>
             </div>
         );
     }
 }
+
+const getFaultInfo = (homePath: string, eventID: number) => {
+    return $.ajax({
+        type: "GET",
+        url: `${homePath}api/EventWidgets/FaultInformation/${eventID}`,
+        contentType: "application/json; charset=utf-8",
+        dataType: 'json',
+        cache: true,
+        async: true
+    });
+};
+
+const getFaultInfoLinks = (homePath: string) => {
+    return $.ajax({
+        type: "GET",
+        url: `${homePath}api/EventWidgets/FaultInformation/GetLinks/FaultInfo`,
+        contentType: "application/json; charset=utf-8",
+        dataType: 'json',
+        cache: true,
+        async: true
+    });
+};
 
 export default FaultInfo;

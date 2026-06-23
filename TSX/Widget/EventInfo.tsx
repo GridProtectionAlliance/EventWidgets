@@ -20,8 +20,7 @@
 //       Generated original version of source code.
 //
 //******************************************************************************************************
-
-
+/*
 import { Pencil } from '@gpa-gemstone/gpa-symbols';
 import { Select, DatePicker } from '@gpa-gemstone/react-forms';
 import { LoadingIcon, Modal } from '@gpa-gemstone/react-interactive';
@@ -61,21 +60,10 @@ const EventInfo: EventWidget.IWidget<{}> = {
     },
 
     Widget: (props: EventWidget.IWidgetProps<{}>) => {
-
         const [statsData, setStatsData] = React.useState<IEventInfo | undefined>(undefined);
         const [showModal, setShowModal] = React.useState<boolean>(false);
         const [loading, setLoading] = React.useState<boolean>(false);
         const [forceUpdate, setForceUpdate] = React.useState<boolean>(false);
-
-        const eventTypeStatus = useSelector(props.Store.EventTypeSlice.Status);
-        const eventType = useSelector(props.Store.EventTypeSlice.Data);
-
-        const dispatch = useDispatch<Dispatch<any>>();
-
-        React.useEffect(() => {
-            if (eventTypeStatus === 'uninitiated' || eventTypeStatus == 'changed')
-                dispatch(props.Store.EventTypeSlice.Fetch());
-        }, [eventTypeStatus]);
 
         React.useEffect(() => {
             setLoading(true);
@@ -104,7 +92,8 @@ const EventInfo: EventWidget.IWidget<{}> = {
             if (statsData === undefined)
                 return [];
 
-            const rows = [];
+            const rows: { Stat: string, Value: string | undefined, IsTime: boolean }[] = [];
+
             rows.push({ Stat: 'Meter', Value: statsData.MeterName, IsTime: false });
             rows.push({ Stat: 'Asset', Value: statsData.AssetName, IsTime: false });
             rows.push({ Stat: 'Event Type', Value: statsData.EventType, IsTime: false });
@@ -125,16 +114,15 @@ const EventInfo: EventWidget.IWidget<{}> = {
 
             }).then(() => { setForceUpdate(x => !x) })
         }
-        
 
         return (
             <div className="card">
-                <div className="card-header">Event Info: 
+                <div className="card-header">Event Info:
                     <div className='pull-right'>
                         <div className="form-inline">
                             <button className="btn btn-sm"
                                 onClick={() => {
-                                    setShowModal(true);     
+                                    setShowModal(true);
                                 }}
                             >
                                 <span>{Pencil}</span>
@@ -142,45 +130,46 @@ const EventInfo: EventWidget.IWidget<{}> = {
                         </div>
                     </div>
                 </div>
-              
+
                 <div className="card-body">
-                        <LoadingIcon Show={loading} />
-                    {loading ? null : <Table<IStat>
-                        TableClass="table table-hover"
-                        Data={rows}
-                        SortKey={''}
-                        Ascending={false}
-                        TableStyle={{
-                            padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
-                            tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
-                        }}
-                        TheadStyle={{ fontSize: 'smaller', tableLayout: 'fixed', display: 'table', width: '100%' }}
-                        TbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
-                        RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        Selected={() => false}
-                        KeySelector={(item) => item.Stat}
-                        OnSort={() => { /* Nothing */ } }
-                    >
-                        <Column<IStat>
-                            Key={'Stat'}
-                            AllowSort={false}
-                            Field={'Stat'}
-                            HeaderStyle={{ width: 'auto', textAlign: 'left' }}
-                            RowStyle={{ width: 'auto', textAlign: 'left' }}
+                    <LoadingIcon Show={loading} />
+                    {loading ? null :
+                        <Table<IStat>
+                            TableClass="table table-hover"
+                            Data={rows}
+                            SortKey={''}
+                            Ascending={false}
+                            TableStyle={{
+                                padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
+                                tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
+                            }}
+                            TheadStyle={{ fontSize: 'smaller', tableLayout: 'fixed', display: 'table', width: '100%' }}
+                            TbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
+                            RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
+                            Selected={() => false}
+                            KeySelector={(item) => item.Stat}
+                            OnSort={() => { }}
                         >
-                            Property
-                        </Column>
-                        <Column<IStat>
-                            Key={'Value'}
-                            AllowSort={false}
-                            Field={'Value'}
-                            HeaderStyle={{ width: 'auto', textAlign: 'right' }}
-                            RowStyle={{ width: 'auto', textAlign: 'right' }}
-                            Content={(d) => d.item.IsTime ? moment(d.item.Value).format(momentDateFormat + ' ' + momentTimeFormat) : d.item.Value}
-                        >
-                            Value
-                        </Column>
-                    </Table>}                       
+                            <Column<IStat>
+                                Key={'Stat'}
+                                AllowSort={false}
+                                Field={'Stat'}
+                                HeaderStyle={{ width: 'auto', textAlign: 'left' }}
+                                RowStyle={{ width: 'auto', textAlign: 'left' }}
+                            >
+                                Property
+                            </Column>
+                            <Column<IStat>
+                                Key={'Value'}
+                                AllowSort={false}
+                                Field={'Value'}
+                                HeaderStyle={{ width: 'auto', textAlign: 'right' }}
+                                RowStyle={{ width: 'auto', textAlign: 'right' }}
+                                Content={(d) => d.item.IsTime ? moment(d.item.Value).format(momentDateFormat + ' ' + momentTimeFormat) : d.item.Value}
+                            >
+                                Value
+                            </Column>
+                        </Table>}
                 </div>
 
                 <Modal
@@ -190,7 +179,7 @@ const EventInfo: EventWidget.IWidget<{}> = {
                     Size={'lg'}
                     ShowCancel={false}
                     CallBack={(c, b) => {
-                        if (c) 
+                        if (c)
                             saveChange();
                         setStatsData(undefined);
                         if (!c)
@@ -224,7 +213,7 @@ const EventInfo: EventWidget.IWidget<{}> = {
                                     setStatsData(updatedStatsData);
                                 }}
                                 Type='datetime-local'
-                                Valid={() => (true)}                                    
+                                Valid={() => (true)}
                             />
                         </div>
                         <div className="col-12">
@@ -243,7 +232,7 @@ const EventInfo: EventWidget.IWidget<{}> = {
                     </div>
 
                 </Modal>
-                
+
 
             </div>
 
@@ -252,3 +241,4 @@ const EventInfo: EventWidget.IWidget<{}> = {
 };
 
 export default EventInfo;
+*/

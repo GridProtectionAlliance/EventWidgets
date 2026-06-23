@@ -26,51 +26,55 @@ import moment from 'moment';
 import { EventWidget } from '../global';
 import { Table, Column } from '@gpa-gemstone/react-table';
 import { Select, Input } from '@gpa-gemstone/react-forms';
+import { Application } from '@gpa-gemstone/application-typings';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 
-interface ISetting { OpenSeeUrl: string}
+interface ISetting {
+    OpenSeeUrl: string
+}
+
 const AssetHistoryTable: EventWidget.IWidget<ISetting> = {
     Name: 'AssetHistoryTable',
-    DefaultSettings: { OpenSeeUrl: 'http://opensee.demo.gridprotectionalliance.org'},
+    DefaultSettings: {
+        OpenSeeUrl: 'http://opensee.demo.gridprotectionalliance.org'
+    },
     Settings: (props) => {
-        return <div className="row">
-            <div className="col">
-                <Input<ISetting>
-                    Record={props.Settings}
-                    Field={'OpenSeeUrl'}
-                    Setter={(record) => props.SetSettings(record)}
-                    Valid={() => true}
-                    Label={'OpenSEE URL'} />
+        return (
+            <div className="row">
+                <div className="col">
+                    <Input<ISetting>
+                        Record={props.Settings}
+                        Field={'OpenSeeUrl'}
+                        Setter={(record) => props.SetSettings(record)}
+                        Valid={() => true}
+                        Label={'OpenSEE URL'} />
+                </div>
             </div>
-        </div>
+        )
     },
     Widget: (props: EventWidget.IWidgetProps<ISetting>) => {
         const [historyData, setHistoryData] = React.useState<Array<any>>([]);
         const [count, setCount] = React.useState<number>(10);
         const [assetName, setAssetName] = React.useState<string>('');
+        const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
 
         React.useEffect(() => {
-            const handle = getHistoryData();
+            setStatus('loading');
+            const handle = getHistoryData(props.HomePath, props.EventID, count);
+
             handle.done((data) => {
                 setHistoryData(data);
-
                 if (data.length > 0) setAssetName(data[0].AssetName);
-            });
+
+                setStatus('idle');
+            }).fail(() => setStatus('error'));
 
             return () => {
-                if (handle.abort != undefined) handle.abort();
+                if (handle?.abort != undefined) {
+                    handle.abort();
+                }
             }
-        }, [props.EventID, count]);
-
-        function getHistoryData() {
-            return $.ajax({
-                type: "GET",
-                url: `${props.HomePath}api/EventWidgets/AssetHistoryTable/${props.EventID}/${count}`,
-                contentType: "application/json; charset=utf-8",
-                dataType: 'json',
-                cache: true,
-                async: true
-            });
-        }
+        }, [props.EventID, props.HomePath, count]);
 
         return (
             <div className="card">
@@ -95,48 +99,65 @@ const AssetHistoryTable: EventWidget.IWidget<ISetting> = {
                     </div>
                 </div>
                 <div className="card-body">
-                    <Table
-                        Data={historyData}
-                        KeySelector={item => item.ID }
-                        OnSort={() => {/*Do Nothing*/ }}
-                        SortKey={''}
-                        Ascending={true}
-                        TableClass="table"
-                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', height: 50 }}
-                        TbodyStyle={{ display: 'block', overflowY: 'scroll', width: '100%', maxHeight: props.MaxHeight ?? 500 }}
-                        RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    >
-                        <Column
-                            Key={'EventType'}
-                            AllowSort={false}
-                            Field={'EventType'}
-                            HeaderStyle={{ width: 'auto' }}
-                            RowStyle={{ width: 'auto' }}
-                        > Event Type
-                        </Column>
-                        <Column
-                            Key={'StartTime'}
-                            AllowSort={false}
-                            Field={'StartTime'}
-                            HeaderStyle={{ width: 'auto' }}
-                            RowStyle={{ width: 'auto' }}
-                            Content={row => moment(row.item.StartTime).format('MM/DD/YYYY HH:mm:ss.SSS')}
-                        > Date
-                        </Column>
-                        <Column
-                            Key={'ID'}
-                            AllowSort={false}
-                            Field={'ID'}
-                            HeaderStyle={{ width: 'auto' }}
-                            RowStyle={{ width: 'auto' }}
-                            Content={row => <a href={props.Settings.OpenSeeUrl + '?eventid=' + row.item.ID} target="_blank">View in OpenSEE</a>}
-                        > {" "}
-                        </Column>
-                    </Table>
+                    {status === 'loading' ?
+                        <div className='d-flex align-items-center justify-content-center' style={{ height: props.MaxHeight ?? 250 }}>
+                            <ReactIcons.SpiningIcon Size={'50%'} />
+                        </div>
+                        :
+                        <Table
+                            Data={historyData}
+                            KeySelector={item => item.ID}
+                            OnSort={() => {/*Do Nothing*/ }}
+                            SortKey={''}
+                            Ascending={true}
+                            TableClass="table"
+                            TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', height: 50 }}
+                            TbodyStyle={{ display: 'block', overflowY: 'scroll', width: '100%', maxHeight: props.MaxHeight ?? 500 }}
+                            RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        >
+                            <Column
+                                Key={'EventType'}
+                                AllowSort={false}
+                                Field={'EventType'}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                            > Event Type
+                            </Column>
+                            <Column
+                                Key={'StartTime'}
+                                AllowSort={false}
+                                Field={'StartTime'}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                                Content={row => moment(row.item.StartTime).format('MM/DD/YYYY HH:mm:ss.SSS')}
+                            > Date
+                            </Column>
+                            <Column
+                                Key={'ID'}
+                                AllowSort={false}
+                                Field={'ID'}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                                Content={row => <a href={props.Settings.OpenSeeUrl + '?eventid=' + row.item.ID} target="_blank">View in OpenSEE</a>}
+                            > {" "}
+                            </Column>
+                        </Table>
+                    }
                 </div>
             </div>
         );
     }
 }
+
+const getHistoryData = (homePath: string, eventID: number, count: number) => {
+    return $.ajax({
+        type: "GET",
+        url: `${homePath}api/EventWidgets/AssetHistoryTable/${eventID}/${count}`,
+        contentType: "application/json; charset=utf-8",
+        dataType: 'json',
+        cache: true,
+        async: true
+    });
+};
 
 export default AssetHistoryTable; 

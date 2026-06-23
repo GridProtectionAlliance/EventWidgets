@@ -25,6 +25,8 @@ import React from 'react';
 import { EventWidget } from '../global';
 import { Table, Column } from '@gpa-gemstone/react-table';
 import { Select } from '@gpa-gemstone/react-forms';
+import { Application, Gemstone } from '@gpa-gemstone/application-typings';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 
 interface IStatsData {
     VPeakMax: number;
@@ -37,106 +39,108 @@ interface IStatsData {
     AssetName: string;
 }
 
+type TimeWindow = '999' | '12' | '1';
+
+const TimeWindowOptions: Gemstone.TSX.Interfaces.ILabelValue<TimeWindow>[] = [
+    { Value: "999", Label: "Lifetime" },
+    { Value: "12", Label: "Last Year" },
+    { Value: "1", Label: "Last Month" }
+];
+
 const AssetHistoryStats: EventWidget.IWidget<{}> = {
     Name: 'AssetHistoryStats',
-    DefaultSettings: { },
+    DefaultSettings: {},
     Settings: () => {
         return <></>
     },
     Widget: (props: EventWidget.IWidgetProps<{}>) => {
-        const [statsData, setStatsData] = React.useState<IStatsData[]>([]);
-        const [time, setTime] = React.useState<string>('999');
+        const [statsData, setStatsData] = React.useState<IStatsData | null>(null);
+        const [time, setTime] = React.useState<TimeWindow>('999');
+        const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
 
         React.useEffect(() => {
-            getStatsData(time);
-        }, [props.EventID]);
+            setStatus('loading');
+            const handle = getStatsData(props.HomePath, props.EventID, time);
 
-        React.useEffect(() => {
-            getStatsData(time);
-        }, [time]);
+            handle.done((data) => {
+                setStatsData(data?.[0] ?? null);
+                setStatus('idle');
+            }).fail(() => setStatus('error'));
 
-        function getStatsData(time: string) {
-            if (time === '1' || time === '12') {
-                $.ajax({
-                    url: `${props.HomePath}api/EventWidgets/AssetHistoryStats/${props.EventID}/${time}`,
-                    method: 'GET',
-                    dataType: 'json',
-                    success: (data) => {
-                        if (data && data.length > 0) {
-                            const stats = data[0];
-                            setStatsData(stats);
-                        }
-                    },
-                });
-            }
-            else {
-                $.ajax({
-                    url: `${props.HomePath}api/EventWidgets/AssetHistoryStats/${props.EventID}`,
-                    method: 'GET',
-                    dataType: 'json',
-                    success: (data) => {
-                        if (data && data.length > 0) {
-                            const stats = data[0];
-                            setStatsData(stats);
-                        }
-                    },
-                });
-            }
-        }
+            return () => {
+                if (handle?.abort != undefined) {
+                    handle.abort();
+                }
+            };
+        }, [props.EventID, props.HomePath, time]);
 
         return (
             <div className="card">
                 <div className="card-header fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>
-                    Stats for {statsData['AssetName']}:
-                <div className='pull-right'>
-                    <div className="form-inline">
-                        <Select
-                            Record={{ time }}
-                            Field='time'
-                            Options={[
-                                { Value: "999", Label: "Lifetime" },
-                                { Value: "12", Label: "Last Year" },
-                                { Value: "1", Label: "Last Month" }
-                            ]}
-                            Setter={(record) => setTime(record.time)}
-                            Label="Time Window: "
-                        />
+                    Stats for {statsData?.AssetName}:
+                    <div className='pull-right'>
+                        <div className="form-inline">
+                            <Select
+                                Record={{ time }}
+                                Field='time'
+                                Options={TimeWindowOptions}
+                                Setter={(record) => setTime(record.time)}
+                                Label="Time Window: "
+                            />
+                        </div>
                     </div>
                 </div>
-            </div>
                 <div className="card-body">
-                    <Table
-                        Data={Object.entries(statsData).map(([key, value]) => ({ Stat: key, Value: value }))}
-                        OnSort={() => { /*Do Nothing*/ }}
-                        KeySelector={(item) =>  item.Stat }
-                        SortKey={''}
-                        Ascending={true}
-                        TableClass="table"
-                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        TbodyStyle={{ display: 'block', overflowY: 'scroll', width: '100%', maxHeight: props.MaxHeight ?? 500 }}
-                        RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    >
-                        <Column
-                            Key={'Stat'}
-                            AllowSort={false}
-                            Field={'Stat'}
-                            HeaderStyle={{ width: 'auto' }}
-                            RowStyle={{ width: 'auto' }}
-                        > Stat
-                        </Column>
-                        <Column
-                            Key={'Value'}
-                            AllowSort={false}
-                            Field={'Value'}
-                            HeaderStyle={{ width: 'auto' }}
-                            RowStyle={{ width: 'auto' }}
-                        > Value
-                        </Column>
-                    </Table>
+                    {status === 'loading' ?
+                        <div className='d-flex align-items-center justify-content-center' style={{ height: props.MaxHeight ?? 250 }}>
+                            <ReactIcons.SpiningIcon Size={'50%'} />
+                        </div>
+                        :
+                        <Table
+                            Data={Object.entries(statsData ?? {}).map(([key, value]) => ({ Stat: key, Value: value }))}
+                            OnSort={() => { /*Do Nothing*/ }}
+                            KeySelector={(item) => item.Stat}
+                            SortKey={''}
+                            Ascending={true}
+                            TableClass="table"
+                            TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                            TbodyStyle={{ display: 'block', overflowY: 'scroll', width: '100%', maxHeight: props.MaxHeight ?? 500 }}
+                            RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        >
+                            <Column
+                                Key={'Stat'}
+                                AllowSort={false}
+                                Field={'Stat'}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                            > Stat
+                            </Column>
+                            <Column
+                                Key={'Value'}
+                                AllowSort={false}
+                                Field={'Value'}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                            > Value
+                            </Column>
+                        </Table>
+                    }
                 </div>
             </div>
         );
     }
+};
+
+const getStatsData = (homePath: string, eventID: number, time: TimeWindow) => {
+    const url = time === '1' || time === '12'
+        ? `${homePath}api/EventWidgets/AssetHistoryStats/${eventID}/${time}`
+        : `${homePath}api/EventWidgets/AssetHistoryStats/${eventID}`;
+
+    return $.ajax({
+        url,
+        method: 'GET',
+        dataType: 'json'
+    });
 };
 
 export default AssetHistoryStats;
