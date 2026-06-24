@@ -21,8 +21,7 @@
 //
 //******************************************************************************************************
 import React from 'react';
-import { IWigetStore } from './Store';
-import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
+import { OpenXDA } from '@gpa-gemstone/application-typings';
 
 export namespace EventWidget {
     export interface IWidgetView {
@@ -41,8 +40,8 @@ export namespace EventWidget {
         HomePath: string,
         Roles: string[],
         Name: string,
-        Store: IWigetStore,
-        WidgetID: number
+        WidgetID: number,
+        EventTypes: OpenXDA.Types.EventType[]
     }
 
     // External filters into the search
