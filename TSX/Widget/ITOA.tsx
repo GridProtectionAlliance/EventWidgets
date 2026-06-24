@@ -29,6 +29,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { Application } from '@gpa-gemstone/application-typings';
 import _ from 'lodash';
+import { Alert } from '@gpa-gemstone/react-interactive';
 
 interface IValue {
     Value: string | number
@@ -206,6 +207,10 @@ const ITOA: EventWidget.IWidget<ISetting> = {
                             <div className='d-flex align-items-center justify-content-center' style={{ height: props.MaxHeight ?? 250 }}>
                                 <ReactIcons.SpiningIcon Size={'50%'} />
                             </div>
+                            : status === 'error' ? 
+                                <Alert Class='alert-danger'>
+                                    An error occured while fetching ITOA data, please check SystemCenter for more details.
+                                </Alert>
                             :
                             <Table<ItoaInfo>
                                 Data={data}
