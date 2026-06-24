@@ -83,7 +83,7 @@ const StructureInfo: EventWidget.IWidget<{}> = {
                         {structureInfo.map((si, index) => <option value={index}>{si.StrNumber}</option>)}
                     </select>
                 </div>
-                <div className="card-body" style={{ maxHeight: props.MaxHeight ?? 500, overflowY: 'scroll' }}>
+                <div className="card-body" style={{ maxHeight: props.MaxHeight ?? 500, overflowY: 'auto' }}>
                     <table className='table'>
                         <thead><tr><th>Number</th><th>Lat</th><th>Lon</th></tr></thead>
                         <tbody>

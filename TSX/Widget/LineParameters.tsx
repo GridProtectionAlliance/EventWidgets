@@ -139,7 +139,7 @@ const LineParameters: EventWidget.IWidget<ISetting> = {
                         Ascending={true}
                         TableClass="table"
                         TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', height: 50 }}
-                        TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: props.MaxHeight - 60, width: '100%' }}
+                        TbodyStyle={{ display: 'block', overflowY: 'auto', maxHeight: props.MaxHeight - 60, width: '100%' }}
                         RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                     >
                         <Column<ILoopImpedance>

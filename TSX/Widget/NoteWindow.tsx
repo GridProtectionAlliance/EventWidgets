@@ -226,5 +226,4 @@ const NoteWidget: EventWidget.IWidget<ISetting> = {
     }
 }
 
-export default NoteWidget;
-*/
+export default NoteWidget;*/
