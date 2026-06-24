@@ -99,6 +99,7 @@ namespace Widgets.API.Library
         /// <param name="postData">Post data of the request.</param>
         /// <param name="cancellationToken">Token to cancel the request.</param>
         /// <returns><see cref="ServerResponse"/> that depends on the target framework.</returns>
+        [NonAction]
         public async ServerResponse ForwardRequest(JObject postData, CancellationToken cancellationToken)
         {
             if (!XDAAPIHelper.TryRefreshSettings())
@@ -129,6 +130,7 @@ namespace Widgets.API.Library
         /// <remarks>Convenience call to <see cref="ForwardRequest(JObject, CancellationToken)"/></remarks>
         /// <param name="cancellationToken">Token to cancel the request.</param>
         /// <returns><see cref="ServerResponse"/> that depends on the target framework.</returns>
+        [NonAction]
         public async ServerResponse ForwardRequest(CancellationToken token) =>
             await ForwardRequest(null, token).ConfigureAwait(false);
 
@@ -139,6 +141,7 @@ namespace Widgets.API.Library
         /// <param name="postData">Post data of the request.</param>
         /// <param name="cancellationToken">Token to cancel the request.</param>
         /// <returns><see cref="ServerResponse"/> that depends on the target framework.</returns>
+        [NonAction]
         public async ServerResponse ForwardRequest(CancellationToken cancellationToken, XDAPostData postData) =>
             await ForwardRequest(JObject.FromObject(postData), cancellationToken);
 
@@ -149,6 +152,7 @@ namespace Widgets.API.Library
         /// <param name="postData">Post data of the request.</param>
         /// <param name="cancellationToken">Token to cancel the request.</param>
         /// <returns><see cref="ServerResponse"/> that depends on the target framework.</returns>
+        [NonAction]
         public async ServerResponse ForwardAndConstrainRequest(EventPost postData, CancellationToken cancellationToken)
         {
             if (this.TryGetClaimsPrinciple(out ClaimsPrincipal principal) && XDAAPIHelper.TryRetrieveCustomer(principal, out string customerKey) && customerKey is not null)
@@ -171,6 +175,7 @@ namespace Widgets.API.Library
         /// <param name="postData">Post data of the request.</param>
         /// <param name="cancellationToken">Token to cancel the request.</param>
         /// <returns><see cref="ServerResponse"/> that depends on the target framework.</returns>
+        [NonAction]
         public async ServerResponse ForwardAndConstrainRequest(JObject postData, CancellationToken cancellationToken)
         {
             if (this.TryGetClaimsPrinciple(out ClaimsPrincipal principal) && XDAAPIHelper.TryRetrieveCustomer(principal, out string customerKey) && customerKey is not null)
