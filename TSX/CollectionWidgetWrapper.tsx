@@ -30,6 +30,7 @@ import EventTable from './CollectionWidget/EventTable';
 import MagDurChart from './CollectionWidget/MagDurChart';
 import PQHealthIndex from './CollectionWidget/PQHealthIndex';
 import { EventWidget } from './global';
+import { ServerErrorIcon } from '@gpa-gemstone/react-interactive';
 
 export const AllWidgets: EventWidget.ICollectionWidget<any>[] = [
     EventTable, PQHealthIndex, MagDurChart, EventCountTable, EventCountChart
@@ -58,7 +59,7 @@ const CollectionWidgetRouter: React.FC<IProps> = (props: IProps) => {
         let custom = {};
         if (props.Widget.Setting != null && props.Widget.Setting.length > 2) {
             try {
-                custom = JSON.parse(props.Widget.Setting); 
+                custom = JSON.parse(props.Widget.Setting);
             } catch {
                 custom = {};
                 console.warn(`Widget ${props.Widget.Name} does not have a valid settings string`);
@@ -73,23 +74,35 @@ const CollectionWidgetRouter: React.FC<IProps> = (props: IProps) => {
     }, [Widget, props.Widget.Setting]);
 
     return (
-        <ErrorBoundary
-            ErrorMessage={`Widget ${props.Widget.Name} has encoutered an error.`}
-        >
-            <Widget.Widget
-                Title={props.Title}
-                Settings={Settings}
-                Callback={props.Callback}
-                EventID={props.EventID}
-                DisturbanceID={props.DisturbanceID}
-                FaultID={props.FaultID}
-                CurrentFilter={props.EventFilter}
-                HomePath={props.HomePath}
-                Roles={props.Roles}
-                Name={props.Widget.Name}
-                WidgetID={props.Widget.ID}
-            />
-        </ErrorBoundary>
+        <>
+            {Widget == null ?
+                <div className="card">
+                    <div className="card-header">
+                        {props.Widget.Name} - Error
+                    </div>
+                    <div className="card-body">
+                        <ServerErrorIcon Show={true}
+                            Label={`Widget ${props.Widget.Name} is not available. Please contact your system administrator.`}
+                            Size={150} />
+                    </div>
+                </div>
+                : <ErrorBoundary ErrorMessage={`Widget ${props.Widget.Name} has encoutered an error.`}>
+                    <Widget.Widget
+                        Title={props.Title}
+                        Settings={Settings}
+                        Callback={props.Callback}
+                        EventID={props.EventID}
+                        DisturbanceID={props.DisturbanceID}
+                        FaultID={props.FaultID}
+                        CurrentFilter={props.EventFilter}
+                        HomePath={props.HomePath}
+                        Roles={props.Roles}
+                        Name={props.Widget.Name}
+                        WidgetID={props.Widget.ID}
+                    />
+                </ErrorBoundary>
+            }
+        </>
     );
 }
 
