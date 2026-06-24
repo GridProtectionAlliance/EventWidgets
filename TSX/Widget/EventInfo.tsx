@@ -20,8 +20,8 @@
 //       Generated original version of source code.
 //
 //******************************************************************************************************
-/*
-import { Pencil } from '@gpa-gemstone/gpa-symbols';
+
+import { Pencil, ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { Select, DatePicker } from '@gpa-gemstone/react-forms';
 import { LoadingIcon, Modal } from '@gpa-gemstone/react-interactive';
 import * as React from 'react';
@@ -31,6 +31,7 @@ import _ from 'lodash';
 import { Table, Column } from '@gpa-gemstone/react-table';
 import { useDispatch, useSelector } from 'react-redux';
 import { Dispatch } from '@reduxjs/toolkit';
+import { Application } from '@gpa-gemstone/application-typings';
 
 interface IEventInfo {
     EventID: number;
@@ -55,18 +56,15 @@ const momentTimeFormat = "HH:mm:ss.SSS";
 const EventInfo: EventWidget.IWidget<{}> = {
     Name: 'EventInfo',
     DefaultSettings: {},
-    Settings: () => {
-        return <></>
-    },
-
+    Settings: () => <></>,
     Widget: (props: EventWidget.IWidgetProps<{}>) => {
         const [statsData, setStatsData] = React.useState<IEventInfo | undefined>(undefined);
         const [showModal, setShowModal] = React.useState<boolean>(false);
-        const [loading, setLoading] = React.useState<boolean>(false);
+        const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
         const [forceUpdate, setForceUpdate] = React.useState<boolean>(false);
 
         React.useEffect(() => {
-            setLoading(true);
+            setStatus('loading')
             const h = $.ajax({
                 type: 'GET',
                 url: `${props.HomePath}api/EventWidgets/EventInfo/${props.EventID}`,
@@ -75,31 +73,33 @@ const EventInfo: EventWidget.IWidget<{}> = {
                 cache: true,
                 async: true,
             });
+
             h.done((data) => {
                 setStatsData(data[0]);
-                setLoading(false);
-            });
+                setStatus('idle');
+            })
+
+            h.fail(() => setStatus('error'));
 
             return () => {
-                if (h != null && h.abort != null) {
+                if (h?.abort != null) {
                     h.abort();
-                    setLoading(false);
                 }
             }
         }, [props.EventID, forceUpdate]);
 
         const rows = React.useMemo(() => {
-            if (statsData === undefined)
+            if (statsData == null)
                 return [];
 
-            const rows: { Stat: string, Value: string | undefined, IsTime: boolean }[] = [];
+            const rows: IStat[] = [];
 
             rows.push({ Stat: 'Meter', Value: statsData.MeterName, IsTime: false });
             rows.push({ Stat: 'Asset', Value: statsData.AssetName, IsTime: false });
             rows.push({ Stat: 'Event Type', Value: statsData.EventType, IsTime: false });
             rows.push({ Stat: 'Start Time', Value: statsData.StartTime, IsTime: true });
             rows.push({ Stat: 'End Time', Value: statsData.EndTime, IsTime: true });
-            rows.push({ Stat: 'Last Updated By', Value: statsData.LastUpdatedBy, IsTime: false });
+            rows.push({ Stat: 'Last Updated By', Value: statsData.LastUpdatedBy ?? 'n/a', IsTime: false });
 
             return rows;
         }, [statsData]);
@@ -130,10 +130,12 @@ const EventInfo: EventWidget.IWidget<{}> = {
                         </div>
                     </div>
                 </div>
-
                 <div className="card-body">
-                    <LoadingIcon Show={loading} />
-                    {loading ? null :
+                    {status === 'loading' ? 
+                    <div className='d-flex align-items-center justify-content-center flex-column' style={{height: 250}}>
+                        <ReactIcons.SpiningIcon Size={'50%'}/>
+                    </div>
+                     :
                         <Table<IStat>
                             TableClass="table table-hover"
                             Data={rows}
@@ -172,68 +174,67 @@ const EventInfo: EventWidget.IWidget<{}> = {
                         </Table>}
                 </div>
 
-                <Modal
-                    Title={'Edit Event Info:'}
-                    ShowX={true}
-                    Show={showModal}
-                    Size={'lg'}
-                    ShowCancel={false}
-                    CallBack={(c, b) => {
-                        if (c)
-                            saveChange();
-                        setStatsData(undefined);
-                        if (!c)
-                            setForceUpdate(x => !x)
-                        setShowModal(false);
-                    }}
-                >
-
-                    <div className="row">
-                        <div className="col-12">
-                            <Select<IEventInfo>
-                                Record={statsData}
-                                Field='EventTypeID'
-                                Options={
-                                    eventType.map((type) => { return { Value: type.ID.toString(), Label: type.Name } })
-                                }
-                                Setter={(r) => {
-                                    const updatedStatsData = { ...statsData, EventTypeID: r.EventTypeID };
-                                    setStatsData(updatedStatsData);
-                                }}
-                                Label="Event Type"
-                            />
+                {statsData == null ? null :
+                    <Modal
+                        Title={'Edit Event Info:'}
+                        ShowX={true}
+                        Show={showModal}
+                        Size={'lg'}
+                        ShowCancel={false}
+                        CallBack={(c, b) => {
+                            if (c)
+                                saveChange();
+                            setStatsData(undefined);
+                            if (!c)
+                                setForceUpdate(x => !x)
+                            setShowModal(false);
+                        }}
+                    >
+                        <div className="row">
+                            <div className="col-12">
+                                <Select<IEventInfo>
+                                    Record={statsData}
+                                    Field='EventTypeID'
+                                    Options={
+                                        props.EventTypes.map((type) => { return { Value: type.ID.toString(), Label: type.Name } })
+                                    }
+                                    Setter={(r) => {
+                                        const updatedStatsData = { ...statsData, EventTypeID: r.EventTypeID };
+                                        setStatsData(updatedStatsData);
+                                    }}
+                                    Label="Event Type"
+                                />
+                            </div>
+                            <div className="col-12">
+                                <DatePicker<IEventInfo>
+                                    Record={statsData}
+                                    Field={'StartTime'}
+                                    Setter={(r) => {
+                                        const diff = moment(statsData.EndTime).diff(moment(statsData.StartTime));
+                                        const updatedStatsData = { ...statsData, StartTime: r.StartTime, EndTime: moment(r.StartTime).add(diff).toISOString() };
+                                        setStatsData(updatedStatsData);
+                                    }}
+                                    Type='datetime-local'
+                                    Valid={() => (true)}
+                                />
+                            </div>
+                            <div className="col-12">
+                                <DatePicker<IEventInfo>
+                                    Record={statsData}
+                                    Field={'EndTime'}
+                                    Setter={(r) => {
+                                        const diff = moment(statsData.EndTime).diff(moment(statsData.StartTime));
+                                        const updatedStatsData = { ...statsData, EndTime: r.EndTime, StartTime: moment(r.EndTime).subtract(diff).toISOString() };
+                                        setStatsData(updatedStatsData);
+                                    }}
+                                    Type='datetime-local'
+                                    Valid={() => (true)}
+                                />
+                            </div>
                         </div>
-                        <div className="col-12">
-                            <DatePicker<IEventInfo>
-                                Record={statsData}
-                                Field={'StartTime'}
-                                Setter={(r) => {
-                                    const diff = moment(statsData.EndTime).diff(moment(statsData.StartTime));
-                                    const updatedStatsData = { ...statsData, StartTime: r.StartTime, EndTime: moment(r.StartTime).add(diff).toISOString() };
-                                    setStatsData(updatedStatsData);
-                                }}
-                                Type='datetime-local'
-                                Valid={() => (true)}
-                            />
-                        </div>
-                        <div className="col-12">
-                            <DatePicker<IEventInfo>
-                                Record={statsData}
-                                Field={'EndTime'}
-                                Setter={(r) => {
-                                    const diff = moment(statsData.EndTime).diff(moment(statsData.StartTime));
-                                    const updatedStatsData = { ...statsData, EndTime: r.EndTime, StartTime: moment(r.EndTime).subtract(diff).toISOString() };
-                                    setStatsData(updatedStatsData);
-                                }}
-                                Type='datetime-local'
-                                Valid={() => (true)}
-                            />
-                        </div>
-                    </div>
 
-                </Modal>
-
-
+                    </Modal>
+                }
             </div>
 
         );
@@ -241,4 +242,3 @@ const EventInfo: EventWidget.IWidget<{}> = {
 };
 
 export default EventInfo;
-*/
