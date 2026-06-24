@@ -39,6 +39,7 @@ interface ITimeCorrelatedSags {
     MeterName: string;
     AssetName: string;
 }
+
 interface ISetting {
     OpenSeeUrl: string,
     OverlappingWindow: number
@@ -46,7 +47,10 @@ interface ISetting {
 
 const EventSearchCorrelatedSags: EventWidget.IWidget<ISetting> = {
     Name: 'CorrelatedSags',
-    DefaultSettings: { OpenSeeUrl: 'http://opensee.demo.gridprotectionalliance.org', OverlappingWindow: 2 },
+    DefaultSettings: {
+        OpenSeeUrl: 'http://opensee.demo.gridprotectionalliance.org',
+        OverlappingWindow: 2
+    },
     Settings: (props) => {
         return <>
             <div className="row">
@@ -125,9 +129,12 @@ const EventSearchCorrelatedSags: EventWidget.IWidget<ISetting> = {
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
                                 Content={row =>
-                                (<a id="eventLink" href={props.Settings.OpenSeeUrl + '?eventid=' + row.item.EventID} target='_blank'>
-                                    <div style={{ width: '100%', height: '100%' }}>{row.item.EventID}</div>
-                                </a>)}
+                                    <a id="eventLink" href={props.Settings.OpenSeeUrl + '?eventID=' + row.item.EventID} target='_blank'>
+                                        <div style={{ width: '100%', height: '100%' }}>
+                                            {row.item.EventID}
+                                        </div>
+                                    </a>
+                                }
                             >
                                 Event ID
                             </Column>

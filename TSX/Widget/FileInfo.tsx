@@ -40,7 +40,9 @@ interface IMappedChannel {
 
 const EventSearchFileInfo: EventWidget.IWidget<ISetting> = {
     Name: 'FileInfo',
-    DefaultSettings: { SystemCenterUrl: 'https://systemCenter.demo.gridprotectionalliance.org' },
+    DefaultSettings: {
+        SystemCenterUrl: 'https://systemCenter.demo.gridprotectionalliance.org'
+    },
     Settings: (props) => {
         return (
             <div className="row">
@@ -125,7 +127,9 @@ const EventSearchFileInfo: EventWidget.IWidget<ISetting> = {
                             <ReactIcons.SpiningIcon Size={'1em'} />
                         </div>
                         :
-                        <a className="pull-right" target="_blank" href={props.Settings.SystemCenterUrl + `?name=ConfigurationHistory&MeterKey=${meterKey}&MeterConfigurationID=${meterConfigurationID}`}>Meter Configuration Via System Center</a>
+                        <a className="pull-right" target="_blank" href={props.Settings.SystemCenterUrl + `?name=ConfigurationHistory&MeterKey=${meterKey}&MeterConfigurationID=${meterConfigurationID}`}>
+                            Meter Configuration Via System Center
+                        </a>
                     }
                 </div>
 

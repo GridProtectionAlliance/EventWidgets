@@ -48,7 +48,7 @@ interface IInnerDataStructure {
     [key: string]: [number, number][]
 }
 
-function getColor(label) {
+function getColor(label: string) {
     if (label.indexOf('VA') >= 0) return '#A30000';
     if (label.indexOf('VB') >= 0) return '#0029A3';
     if (label.indexOf('VC') >= 0) return '#007A29';

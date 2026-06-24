@@ -173,9 +173,9 @@ const PQAI: EventWidget.IWidget<ISetting> = {
             });
         }, [props.Settings.Groups, selectedIndex, setGroup]);
 
-        const displayedGroup = React.useMemo(() => 
+        const displayedGroup = React.useMemo(() =>
             [props.Settings.Groups?.[selectedIndex]]
-        , [props.Settings.Groups, selectedIndex])
+            , [props.Settings.Groups, selectedIndex])
 
         return (
             <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
@@ -185,7 +185,7 @@ const PQAI: EventWidget.IWidget<ISetting> = {
                             <button
                                 className={"btn btn-block btn-info"}
                                 onClick={() => setGroup({ Color: SpacedColor(1, 0.5), Data: [], Label: null, Identifier: null })}
-                                >Add New Group</button>
+                            >Add New Group</button>
                         </div>
                     </div>
                     <Table<IGroup>
@@ -194,7 +194,7 @@ const PQAI: EventWidget.IWidget<ISetting> = {
                         Ascending={false}
                         OnSort={() => { /* do nothing */ }}
                         KeySelector={(_, i) => i}
-                        OnClick={({index}) => setSelectedIndex(index)}
+                        OnClick={({ index }) => setSelectedIndex(index)}
                         Selected={(_, index) => index === selectedIndex}
                     >
                         <Column<IGroup>
@@ -209,7 +209,7 @@ const PQAI: EventWidget.IWidget<ISetting> = {
                         ># of Points</Column>
                     </Table>
                 </div>
-                <div className="col-4 h-100" style={{display: "flex", flexDirection: "column" }}>
+                <div className="col-4 h-100" style={{ display: "flex", flexDirection: "column" }}>
                     {props.Settings.Groups?.[selectedIndex] == null ? null :
                         <>
                             <div className="row">
@@ -285,8 +285,8 @@ const PQAI: EventWidget.IWidget<ISetting> = {
                                 <div className="col">
                                     <button
                                         className={"btn btn-block btn-info"}
-                                        onClick={() => setDatum([0,0])}
-                                        >Add Data Point</button>
+                                        onClick={() => setDatum([0, 0])}
+                                    >Add Data Point</button>
                                 </div>
                             </div>
                         </>
@@ -316,7 +316,7 @@ const PQAI: EventWidget.IWidget<ISetting> = {
                                 </div>
                             </div>
                             <div className="row w-100">
-                                <PlotComponent ShowLegend={false} Groups={displayedGroup}/>
+                                <PlotComponent ShowLegend={false} Groups={displayedGroup} />
                             </div>
                         </>
                     }
@@ -327,9 +327,6 @@ const PQAI: EventWidget.IWidget<ISetting> = {
     Widget: (props: EventWidget.IWidgetProps<ISetting>) => {
         const [tagData, setTagData] = React.useState<ITagData[]>([]);
         const [tagStatus, setTagStatus] = React.useState<Application.Types.Status>('uninitiated');
-        const controller = React.useMemo(() =>
-            new GenericController<OpenXDA.Types.EventEventTag>(`${props.HomePath}api/EventWidgets/EventEventTag`, "ID", true)
-            , [props.HomePath]);
 
         const plotTagData: ITagPlotData = React.useMemo(() => {
             const tags: ITagPlotData = {};
@@ -348,6 +345,8 @@ const PQAI: EventWidget.IWidget<ISetting> = {
         }, [tagData, props.Settings.Groups]);
 
         React.useEffect(() => {
+            const controller = new GenericController<OpenXDA.Types.EventEventTag>(`${props.HomePath}api/EventWidgets/EventEventTag`, "ID", true);
+
             setTagStatus('loading');
             const handle = controller.DBSearch([{
                 FieldName: 'TagName',
@@ -356,7 +355,7 @@ const PQAI: EventWidget.IWidget<ISetting> = {
                 Type: 'string',
                 IsPivotColumn: false
             }], undefined, undefined, props.EventID);
-            
+
             handle.done((tags: OpenXDA.Types.EventEventTag[]) => {
                 setTagData(tags.map(tag => JSON.parse(tag.TagData)));
                 setTagStatus('idle');
@@ -366,7 +365,7 @@ const PQAI: EventWidget.IWidget<ISetting> = {
             });
 
             return () => { if (handle?.abort != null) handle.abort(); }
-        }, [props.EventID]);
+        }, [props.EventID, props.HomePath]);
 
         if (tagStatus === 'error')
             return (
@@ -410,7 +409,7 @@ function PlotComponent(props: IPlotProps) {
             .map(point => point[0]);
         const min = Math.min(...xValues);
         const max = Math.max(...xValues);
-        const margin = 0.1*(max-min)
+        const margin = 0.1 * (max - min)
         return [min - margin, max + margin];
     }, [props.Groups, props.EventPoints]);
 
@@ -503,7 +502,7 @@ function PlotComponent(props: IPlotProps) {
                                     Legend={group.Label ?? group.Identifier} />
                             );
                         }
-                    )}
+                        )}
                     {Object.keys(props.EventPoints ?? {})
                         .filter(key => !props.EventPoints[key].hasMatch)
                         .map(key =>

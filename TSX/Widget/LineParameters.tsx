@@ -51,9 +51,10 @@ interface ISetting {
 }
 
 const LineParameters: EventWidget.IWidget<ISetting> = {
-
     Name: 'LineParameters',
-    DefaultSettings: { SystemCenterURL: 'http://localhost:8989' },
+    DefaultSettings: {
+        SystemCenterURL: 'http://localhost:8989'
+    },
     Settings: (props) => {
         return <div className="row">
             <div className="col">
@@ -69,14 +70,13 @@ const LineParameters: EventWidget.IWidget<ISetting> = {
     },
     Widget: (props: EventWidget.IWidgetProps<ISetting>) => {
         const [hidden, setHidden] = React.useState<boolean>(true);
-        const [lineParameters, setLineParameters] = React.useState<ILineParameters>(null);
+        const [lineParameters, setLineParameters] = React.useState<ILineParameters | null>(null);
         const [loopParameters, setLoopParemeters] = React.useState<ILoopImpedance[]>([]);
-
 
         React.useEffect(() => {
             const handle = $.ajax({
                 type: "GET",
-                url: `${props.HomePath}LineParameter/${props.EventID}`,
+                url: `${props.HomePath}/EventWidgets/LineParameter/${props.EventID}`,
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
                 cache: true,
@@ -116,7 +116,7 @@ const LineParameters: EventWidget.IWidget<ISetting> = {
                 PerMileZS: zsm.toFixed(3),
                 PerMileRS: rsm.toFixed(4),
                 PerMileXS: xsm.toFixed(4)
-            }])    
+            }])
 
         }, [lineParameters])
 
@@ -131,7 +131,7 @@ const LineParameters: EventWidget.IWidget<ISetting> = {
                 </div>
                 <div className="card-body">
                     <Table<ILoopImpedance>
-                        KeySelector={(item) => item.ID }
+                        KeySelector={(item) => item.ID}
                         Data={loopParameters}
                         OnClick={() => { /* Do Nothing */ }}
                         OnSort={() => { /* Do Nothing */ }}
@@ -148,7 +148,8 @@ const LineParameters: EventWidget.IWidget<ISetting> = {
                             Field={'Length'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
-                        > Length (mi)
+                        >
+                            Length (mi)
                         </Column>
                         <Column<ILoopImpedance>
                             Key={'ZS'}
@@ -156,7 +157,8 @@ const LineParameters: EventWidget.IWidget<ISetting> = {
                             Field={'ZS'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
-                        > ZS (Ohm)
+                        >
+                            ZS (Ohm)
                         </Column>
                         <Column<ILoopImpedance>
                             Key={'Ang'}
@@ -164,7 +166,8 @@ const LineParameters: EventWidget.IWidget<ISetting> = {
                             Field={'Ang'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
-                        > Ang (Deg)
+                        >
+                            Ang (Deg)
                         </Column>
                         <Column<ILoopImpedance>
                             Key={'RS'}
@@ -172,7 +175,8 @@ const LineParameters: EventWidget.IWidget<ISetting> = {
                             Field={'RS'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
-                        > RS (Ohm)
+                        >
+                            RS (Ohm)
                         </Column>
                         <Column<ILoopImpedance>
                             Key={'XS'}
@@ -180,7 +184,8 @@ const LineParameters: EventWidget.IWidget<ISetting> = {
                             Field={'XS'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
-                        > XS (Ohm)
+                        >
+                            XS (Ohm)
                         </Column>
                         <Column<ILoopImpedance>
                             Key={'PerMileZS'}
@@ -188,7 +193,8 @@ const LineParameters: EventWidget.IWidget<ISetting> = {
                             Field={'PerMileZS'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
-                        > Per Mile ZS
+                        >
+                            Per Mile ZS
                         </Column>
                         <Column<ILoopImpedance>
                             Key={'PerMileRS'}
@@ -196,7 +202,8 @@ const LineParameters: EventWidget.IWidget<ISetting> = {
                             Field={'PerMileRS'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
-                        > Per Mile RS
+                        >
+                            Per Mile RS
                         </Column>
                         <Column<ILoopImpedance>
                             Key={'PerMileXS'}
@@ -204,7 +211,8 @@ const LineParameters: EventWidget.IWidget<ISetting> = {
                             Field={'PerMileXS'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
-                        > Per Mile XS
+                        >
+                            Per Mile XS
                         </Column>
                     </Table>
                 </div>
