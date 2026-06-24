@@ -75,7 +75,7 @@ const EventSearchFileInfo: EventWidget.IWidget<ISetting> = {
             }).fail(() => setFileNameStatus('error'));
 
             return () => {
-                if (handle?.abort != undefined) {
+                if (handle?.abort != null) {
                     handle.abort();
                 }
             };
@@ -91,7 +91,7 @@ const EventSearchFileInfo: EventWidget.IWidget<ISetting> = {
             }).fail(() => setMappedChannelsStatus('error'));
 
             return () => {
-                if (handle?.abort != undefined) {
+                if (handle?.abort != null) {
                     handle.abort();
                 }
             };
@@ -110,7 +110,7 @@ const EventSearchFileInfo: EventWidget.IWidget<ISetting> = {
             }).fail(() => setMeterConfigurationStatus('error'));
 
             return () => {
-                if (handle?.abort != undefined) {
+                if (handle?.abort != null) {
                     handle.abort();
                 }
             };

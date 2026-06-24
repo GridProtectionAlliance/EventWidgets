@@ -169,7 +169,7 @@ const ITOA: EventWidget.IWidget<ISetting> = {
             }).fail(() => setStatus('error'));
 
             return () => {
-                if (handle?.abort != undefined) {
+                if (handle?.abort != null) {
                     handle.abort();
                 }
             };

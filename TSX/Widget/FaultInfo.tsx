@@ -78,7 +78,7 @@ const FaultInfo: EventWidget.IWidget<{}> = {
             });
 
             return () => {
-                if (handle?.abort != undefined) {
+                if (handle?.abort != null) {
                     handle.abort();
                 }
             };
@@ -94,7 +94,7 @@ const FaultInfo: EventWidget.IWidget<{}> = {
             }).fail(() => setLinksStatus('error'));
 
             return () => {
-                if (handle?.abort != undefined) {
+                if (handle?.abort != null) {
                     handle.abort();
                 }
             }
