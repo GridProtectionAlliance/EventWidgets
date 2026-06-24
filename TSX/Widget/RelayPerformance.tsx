@@ -29,6 +29,7 @@ import { Input } from '@gpa-gemstone/react-forms';
 import { Application } from '@gpa-gemstone/application-typings';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { CreateGuid } from '@gpa-gemstone/helper-functions';
+import { Alert } from '@gpa-gemstone/react-interactive';
 
 interface IRelayPerformanceTrend {
     BreakerID: number,
@@ -118,7 +119,11 @@ const EventSearchRelayPerformance: EventWidget.IWidget<ISetting> = {
                         <div className='d-flex align-items-center justify-content-center' style={{ height: props.MaxHeight ?? 250 }}>
                             <ReactIcons.SpiningIcon Size={'50%'} />
                         </div>
-                        :
+                        : data.length === 0 ? 
+                            <Alert Class='alert-info'>
+                                No breaker performance data.
+                            </Alert>
+                        : 
                         <Table<IRelayPerformanceTrendWithID>
                             Data={dataWithID}
                             OnClick={() => { /* Do Nothing */ }}
@@ -142,7 +147,8 @@ const EventSearchRelayPerformance: EventWidget.IWidget<ISetting> = {
                                         <div style={{ width: '100%', height: '100%' }}> {row.item.EventID} </div>
                                     </a>
                                 )}
-                            > Event ID
+                            >
+                                Event ID
                             </Column>
                             <Column<IRelayPerformanceTrendWithID>
                                 Key={'TripInitiate'}
@@ -151,7 +157,8 @@ const EventSearchRelayPerformance: EventWidget.IWidget<ISetting> = {
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
                                 Content={row => moment(row.item.TripInitiate).format('MM/DD/YY HH:mm:ss.SSSS')}
-                            > Trip Initiation Time
+                            >
+                                Trip Initiation Time
                             </Column>
                             <Column<IRelayPerformanceTrendWithID>
                                 Key={'TripTime'}
@@ -160,7 +167,8 @@ const EventSearchRelayPerformance: EventWidget.IWidget<ISetting> = {
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
                                 Content={row => `${row.item.TripTime} micros`}
-                            > Trip Time
+                            >
+                                Trip Time
                             </Column>
                             <Column<IRelayPerformanceTrendWithID>
                                 Key={'PickupTime'}
@@ -169,7 +177,8 @@ const EventSearchRelayPerformance: EventWidget.IWidget<ISetting> = {
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
                                 Content={row => `${row.item.PickupTime} micros`}
-                            > Pickup Time
+                            >
+                                Pickup Time
                             </Column>
                             <Column<IRelayPerformanceTrendWithID>
                                 Key={'ExtinctionTimeA'}
@@ -178,7 +187,8 @@ const EventSearchRelayPerformance: EventWidget.IWidget<ISetting> = {
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
                                 Content={row => `${row.item.ExtinctionTimeA} micros`}
-                            > Extinction Time
+                            >
+                                Extinction Time
                             </Column>
                             <Column<IRelayPerformanceTrendWithID>
                                 Key={'TripCoilCondition'}
@@ -187,7 +197,8 @@ const EventSearchRelayPerformance: EventWidget.IWidget<ISetting> = {
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
                                 Content={row => `${row.item.TripCoilCondition.toFixed(2)} A/s`}
-                            > Trip Coil Condition
+                            >
+                                Trip Coil Condition
                             </Column>
                             <Column<IRelayPerformanceTrendWithID>
                                 Key={'Imax1'}
@@ -196,7 +207,8 @@ const EventSearchRelayPerformance: EventWidget.IWidget<ISetting> = {
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
                                 Content={row => `${row.item.Imax1.toFixed(3)} A`}
-                            > L1
+                            >
+                                L1
                             </Column>
                             <Column<IRelayPerformanceTrendWithID>
                                 Key={'Imax2'}
