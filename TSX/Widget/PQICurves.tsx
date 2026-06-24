@@ -25,6 +25,9 @@ import React from 'react';
 import { EventWidget } from '../global';
 import { Plot, Line } from '@gpa-gemstone/react-graph';
 import { useGetContainerPosition } from "@gpa-gemstone/helper-functions";
+import { Application } from '@gpa-gemstone/application-typings';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
+import { Alert } from '@gpa-gemstone/react-interactive';
 
 interface ICurve {
     Name: string,
@@ -48,28 +51,39 @@ const PQICurves: EventWidget.IWidget<{}> = {
 
         const [curves, setCurves] = React.useState<ICurve[]>([]);
         const [maxV, setMaxV] = React.useState<number>(1);
+        const [hasPQIData, setHasPQIData] = React.useState<boolean | undefined>(undefined);
+        const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
 
         React.useEffect(() => {
-            const handle = $.ajax({
-                type: "POST",
-                url: `${props.HomePath}api/EventWidgets/PQI/GetCurves`,
-                contentType: "application/json; charset=utf-8",
-                data: JSON.stringify({
-                    EventID: props.EventID,
-                }),
-                dataType: 'json',
-                cache: true,
-                async: true
-            });
+            setStatus('loading');
+            setCurves([]);
+            setHasPQIData(undefined);
 
-            handle.done(data => {
-                setCurves(data.map((c: any) => ({ Name: c['m_Item1']['Name'] as string, Data: c['m_Item2'].map(p => [p['X'] as number, p['Y'] / (c['m_Item1']['NominalVoltage'] ?? 1) as number]) })))
-            });
+            let curveHandle: JQuery.jqXHR<any[]> | undefined;
+            const availabilityHandle = getHasPQIData(props.HomePath, props.EventID);
+
+            availabilityHandle.done((available) => {
+                setHasPQIData(available);
+
+                if (!available) {
+                    setStatus('idle');
+                    return;
+                }
+
+                curveHandle = getCurves(props.HomePath, props.EventID);
+                curveHandle.done(data => {
+                    setCurves(data.map((c: any) => ({ Name: c['m_Item1']['Name'] as string, Data: c['m_Item2'].map(p => [p['X'] as number, p['Y'] / (c['m_Item1']['NominalVoltage'] ?? 1) as number]) })));
+                    setStatus('idle');
+                }).fail(() => setStatus('error'));
+            }).fail(() => setStatus('error'));
 
             return function () {
-                if (handle.abort != undefined) handle.abort();
+                if (availabilityHandle?.abort != null)
+                    availabilityHandle.abort();
+                if (curveHandle?.abort != null)
+                    curveHandle.abort();
             }
-        }, [props.EventID]);
+        }, [props.EventID, props.HomePath]);
 
         React.useEffect(() => {
             if (curves.length > 0)
@@ -82,48 +96,90 @@ const PQICurves: EventWidget.IWidget<{}> = {
                     PQI Impacted Curves:
                 </div>
                 <div className="card-body">
-                    <div className="row m-0">
-                        <div className="col-12 p-0" ref={containerRef} style={{ height: props.MaxHeight - 100 }}>
-                            <Plot
-                                height={props.MaxHeight - 100}
-                                width={width}
-                                showBorder={false}
-                                defaultTdomain={[0.00001, 1000]}
-                                defaultYdomain={[0, maxV]}
-                                Tmax={1000}
-                                Tmin={0.00001}
-                                Ymax={9999}
-                                Ymin={0}
-                                legend={'right'}
-                                Tlabel={'Duration (s)'}
-                                Ylabel={'Magnitude (pu)'}
-                                showMouse={false}
-                                showGrid={true}
-                                yDomain={'Manual'}
-                                zoom={true} pan={true}
-                                useMetricFactors={false}
-                                XAxisType={'log'}
-                                onSelect={() => { }}
-                            >
-                                {curves.map((c, i) =>
-                                    <Line
-                                        highlightHover={false}
-                                        showPoints={false}
-                                        lineStyle={'-'}
-                                        color={baseColors[i % baseColors.length]}
-                                        data={c.Data as [number, number][]}
-                                        legend={c.Name}
-                                         key={i}
-                                        width={3}
-                                    />
-                                )}
-                            </Plot>
+                    {status === 'loading' || status === 'uninitiated' ?
+                        <div className='d-flex align-items-center justify-content-center' style={{ height: props.MaxHeight ?? 250 }}>
+                            <ReactIcons.SpiningIcon Size={'50%'} />
                         </div>
-                    </div>
+                        : status === 'error' ?
+                            <Alert Class='alert-danger'>
+                                An error occurred while fetching PQI data, please check SystemCenter for more details.
+                            </Alert>
+                            : hasPQIData === false ?
+                                <Alert Class='alert-info'>
+                                    PQI does not have data for this event.
+                                </Alert>
+                                : curves.length === 0 ?
+                                    <Alert Class='alert-info'>
+                                        No PQI curve data.
+                                    </Alert>
+                                    :
+                                    <div className="row m-0">
+                                        <div className="col-12 p-0" ref={containerRef} style={{ height: props.MaxHeight - 100 }}>
+                                            <Plot
+                                                height={props.MaxHeight - 100}
+                                                width={width}
+                                                showBorder={false}
+                                                defaultTdomain={[0.00001, 1000]}
+                                                defaultYdomain={[0, maxV]}
+                                                Tmax={1000}
+                                                Tmin={0.00001}
+                                                Ymax={9999}
+                                                Ymin={0}
+                                                legend={'right'}
+                                                Tlabel={'Duration (s)'}
+                                                Ylabel={'Magnitude (pu)'}
+                                                showMouse={false}
+                                                showGrid={true}
+                                                yDomain={'Manual'}
+                                                zoom={true} pan={true}
+                                                useMetricFactors={false}
+                                                XAxisType={'log'}
+                                                onSelect={() => { }}
+                                            >
+                                                {curves.map((c, i) =>
+                                                    <Line
+                                                        highlightHover={false}
+                                                        showPoints={false}
+                                                        lineStyle={'-'}
+                                                        color={baseColors[i % baseColors.length]}
+                                                        data={c.Data as [number, number][]}
+                                                        legend={c.Name}
+                                                        key={i}
+                                                        width={3}
+                                                    />
+                                                )}
+                                            </Plot>
+                                        </div>
+                                    </div>
+                    }
                 </div>
             </div>
         );
     }
+}
+
+const getHasPQIData = (homePath: string, eventID: number) => {
+    return $.ajax({
+        type: 'POST',
+        url: `${homePath}api/EventWidgets/PQI/HasPQIData`,
+        contentType: 'application/json; charset=utf-8',
+        data: JSON.stringify({ EventID: eventID }),
+        dataType: 'json',
+        cache: true,
+        async: true
+    }) as JQuery.jqXHR<boolean>;
+}
+
+const getCurves = (homePath: string, eventID: number) => {
+    return $.ajax({
+        type: 'POST',
+        url: `${homePath}api/EventWidgets/PQI/GetCurves`,
+        contentType: 'application/json; charset=utf-8',
+        data: JSON.stringify({ EventID: eventID }),
+        dataType: 'json',
+        cache: true,
+        async: true
+    }) as JQuery.jqXHR<any[]>;
 }
 
 export default PQICurves;
