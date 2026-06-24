@@ -24,8 +24,11 @@ import * as React from 'react';
 import moment from 'moment';
 import { LineWithThreshold, Plot } from '@gpa-gemstone/react-graph';
 import { Table, Column } from '@gpa-gemstone/react-table';
-import { RandomColor } from '@gpa-gemstone/helper-functions';
+import { RandomColor, useGetContainerPosition } from '@gpa-gemstone/helper-functions';
 import { EventWidget } from '../global';
+import { Application } from '@gpa-gemstone/application-typings';
+import { Alert } from '@gpa-gemstone/react-interactive';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 
 interface IRelayPerformance {
     EventID: number,
@@ -59,175 +62,234 @@ interface IRelayPerformance {
 const EventSearchBreakerPerformance: EventWidget.IWidget<{}> = {
     Name: 'BreakerPerformance',
     DefaultSettings: {},
-    Settings: () => {
-        return <></>
-    },
+    Settings: () => <></>,
     Widget: (props: EventWidget.IWidgetProps<{}>) => {
-        const divref = React.useRef(null);
-        const [relayPeformance, setRelayPerformance] = React.useState<IRelayPerformance[]>([]);
-        const [Tstart, setTstart] = React.useState<number>(0);
-        const [Tend, setTend] = React.useState<number>(0);
+        const divref = React.useRef<HTMLDivElement | null>(null);
+        const { offsetWidth: Width } = useGetContainerPosition(divref);
+
         const [data, setData] = React.useState<IRelayPerformance[]>([]);
-        const [Width, SetWidth] = React.useState<number>(0);
+        const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
+        const Tstart = data.length === 0 ? 0 : moment.utc(data[0].TripInitiate).valueOf();
+        const Tend = data.length === 0 ? 0 : moment.utc(data[data.length - 1].TripInitiate).valueOf();
 
         React.useEffect(() => {
-
-            const handle = getRelayPerformance()
+            setStatus('loading');
+            const handle = getRelayPerformance(props.HomePath, props.EventID);
             handle.done((data) => {
                 setData(data);
-            });
-            return () => { if (handle != null && handle.abort != null) handle.abort(); };
+                setStatus('idle');
+            }).fail(() => setStatus('error'));
 
+            return () => {
+                if (handle?.abort != null)
+                    handle.abort();
+            };
         }, [props.EventID]);
 
-        React.useLayoutEffect(() => { SetWidth(divref?.current?.offsetWidth ?? 0) });
-
-        React.useEffect(() => {
-            if (data.length == 0) return;
-            setTstart(moment.utc(data[0].TripInitiate).valueOf());
-            setTend(moment.utc(data[data.length - 1].TripInitiate).valueOf())
-        }, [data])
-
-        function getRelayPerformance(): JQuery.jqXHR<IRelayPerformance[]> {
-          
-            const h = $.ajax({
-                type: "GET",
-                url: `${props.HomePath}api/EventWidgets/BreakerPerformance?eventID=${props.EventID}`,
-                contentType: "application/json; charset=utf-8",
-                dataType: 'json',
-                cache: false,
-                async: true
-            });
-
-            h.done((d: IRelayPerformance[]) => { if (d != null) setRelayPerformance(d); })
-            return h;
-        }
-
         return (
-            <>
-                <div className="card">
-                    <div className="card-header fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>
-                        Historic Breaker Performance:
-                    </div>
-                    <div className="card-body" ref={divref}>
-                        {relayPeformance.length > 0 ? <div>
-                            <Plot height={400} width={Width - 100} showBorder={false} defaultTdomain={[Tstart, Tend]} legend={'bottom'} Tlabel={'Time'}
-                                Ylabel={'Trip (micros)'} showMouse={true} zoom={false} pan={false} useMetricFactors={false}>
-                                <LineWithThreshold highlightHover={true} showPoints={true} lineStyle={'-'} color={RandomColor()} data={relayPeformance.map(ev => [moment.utc(ev.TripInitiate).valueOf(), ev.TripTime * 0.1] as [number, number]).reverse()}
-                                    threshHolds={relayPeformance.length > 0 && relayPeformance[0].TripTimeAlert != 0 && relayPeformance[0].TripTimeAlert != undefined ? [{ Value: relayPeformance[0].TripTimeAlert, Color: '#ff0000' }] : []} legend={'Trip Time'}
-                                />
-                            </Plot>
-                            <Plot height={400} width={Width - 100} showBorder={false} defaultTdomain={[Tstart, Tend]} legend={'bottom'} Tlabel={'Time'}
-                                Ylabel={'Pickup (micros)'} showMouse={true} zoom={false} pan={false} useMetricFactors={false}>
-                                <LineWithThreshold highlightHover={true} showPoints={true} lineStyle={'-'} color={RandomColor()} data={relayPeformance.map(ev => [moment.utc(ev.TripInitiate).valueOf(), ev.PickupTime * 0.1] as [number, number]).reverse()}
-                                    threshHolds={relayPeformance.length > 0 && relayPeformance[0].PickupTimeAlert != 0 && relayPeformance[0].PickupTimeAlert != undefined ? [{ Value: relayPeformance[0].PickupTimeAlert, Color: '#ff0000' }] : []} legend={'Pickup Time'}
-                                />
-                            </Plot>
-                            <Plot height={400} width={Width - 100} showBorder={false} defaultTdomain={[Tstart, Tend]} legend={'bottom'} Tlabel={'Time'}
-                                Ylabel={'TCC (A/s)'} showMouse={true} zoom={false} pan={false} useMetricFactors={false}>
-                                <LineWithThreshold highlightHover={true} showPoints={true} lineStyle={'-'} color={RandomColor()} data={relayPeformance.map(ev => [moment.utc(ev.TripInitiate).valueOf(), ev.TripCoilCondition] as [number, number]).reverse()}
-                                    threshHolds={relayPeformance.length > 0 && relayPeformance[0].TripcoilConditionAlert != 0 && relayPeformance[0].TripcoilConditionAlert != undefined ? [{ Value: relayPeformance[0].TripcoilConditionAlert, Color: '#ff0000' }] : []} legend={'Trip Coil condition'}
-                                />
-                            </Plot>
-                        </div> : null}
-                        <Table<IRelayPerformance>
-                            Data={data}
-                            KeySelector={item => item.EventID}
-                            OnClick={() => { /* Do Nothing */ }}
-                            OnSort={() => { /* Do Nothing */ }}
-                            SortKey={''}
-                            Ascending={true}
-                            TableClass="table"
-                            TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', height: 50 }}
-                            TbodyStyle={{ display: 'block', overflowY: 'scroll', width: '100%', maxHeight: props.MaxHeight ?? 500 }}
-                            RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        >
-                            <Column<IRelayPerformance>
-                                Key={'EventID'}
-                                AllowSort={false}
-                                Field={'EventID'}
-                                HeaderStyle={{ width: 'auto' }}
-                                RowStyle={{ width: 'auto' }}
-                            > Event ID
-                            </Column>
-                            <Column<IRelayPerformance>
-                                Key={'EventType'}
-                                AllowSort={false}
-                                Field={'EventType'}
-                                HeaderStyle={{ width: 'auto' }}
-                                RowStyle={{ width: 'auto' }}
-                            > Type
-                            </Column>
-                            <Column<IRelayPerformance>
-                                Key={'TripInitiate'}
-                                AllowSort={false}
-                                Field={'TripInitiate'}
-                                HeaderStyle={{ width: 'auto' }}
-                                RowStyle={{ width: 'auto' }}
-                                Content={row => moment(row.item.TripInitiate).format('MM/DD/YY HH:mm:ss.SSSS')}
-                            > Trip Initiation
-                            </Column>
-                            <Column<IRelayPerformance>
-                                Key={'TripCoilCondition'}
-                                AllowSort={false}
-                                Field={'TripCoilCondition'}
-                                HeaderStyle={{ width: 'auto' }}
-                                RowStyle={{ width: 'auto' }}
-                                Content={row => `${row.item.TripCoilCondition.toFixed(2)} A/s`}
-                            > Trip Coil Condition
-                            </Column>
-                            <Column<IRelayPerformance>
-                                Key={'TripCoilConditionTime'}
-                                AllowSort={false}
-                                Field={'TripCoilConditionTime'}
-                                HeaderStyle={{ width: 'auto' }}
-                                RowStyle={{ width: 'auto' }}
-                                Content={row => `${(row.item.TripCoilConditionTime / 10).toFixed(0)}`}
-                            > Tril Coil Condition Time
-                            </Column>
-                            <Column<IRelayPerformance>
-                                Key={'Tend'}
-                                AllowSort={false}
-                                Field={'Tend'}
-                                HeaderStyle={{ width: 'auto' }}
-                                RowStyle={{ width: 'auto' }}
-                                Content={row => `${(row.item.Tend / 10).toFixed(0)}`}
-                            > TCE Curr. Extinction
-                            </Column>
-                            <Column<IRelayPerformance>
-                                Key={'ExtinctionTimeA'}
-                                AllowSort={false}
-                                Field={'ExtinctionTimeA'}
-                                HeaderStyle={{ width: 'auto' }}
-                                RowStyle={{ width: 'auto' }}
-                                Content={row => `${(row.item.ExtinctionTimeA / 10).toFixed(0)}`}
-                            > Arc Time A
-                            </Column>
-                            <Column<IRelayPerformance>
-                                Key={'ExtinctionTimeB'}
-                                AllowSort={false}
-                                Field={'ExtinctionTimeB'}
-                                HeaderStyle={{ width: 'auto' }}
-                                RowStyle={{ width: 'auto' }}
-                                Content={row => `${(row.item.ExtinctionTimeB / 10).toFixed(0)}`}
-                            > Arc Time B
-                            </Column>
-                            <Column<IRelayPerformance>
-                                Key={'ExtinctionTimeC'}
-                                AllowSort={false}
-                                Field={'ExtinctionTimeC'}
-                                HeaderStyle={{ width: 'auto' }}
-                                RowStyle={{ width: 'auto' }}
-                                Content={row => `${(row.item.ExtinctionTimeC / 10).toFixed(0)}`}
-                            > Arc Time C
-                            </Column>
-                        </Table>
-                    </div>
+            <div className="card">
+                <div className="card-header fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>
+                    Historic Breaker Performance:
                 </div>
-            </>
+                <div className="card-body" ref={divref}>
+                    {status === 'loading' ?
+                        <div className='d-flex align-items-center justify-content-center' style={{ height: props.MaxHeight ?? 250 }}>
+                            <ReactIcons.SpiningIcon Size={'50%'} />
+                        </div>
+                        : data.length === 0 ?
+                            <Alert Class='alert-info'>
+                                No historic breaker performance data.
+                            </Alert>
+                            :
+                            <>
+                                <Plot
+                                    height={400}
+                                    width={Width - 100}
+                                    showBorder={false}
+                                    defaultTdomain={[Tstart, Tend]}
+                                    legend={'bottom'}
+                                    Tlabel={'Time'}
+                                    Ylabel={'Trip (micros)'}
+                                    showMouse={true}
+                                    zoom={false}
+                                    pan={false}
+                                    useMetricFactors={false}
+                                >
+                                    <LineWithThreshold
+                                        highlightHover={true}
+                                        showPoints={true}
+                                        lineStyle={'-'}
+                                        color={RandomColor()}
+                                        data={data.map(ev => [moment.utc(ev.TripInitiate).valueOf(), ev.TripTime * 0.1] as [number, number]).reverse()}
+                                        threshHolds={
+                                            data.length > 0 && data[0].TripTimeAlert != 0 && data[0].TripTimeAlert != undefined
+                                                ? [{ Value: data[0].TripTimeAlert, Color: '#ff0000' }]
+                                                : []
+                                        }
+                                        legend={'Trip Time'}
+                                    />
+                                </Plot>
+                                <Plot
+                                    height={400}
+                                    width={Width - 100}
+                                    showBorder={false}
+                                    defaultTdomain={[Tstart, Tend]}
+                                    legend={'bottom'}
+                                    Tlabel={'Time'}
+                                    Ylabel={'Pickup (micros)'}
+                                    showMouse={true}
+                                    zoom={false}
+                                    pan={false}
+                                    useMetricFactors={false}
+                                >
+                                    <LineWithThreshold
+                                        highlightHover={true}
+                                        showPoints={true}
+                                        lineStyle={'-'}
+                                        color={RandomColor()}
+                                        data={data.map(ev => [moment.utc(ev.TripInitiate).valueOf(), ev.PickupTime * 0.1] as [number, number]).reverse()}
+                                        threshHolds={
+                                            data.length > 0 && data[0].PickupTimeAlert != 0 && data[0].PickupTimeAlert != undefined ?
+                                                [{ Value: data[0].PickupTimeAlert, Color: '#ff0000' }]
+                                                : []
+                                        }
+                                        legend={'Pickup Time'}
+                                    />
+                                </Plot>
+                                <Plot height={400} width={Width - 100} showBorder={false} defaultTdomain={[Tstart, Tend]} legend={'bottom'} Tlabel={'Time'}
+                                    Ylabel={'TCC (A/s)'} showMouse={true} zoom={false} pan={false} useMetricFactors={false}>
+                                    <LineWithThreshold
+                                        highlightHover={true}
+                                        showPoints={true}
+                                        lineStyle={'-'}
+                                        color={RandomColor()}
+                                        data={data.map(ev => [moment.utc(ev.TripInitiate).valueOf(), ev.TripCoilCondition] as [number, number]).reverse()}
+                                        threshHolds={
+                                            data.length > 0 && data[0].TripcoilConditionAlert != 0 && data[0].TripcoilConditionAlert != undefined ?
+                                                [{ Value: data[0].TripcoilConditionAlert, Color: '#ff0000' }]
+                                                :
+                                                []
+                                        }
+                                        legend={'Trip Coil condition'}
+                                    />
+                                </Plot>
+
+                                <Table<IRelayPerformance>
+                                    Data={data}
+                                    KeySelector={item => item.EventID}
+                                    OnClick={() => { /* Do Nothing */ }}
+                                    OnSort={() => { /* Do Nothing */ }}
+                                    SortKey={''}
+                                    Ascending={true}
+                                    TableClass="table"
+                                    TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', height: 50 }}
+                                    TbodyStyle={{ display: 'block', overflowY: 'scroll', width: '100%', maxHeight: props.MaxHeight ?? 500 }}
+                                    RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                                >
+                                    <Column<IRelayPerformance>
+                                        Key={'EventID'}
+                                        AllowSort={false}
+                                        Field={'EventID'}
+                                        HeaderStyle={{ width: 'auto' }}
+                                        RowStyle={{ width: 'auto' }}
+                                    >
+                                        Event ID
+                                    </Column>
+                                    <Column<IRelayPerformance>
+                                        Key={'EventType'}
+                                        AllowSort={false}
+                                        Field={'EventType'}
+                                        HeaderStyle={{ width: 'auto' }}
+                                        RowStyle={{ width: 'auto' }}
+                                    >
+                                        Type
+                                    </Column>
+                                    <Column<IRelayPerformance>
+                                        Key={'TripInitiate'}
+                                        AllowSort={false}
+                                        Field={'TripInitiate'}
+                                        HeaderStyle={{ width: 'auto' }}
+                                        RowStyle={{ width: 'auto' }}
+                                        Content={row => moment(row.item.TripInitiate).format('MM/DD/YY HH:mm:ss.SSSS')}
+                                    >
+                                        Trip Initiation
+                                    </Column>
+                                    <Column<IRelayPerformance>
+                                        Key={'TripCoilCondition'}
+                                        AllowSort={false}
+                                        Field={'TripCoilCondition'}
+                                        HeaderStyle={{ width: 'auto' }}
+                                        RowStyle={{ width: 'auto' }}
+                                        Content={row => `${row.item.TripCoilCondition.toFixed(2)} A/s`}
+                                    >
+                                        Trip Coil Condition
+                                    </Column>
+                                    <Column<IRelayPerformance>
+                                        Key={'TripCoilConditionTime'}
+                                        AllowSort={false}
+                                        Field={'TripCoilConditionTime'}
+                                        HeaderStyle={{ width: 'auto' }}
+                                        RowStyle={{ width: 'auto' }}
+                                        Content={row => `${(row.item.TripCoilConditionTime / 10).toFixed(0)}`}
+                                    >
+                                        Tril Coil Condition Time
+                                    </Column>
+                                    <Column<IRelayPerformance>
+                                        Key={'Tend'}
+                                        AllowSort={false}
+                                        Field={'Tend'}
+                                        HeaderStyle={{ width: 'auto' }}
+                                        RowStyle={{ width: 'auto' }}
+                                        Content={row => `${(row.item.Tend / 10).toFixed(0)}`}
+                                    >
+                                        TCE Curr. Extinction
+                                    </Column>
+                                    <Column<IRelayPerformance>
+                                        Key={'ExtinctionTimeA'}
+                                        AllowSort={false}
+                                        Field={'ExtinctionTimeA'}
+                                        HeaderStyle={{ width: 'auto' }}
+                                        RowStyle={{ width: 'auto' }}
+                                        Content={row => `${row.item.ExtinctionTimeA == null ? 'n/a' : (row.item.ExtinctionTimeA / 10).toFixed(0)}`}
+                                    >
+                                        Arc Time A
+                                    </Column>
+                                    <Column<IRelayPerformance>
+                                        Key={'ExtinctionTimeB'}
+                                        AllowSort={false}
+                                        Field={'ExtinctionTimeB'}
+                                        HeaderStyle={{ width: 'auto' }}
+                                        RowStyle={{ width: 'auto' }}
+                                        Content={row => `${row.item.ExtinctionTimeB == null ? 'n/a' : (row.item.ExtinctionTimeB / 10).toFixed(0)}`}
+                                    >
+                                        Arc Time B
+                                    </Column>
+                                    <Column<IRelayPerformance>
+                                        Key={'ExtinctionTimeC'}
+                                        AllowSort={false}
+                                        Field={'ExtinctionTimeC'}
+                                        HeaderStyle={{ width: 'auto' }}
+                                        RowStyle={{ width: 'auto' }}
+                                        Content={row => `${row.item.ExtinctionTimeC == null ? 'n/a' : (row.item.ExtinctionTimeC / 10).toFixed(0)}`}
+                                    >
+                                        Arc Time C
+                                    </Column>
+                                </Table>
+                            </>}
+                </div>
+            </div>
         )
     }
 }
 
+const getRelayPerformance = (homePath: string, eventID: number): JQuery.jqXHR<IRelayPerformance[]> => {
+    return $.ajax({
+        type: "GET",
+        url: `${homePath}api/EventWidgets/BreakerPerformance?eventID=${eventID}`,
+        contentType: "application/json; charset=utf-8",
+        dataType: 'json',
+        cache: false,
+        async: true
+    });
+}
 export default EventSearchBreakerPerformance;
-

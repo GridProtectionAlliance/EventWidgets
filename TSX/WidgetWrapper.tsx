@@ -117,19 +117,18 @@ const WidgetRouter = (props: IProps) => {
 
     return (
         <>
-            {Widget == null ? <div className="card">
-                <div className="card-header">
-                    {props.Widget.Name} - Error
+            {Widget == null ?
+                <div className="card">
+                    <div className="card-header">
+                        {props.Widget.Name} - Error
+                    </div>
+                    <div className="card-body">
+                        <ServerErrorIcon Show={true}
+                            Label={`Widget ${props.Widget.Name} is not available. Please contact your system administrator.`}
+                            Size={150} />
+                    </div>
                 </div>
-                <div className="card-body">
-                    <ServerErrorIcon Show={true}
-                        Label={`Widget ${props.Widget.Name} is not available. Please contact your system administrator.`}
-                        Size={150} />
-                </div>
-            </div>
-                : <ErrorBoundary
-                    ErrorMessage={`Widget ${props.Widget.Name} has encoutered an error.`}
-                >
+                : <ErrorBoundary ErrorMessage={`Widget ${props.Widget.Name} has encoutered an error.`}>
                     <Widget.Widget
                         Settings={Settings}
                         EventID={props.EventID}

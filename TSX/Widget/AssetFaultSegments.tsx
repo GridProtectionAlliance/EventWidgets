@@ -27,6 +27,7 @@ import { EventWidget } from '../global';
 import { Table, Column } from '@gpa-gemstone/react-table';
 import { Application } from '@gpa-gemstone/application-typings';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
+import { Alert } from '@gpa-gemstone/react-interactive';
 
 interface IFaultSegment {
     ID: number;
@@ -73,6 +74,10 @@ const EventSearchAssetFaultSegments: EventWidget.IWidget<{}> = {
                         <div className='d-flex align-items-center justify-content-center' style={{ height: props.MaxHeight ?? 250 }}>
                             <ReactIcons.SpiningIcon Size={'50%'} />
                         </div>
+                        : data.length === 0 ? 
+                            <Alert Class="alert-info">
+                                No fault evolution data.
+                            </Alert>
                         :
                         <Table<IFaultSegment>
                             Data={data}

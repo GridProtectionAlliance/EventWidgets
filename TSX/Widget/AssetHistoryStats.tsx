@@ -27,6 +27,7 @@ import { Table, Column } from '@gpa-gemstone/react-table';
 import { Select } from '@gpa-gemstone/react-forms';
 import { Application, Gemstone } from '@gpa-gemstone/application-typings';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
+import { Alert } from '@gpa-gemstone/react-interactive';
 
 interface IStatsData {
     VPeakMax: number;
@@ -95,6 +96,10 @@ const AssetHistoryStats: EventWidget.IWidget<{}> = {
                         <div className='d-flex align-items-center justify-content-center' style={{ height: props.MaxHeight ?? 250 }}>
                             <ReactIcons.SpiningIcon Size={'50%'} />
                         </div>
+                        : Object.entries(statsData ?? {}).length === 0 ? 
+                            <Alert Class='alert-info'>
+                                No data stats data.
+                            </Alert>
                         :
                         <Table
                             Data={Object.entries(statsData ?? {}).map(([key, value]) => ({ Stat: key, Value: value }))}
