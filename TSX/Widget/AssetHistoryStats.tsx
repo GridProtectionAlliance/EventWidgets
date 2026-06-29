@@ -78,7 +78,7 @@ const AssetHistoryStats: EventWidget.IWidget<{}> = {
         return (
             <div className="card">
                 <div className="card-header fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>
-                    Stats for {statsData?.AssetName}:
+                    Event Statistics for {statsData?.AssetName}:
                     <div className='pull-right'>
                         <div className="form-inline">
                             <Select
@@ -144,7 +144,8 @@ const getStatsData = (homePath: string, eventID: number, time: TimeWindow) => {
     return $.ajax({
         url,
         method: 'GET',
-        dataType: 'json'
+        dataType: 'json',
+        cache: false
     });
 };
 
