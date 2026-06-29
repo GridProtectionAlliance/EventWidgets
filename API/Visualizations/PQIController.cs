@@ -59,6 +59,7 @@ namespace Widgets.API.Visualizations
         /// <param name="postData">Contains the <see cref="EventPost"/> post data related to this request.</param>
         [Route("GetEquipment")]
         [Route("GetCurves")]
+        [Route("HasPQIData")]
         [HttpPost]
         public async ServerResponse ForwardPQIRequest([FromBody] EventPost postData, CancellationToken token) =>
             await ForwardAndConstrainRequest(postData, token).ConfigureAwait(false);
