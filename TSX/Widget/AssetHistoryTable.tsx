@@ -100,7 +100,7 @@ const AssetHistoryTable: EventWidget.IWidget<ISetting> = {
                 </div>
                 <div className="card-body">
                     {status === 'loading' ?
-                        <div className='d-flex align-items-center justify-content-center' style={{ height: props.MaxHeight ?? 250 }}>
+                        <div className='d-flex align-items-center justify-content-center' style={{ height: 250 }}>
                             <ReactIcons.SpiningIcon Size={'50%'} />
                         </div>
                         :

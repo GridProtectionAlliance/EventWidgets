@@ -93,7 +93,7 @@ const EventSearchBreakerPerformance: EventWidget.IWidget<{}> = {
                 </div>
                 <div className="card-body" ref={divref}>
                     {status === 'loading' ?
-                        <div className='d-flex align-items-center justify-content-center' style={{ height: props.MaxHeight ?? 250 }}>
+                        <div className='d-flex align-items-center justify-content-center' style={{ height: 250 }}>
                             <ReactIcons.SpiningIcon Size={'50%'} />
                         </div>
                         : data.length === 0 ?

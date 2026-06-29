@@ -196,8 +196,8 @@ const EventSearchOpenSEE: EventWidget.IWidget<ISetting> = {
                 </div>
                 <div className="card-body p-0">
                     {isLoading ?
-                        <div className="d-flex justify-content-center align-items-center">
-                            <ReactIcons.SpiningIcon Size={250} />
+                        <div className="d-flex justify-content-center align-items-center" style={{ height: 250 }}>
+                            <ReactIcons.SpiningIcon Size={'50%'} />
                         </div> :
                         <div className="row m-0">
                             <div className="col-12 p-0" ref={plotRef}>
