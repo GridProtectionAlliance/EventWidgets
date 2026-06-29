@@ -23,11 +23,12 @@
 
 import * as React from 'react';
 import { Line, Plot, Circle, AggregatingCircles } from '@gpa-gemstone/react-graph';
-import { Application, OpenXDA } from '@gpa-gemstone/application-typings'
+import { Application, Gemstone, OpenXDA } from '@gpa-gemstone/application-typings'
 import { EventWidget } from '../global';
 import { CheckBox, Input } from '@gpa-gemstone/react-forms';
-import { GenericController, LoadingIcon, Search } from '@gpa-gemstone/react-interactive';
+import { Alert, LoadingIcon, Search } from '@gpa-gemstone/react-interactive';
 import _ from 'lodash';
+import { ReadOnlyControllerFunctions_Gemstone } from '@gpa-gemstone/common-pages';
 
 interface ISettings {
     Aggregate: boolean,
@@ -37,7 +38,7 @@ interface ISettings {
 interface ICurveData {
     [key: string]: {
         Color: string,
-        Data: [number,number][]
+        Data: [number, number][]
     }
 }
 
@@ -75,18 +76,14 @@ const MagDurChart: EventWidget.ICollectionWidget<ISettings> = {
     Widget: (props: EventWidget.ICollectionWidgetProps<ISettings>) => {
         const chart = React.useRef<HTMLDivElement | undefined>(undefined);
         const empty = React.useCallback(() => {/*Do Nothing*/ }, []);
-        const [dims, setDims] = React.useState<{ Width: number, Height: number }>({Width: 100, Height: 100});
+        const [dims, setDims] = React.useState<{ Width: number, Height: number }>({ Width: 100, Height: 100 });
         const [curves, setCurves] = React.useState<ICurveData>({});
         const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
         const [events, setEvents] = React.useState<OpenXDA.Types.EventSearch[]>([]);
 
-        const EventController = React.useMemo(() => new GenericController<OpenXDA.Types.EventSearch>(
-            `${props.HomePath}api/EventWidgets/Event`, "StartTime", true
-        ), [props.HomePath]);
+        const EventController = React.useMemo(() => new ReadOnlyControllerFunctions_Gemstone<OpenXDA.Types.EventSearch>(`${props.HomePath}api/EventWidgets/Event`,), [props.HomePath]);
 
-        const magDurController = React.useMemo(() => new GenericController<OpenXDA.Types.MagDurCurve>(
-            `${props.HomePath}api/EventWidgets/MagDurCurve`, "Name", true
-        ), [props.HomePath]);
+        const magDurController = React.useMemo(() => new ReadOnlyControllerFunctions_Gemstone<OpenXDA.Types.MagDurCurve>(`${props.HomePath}api/EventWidgets/MagDurCurve`), [props.HomePath]);
 
         const data: ICircleProps[] = React.useMemo(() =>
             events
@@ -100,7 +97,7 @@ const MagDurChart: EventWidget.ICollectionWidget<ISettings> = {
                             props.Callback(e.ID);
                     }
                 })
-        ), [events, props.EventID, props.Callback]);
+                ), [events, props.EventID, props.Callback]);
 
         const selectedCircle = React.useMemo(() => {
             if (props.EventID == null) return <></>;
@@ -147,10 +144,10 @@ const MagDurChart: EventWidget.ICollectionWidget<ISettings> = {
 
         React.useEffect(() => {
             setStatus('loading');
-            const handle = magDurController.Fetch();
+            const handle = magDurController.GetAll("Name", true);
 
             handle.then((curveData) => {
-                const curveDict: ICurveData = {}; 
+                const curveDict: ICurveData = {};
                 setStatus('idle');
                 curveData.forEach(curveDatum => {
                     curveDict[curveDatum.Name] = {
@@ -171,14 +168,13 @@ const MagDurChart: EventWidget.ICollectionWidget<ISettings> = {
         React.useEffect(() => {
             setStatus('loading');
             const handle: JQuery.jqXHR = EventController
-                .DBSearch(TransformFilter(props.CurrentFilter))
+                .GetAll("ID", true, TransformFilter(props.CurrentFilter))
                 .done((result) => {
                     setEvents(result.slice(0, props.Settings.ChartLimit));
                     setStatus('idle');
                 }).fail(() => {
                     setStatus('error');
                 });
-
 
             return () => {
                 if (handle != null && handle?.abort != null)
@@ -236,12 +232,18 @@ const MagDurChart: EventWidget.ICollectionWidget<ISettings> = {
                             {selectedCircle}
                         </Plot>
                     </div>
-                    <div className="alert alert-primary">
-                        {data?.length === props.Settings.ChartLimit ?
-                            `Only the first ${props.Settings.ChartLimit}  chronological results are shown - please narrow your search or increase the number of results in the application settings.` :
-                            `{${data?.length ?? 0} results`
-                        }
-                    </div> 
+                    {status === 'idle' && events.length === 0 ?
+                        <Alert Class='alert-info'>
+                            No magnitude duration event data.
+                        </Alert>
+                        :
+                        <div className="alert alert-primary">
+                            {data?.length === props.Settings.ChartLimit ?
+                                `Only the first ${props.Settings.ChartLimit}  chronological results are shown - please narrow your search or increase the number of results in the application settings.` :
+                                `{${data?.length ?? 0} results`
+                            }
+                        </div>
+                    }
                 </div>
             </div>
         )
@@ -290,39 +292,31 @@ function AggregateCurves(d, { XTransformation, YTransformation, YInverseTransfor
     };
 }
 
-function TransformFilter(filt: EventWidget.ICollectionFilter): Search.IFilter<OpenXDA.Types.EventSearch>[] {
-    const newFilt: Search.IFilter<OpenXDA.Types.EventSearch>[] = [];
+function TransformFilter(filt: EventWidget.ICollectionFilter): Gemstone.TSX.Interfaces.ISearchFilter<OpenXDA.Types.EventSearch>[] {
+    const newFilt: Gemstone.TSX.Interfaces.ISearchFilter<OpenXDA.Types.EventSearch>[] = [];
     if (filt?.TimeFilter != null)
         newFilt.push({
             FieldName: 'StartTime',
-            SearchText: filt.TimeFilter.StartTime,
-            Operator: '>=',
-            Type: 'datetime',
-            IsPivotColumn: false
+            SearchParameter: filt.TimeFilter.StartTime,
+            Operator: '>='
         }, {
             FieldName: 'StartTime',
-            SearchText: filt.TimeFilter.EndTime,
-            Operator: '<=',
-            Type: 'datetime',
-            IsPivotColumn: false
+            SearchParameter: filt.TimeFilter.EndTime,
+            Operator: '<='
         });
 
     if (filt?.MeterFilter != null)
         newFilt.push({
             FieldName: 'MeterID',
-            SearchText: `(${filt.MeterFilter.map(meter => meter.ID).join(',')})`,
-            Operator: 'IN',
-            Type: 'number',
-            IsPivotColumn: false
+            SearchParameter: `(${filt.MeterFilter.map(meter => meter.ID).join(',')})`,
+            Operator: 'IN'
         });
 
     if (filt?.TypeFilter != null)
         newFilt.push({
             FieldName: 'EventTypeID',
-            SearchText: `(${filt.TypeFilter.map(type => type.ID).join(',')})`,
-            Operator: 'IN',
-            Type: 'number',
-            IsPivotColumn: false
+            SearchParameter: `(${filt.TypeFilter.map(type => type.ID).join(',')})`,
+            Operator: 'IN'
         });
 
     return newFilt;
