@@ -28,6 +28,7 @@ import { Table, Column } from '@gpa-gemstone/react-table';
 import { Input } from '@gpa-gemstone/react-forms';
 import { Application } from '@gpa-gemstone/application-typings';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
+import { Alert } from '@gpa-gemstone/react-interactive';
 
 interface ITimeCorrelatedSags {
     EventID: number;
@@ -108,6 +109,10 @@ const EventSearchCorrelatedSags: EventWidget.IWidget<ISetting> = {
                         <div className='d-flex align-items-center justify-content-center' style={{ height: 250 }}>
                             <ReactIcons.SpiningIcon Size={'50%'} />
                         </div>
+                        : data.length === 0 ?
+                            <Alert Class='alert-info'>
+                                No correlated sag data.
+                            </Alert>
                         :
                         <Table<ITimeCorrelatedSags>
                             Data={data}

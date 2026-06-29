@@ -27,6 +27,7 @@ import { Table, Column } from '@gpa-gemstone/react-table';
 import { Input } from '@gpa-gemstone/react-forms';
 import { Application } from '@gpa-gemstone/application-typings';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
+import { Alert } from '@gpa-gemstone/react-interactive';
 
 interface ISetting {
     SystemCenterUrl: string
@@ -138,6 +139,10 @@ const EventSearchFileInfo: EventWidget.IWidget<ISetting> = {
                         <div className='d-flex align-items-center justify-content-center' style={{ height: '1.5em' }}>
                             <ReactIcons.SpiningIcon Size={'1em'} />
                         </div>
+                        : fileName.length === 0 ?
+                            <Alert Class='alert-info'>
+                                No file name data.
+                            </Alert>
                         :
                         <p>{fileName}</p>
                     }
@@ -145,6 +150,10 @@ const EventSearchFileInfo: EventWidget.IWidget<ISetting> = {
                         <div className='d-flex align-items-center justify-content-center' style={{ height: 250 }}>
                             <ReactIcons.SpiningIcon Size={'50%'} />
                         </div>
+                        : mappedChannels.length === 0 ?
+                            <Alert Class='alert-info'>
+                                No mapped channel data.
+                            </Alert>
                         :
                         <Table<IMappedChannel>
                             Data={mappedChannels}

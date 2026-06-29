@@ -28,6 +28,7 @@ import { Table, Column } from '@gpa-gemstone/react-table';
 import { Select, Input } from '@gpa-gemstone/react-forms';
 import { Application } from '@gpa-gemstone/application-typings';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
+import { Alert } from '@gpa-gemstone/react-interactive';
 
 interface ISetting {
     OpenSeeUrl: string
@@ -103,6 +104,10 @@ const AssetHistoryTable: EventWidget.IWidget<ISetting> = {
                         <div className='d-flex align-items-center justify-content-center' style={{ height: 250 }}>
                             <ReactIcons.SpiningIcon Size={'50%'} />
                         </div>
+                        : historyData.length === 0 ?
+                            <Alert Class='alert-info'>
+                                No asset history data.
+                            </Alert>
                         :
                         <Table
                             Data={historyData}

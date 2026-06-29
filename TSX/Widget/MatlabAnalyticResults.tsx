@@ -24,6 +24,9 @@
 import React from 'react';
 import { EventWidget } from '../global';
 import { Table, Column } from '@gpa-gemstone/react-table';
+import { Application } from '@gpa-gemstone/application-typings';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
+import { Alert } from '@gpa-gemstone/react-interactive';
 
 
 interface IMatlabAnalytics {
@@ -43,8 +46,10 @@ const MatlabAnalyticResults: EventWidget.IWidget<{}> = {
     },
     Widget: (props: EventWidget.IWidgetProps<{}>) => {
         const [data, setData] = React.useState<IMatlabAnalytics[]>([]);
+        const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
 
         React.useEffect(() => {
+            setStatus('loading');
             const handle = getMatlabAnalytcis();
             return () => { if (handle != null && handle.abort != null) handle.abort(); }
         }, [props.EventID])
@@ -61,7 +66,8 @@ const MatlabAnalyticResults: EventWidget.IWidget<{}> = {
             });
             handle.done((data: IMatlabAnalytics[]) => {
                 setData(data);
-            });
+                setStatus('idle');
+            }).fail(() => setStatus('error'));
             return handle;
         }
 
@@ -69,6 +75,15 @@ const MatlabAnalyticResults: EventWidget.IWidget<{}> = {
             <div className="card">
                 <div className="card-header fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>Matlab Analytic Results</div>
                 <div className="card-body">
+                    {status === 'loading' ?
+                        <div className='d-flex align-items-center justify-content-center' style={{ height: 250 }}>
+                            <ReactIcons.SpiningIcon Size={'50%'} />
+                        </div>
+                        : data.length === 0 ?
+                            <Alert Class='alert-info'>
+                                No Matlab analytic result data.
+                            </Alert>
+                        :
                     <Table<IMatlabAnalytics>
                         Data={data}
                         KeySelector={item => item.EventTagID}
@@ -88,7 +103,7 @@ const MatlabAnalyticResults: EventWidget.IWidget<{}> = {
                             RowStyle={{ width: 'auto' }}
                         > Tag Name
                         </Column>
-                    </Table>
+                    </Table>}
                 </div>
             </div>
         );

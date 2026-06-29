@@ -23,14 +23,12 @@
 
 import { Pencil, ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { Select, DatePicker } from '@gpa-gemstone/react-forms';
-import { LoadingIcon, Modal } from '@gpa-gemstone/react-interactive';
+import { Alert, Modal } from '@gpa-gemstone/react-interactive';
 import * as React from 'react';
 import { EventWidget } from '../global';
 import moment from 'moment';
 import _ from 'lodash';
 import { Table, Column } from '@gpa-gemstone/react-table';
-import { useDispatch, useSelector } from 'react-redux';
-import { Dispatch } from '@reduxjs/toolkit';
 import { Application } from '@gpa-gemstone/application-typings';
 
 interface IEventInfo {
@@ -131,11 +129,15 @@ const EventInfo: EventWidget.IWidget<{}> = {
                     </div>
                 </div>
                 <div className="card-body">
-                    {status === 'loading' ? 
-                    <div className='d-flex align-items-center justify-content-center flex-column' style={{height: 250}}>
-                        <ReactIcons.SpiningIcon Size={'50%'}/>
-                    </div>
-                     :
+                    {status === 'loading' ?
+                        <div className='d-flex align-items-center justify-content-center flex-column' style={{ height: 250 }}>
+                            <ReactIcons.SpiningIcon Size={'50%'} />
+                        </div>
+                        : rows.length === 0 ?
+                            <Alert Class='alert-info'>
+                                No event info data.
+                            </Alert>
+                        :
                         <Table<IStat>
                             TableClass="table table-hover"
                             Data={rows}

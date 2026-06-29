@@ -25,6 +25,9 @@ import React from 'react';
 import { Table, Column } from '@gpa-gemstone/react-table';
 import { Input } from '@gpa-gemstone/react-forms';
 import { EventWidget } from '../global';
+import { Application } from '@gpa-gemstone/application-typings';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
+import { Alert } from '@gpa-gemstone/react-interactive';
 
 interface ILineParameters {
     ID: number,
@@ -69,11 +72,12 @@ const LineParameters: EventWidget.IWidget<ISetting> = {
         </div>
     },
     Widget: (props: EventWidget.IWidgetProps<ISetting>) => {
-        const [hidden, setHidden] = React.useState<boolean>(true);
         const [lineParameters, setLineParameters] = React.useState<ILineParameters | null>(null);
         const [loopParameters, setLoopParemeters] = React.useState<ILoopImpedance[]>([]);
+        const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
 
         React.useEffect(() => {
+            setStatus('loading');
             const handle = $.ajax({
                 type: "GET",
                 url: `${props.HomePath}/EventWidgets/LineParameter/${props.EventID}`,
@@ -84,11 +88,9 @@ const LineParameters: EventWidget.IWidget<ISetting> = {
             });
 
             handle.done(data => {
-                if (data.length > 0) {
-                    setHidden(false);
-                }
-                setLineParameters(data[0]);
-            });
+                setLineParameters(data[0] ?? null);
+                setStatus('idle');
+            }).fail(() => setStatus('error'));
 
             return () => { if (handle.abort != undefined) handle.abort(); }
 
@@ -120,17 +122,26 @@ const LineParameters: EventWidget.IWidget<ISetting> = {
 
         }, [lineParameters])
 
-        if (lineParameters == null || hidden) return null;
-
         return (
             <div className="card">
                 <div className="card-header fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>Line Parameters:
-                    <a className="pull-right" target="_blank"
-                        href={`${props.Settings.SystemCenterURL}?name=Asset&AssetID=${lineParameters.ID}`}
-                    >Line Configuration Via System Center</a>
+                    {lineParameters == null ? null :
+                        <a className="pull-right" target="_blank"
+                            href={`${props.Settings.SystemCenterURL}?name=Asset&AssetID=${lineParameters.ID}`}
+                        >Line Configuration Via System Center</a>
+                    }
                 </div>
                 <div className="card-body">
-                    <Table<ILoopImpedance>
+                    {status === 'loading' ?
+                        <div className='d-flex align-items-center justify-content-center' style={{ height: 250 }}>
+                            <ReactIcons.SpiningIcon Size={'50%'} />
+                        </div>
+                        : lineParameters == null || loopParameters.length === 0 ?
+                            <Alert Class='alert-info'>
+                                No line parameter data.
+                            </Alert>
+                        :
+                        <Table<ILoopImpedance>
                         KeySelector={(item) => item.ID}
                         Data={loopParameters}
                         OnClick={() => { /* Do Nothing */ }}
@@ -214,7 +225,7 @@ const LineParameters: EventWidget.IWidget<ISetting> = {
                         >
                             Per Mile XS
                         </Column>
-                    </Table>
+                    </Table>}
                 </div>
             </div>
         );

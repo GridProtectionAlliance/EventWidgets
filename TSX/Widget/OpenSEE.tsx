@@ -27,6 +27,7 @@ import { Input } from '@gpa-gemstone/react-forms';
 import { useGetContainerPosition } from "@gpa-gemstone/helper-functions";
 import { Application } from '@gpa-gemstone/application-typings';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
+import { Alert } from '@gpa-gemstone/react-interactive';
 
 interface ISeries {
     label: string,
@@ -186,6 +187,7 @@ const EventSearchOpenSEE: EventWidget.IWidget<ISetting> = {
         }, [TCEData])
 
         const isLoading = vDataStatus === 'loading' || iDataStatus === 'loading' || tceDataStatus === 'loading';
+        const hasData = VData.length > 0 || IData.length > 0 || TCEData.length > 0;
 
         return (
             <div className="card">
@@ -198,7 +200,12 @@ const EventSearchOpenSEE: EventWidget.IWidget<ISetting> = {
                     {isLoading ?
                         <div className="d-flex justify-content-center align-items-center" style={{ height: 250 }}>
                             <ReactIcons.SpiningIcon Size={'50%'} />
-                        </div> :
+                        </div>
+                        : !hasData ?
+                            <Alert Class='alert-info'>
+                                No OpenSEE data.
+                            </Alert>
+                        :
                         <div className="row m-0">
                             <div className="col-12 p-0" ref={plotRef}>
                                 {VData.length > 0 ?

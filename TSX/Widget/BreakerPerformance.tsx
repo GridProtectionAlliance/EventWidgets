@@ -292,4 +292,5 @@ const getRelayPerformance = (homePath: string, eventID: number): JQuery.jqXHR<IR
         async: true
     });
 }
+
 export default EventSearchBreakerPerformance;

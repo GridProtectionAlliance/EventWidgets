@@ -25,7 +25,7 @@ import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { SpacedColor, GetColor } from '@gpa-gemstone/helper-functions';
 import { Select } from '@gpa-gemstone/react-forms';
 import { Bar, DataLegend, Legend, Plot } from '@gpa-gemstone/react-graph';
-import { LoadingIcon, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
+import { Alert, LoadingIcon, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
 import _ from 'lodash';
 import moment from 'moment';
 import * as React from 'react';
@@ -215,59 +215,67 @@ const EventCountChart: EventWidget.ICollectionWidget<ISettings> = {
                 </div>
                 <div className="card-body" style={{ display: 'flex', flexDirection: "column", flex: 1, overflow: 'hidden' }}>
                     <LoadingIcon Show={status !== 'idle'} />
-                    <div className="row" style={{ flex: 1, overflow: 'hidden' }} ref={chartRef}>
-                        <Plot
-                            height={dimensions.Height}
-                            width={dimensions.Width-20}
-                            showBorder={false}
-                            yDomain={'HalfAutoValue'}
-                            XAxisType={"time"}
-                            defaultTdomain={tDomain}
-                            legend={'hidden'}
-                            showMouse={false}
-                            zoom={false}
-                            pan={false}
-                            showGrid={true}
-                            hideYAxis={false}
-                            hideXAxis={false}
-                            defaultMouseMode={"select"}
-                            menuLocation={"hide"}
-                            useMetricFactors={false}>
-                            {chartData.map((item, index) =>
-                                (<Bar
-                                Data={item.Data}
-                                BarOrigin={item.XVal}
-                                BarWidth={item.Width}
-                                XBarOrigin={'left'}
-                                Color={"black"}
-                                GetBarStyle={item.GetStyle}
-                                key={index}
-                            />)
-                            )}
-                        </Plot>
-                    </div>
-                    <div className="row" style={{height: 60}}>
-                        <Legend
-                            LegendElements={Object.keys(enabled).map(key =>
-                            (<DataLegend
-                                color={colorRef.current[key]}
-                                legendSymbol={"square"}
-                                setEnabled={(e) =>
-                                    setEnabled(v =>
-                                        ({ ...v, [key]: e })
-                                    )
-                                }
-                                hasNoData={false}
-                                label={key}
-                                enabled={enabled[key]}
-                                id={key}
-                            />)
-                            )}
-                            height={75}
-                            width={dimensions.Width - 20}
-                            orientation={'horizontal'}
-                        />
-                    </div>
+                    {status === 'idle' && (data.length === 0 || Object.keys(enabled).length === 0) ?
+                        <Alert Class='alert-info'>
+                            No historical event count data.
+                        </Alert>
+                    :
+                        <>
+                            <div className="row" style={{ flex: 1, overflow: 'hidden' }} ref={chartRef}>
+                                <Plot
+                                    height={dimensions.Height}
+                                    width={dimensions.Width-20}
+                                    showBorder={false}
+                                    yDomain={'HalfAutoValue'}
+                                    XAxisType={"time"}
+                                    defaultTdomain={tDomain}
+                                    legend={'hidden'}
+                                    showMouse={false}
+                                    zoom={false}
+                                    pan={false}
+                                    showGrid={true}
+                                    hideYAxis={false}
+                                    hideXAxis={false}
+                                    defaultMouseMode={"select"}
+                                    menuLocation={"hide"}
+                                    useMetricFactors={false}>
+                                    {chartData.map((item, index) =>
+                                        (<Bar
+                                        Data={item.Data}
+                                        BarOrigin={item.XVal}
+                                        BarWidth={item.Width}
+                                        XBarOrigin={'left'}
+                                        Color={"black"}
+                                        GetBarStyle={item.GetStyle}
+                                        key={index}
+                                    />)
+                                    )}
+                                </Plot>
+                            </div>
+                            <div className="row" style={{height: 60}}>
+                                <Legend
+                                    LegendElements={Object.keys(enabled).map(key =>
+                                    (<DataLegend
+                                        color={colorRef.current[key]}
+                                        legendSymbol={"square"}
+                                        setEnabled={(e) =>
+                                            setEnabled(v =>
+                                                ({ ...v, [key]: e })
+                                            )
+                                        }
+                                        hasNoData={false}
+                                        label={key}
+                                        enabled={enabled[key]}
+                                        id={key}
+                                    />)
+                                    )}
+                                    height={75}
+                                    width={dimensions.Width - 20}
+                                    orientation={'horizontal'}
+                                />
+                            </div>
+                        </>
+                    }
                 </div>
             </div>
         )

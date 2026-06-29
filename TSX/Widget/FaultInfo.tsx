@@ -27,6 +27,7 @@ import { EventWidget } from '../global';
 import { Table, Column } from '@gpa-gemstone/react-table';
 import { Application } from '@gpa-gemstone/application-typings';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
+import { Alert } from '@gpa-gemstone/react-interactive';
 
 interface IFaultInfo {
     FaultTime?: string,
@@ -57,7 +58,6 @@ const FaultInfo: EventWidget.IWidget<{}> = {
         return <></>
     },
     Widget: (props: EventWidget.IWidgetProps<{}>) => {
-        const [hidden, setHidden] = React.useState<boolean>(true);
         const [faultInfo, setFaultInfo] = React.useState<IFaultInfo[]>([]);
         const [links, setLinks] = React.useState<ILinks[]>([]);
         const [faultInfoStatus, setFaultInfoStatus] = React.useState<Application.Types.Status>('uninitiated');
@@ -65,15 +65,12 @@ const FaultInfo: EventWidget.IWidget<{}> = {
 
         React.useEffect(() => {
             setFaultInfoStatus('loading');
-            setHidden(false);
             const handle = getFaultInfo(props.HomePath, props.EventID);
 
             handle.done((data) => {
-                setHidden(data.length === 0);
                 setFaultInfo(data);
                 setFaultInfoStatus('idle');
             }).fail(() => {
-                setHidden(true);
                 setFaultInfoStatus('error');
             });
 
@@ -101,7 +98,7 @@ const FaultInfo: EventWidget.IWidget<{}> = {
         }, [props.EventID, props.HomePath]);
 
         return (
-            <div className="card" hidden={hidden}>
+            <div className="card">
                 <div className="card-header fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>
                     Fault Information:
                     {linksStatus === 'loading' ?
@@ -116,6 +113,10 @@ const FaultInfo: EventWidget.IWidget<{}> = {
                         <div className='d-flex align-items-center justify-content-center' style={{ height: 250 }}>
                             <ReactIcons.SpiningIcon Size={'50%'} />
                         </div>
+                        : faultInfo.length === 0 ?
+                            <Alert Class='alert-info'>
+                                No fault information data.
+                            </Alert>
                         :
                         <Table<IFaultInfo>
                             Data={faultInfo}
@@ -135,7 +136,8 @@ const FaultInfo: EventWidget.IWidget<{}> = {
                                 Field={'Key'}
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
-                            > {" "}
+                            >
+                            {" "}
                             </Column>
                             <Column<IFaultInfo>
                                 Key={'Value'}
@@ -143,7 +145,8 @@ const FaultInfo: EventWidget.IWidget<{}> = {
                                 Field={'Value'}
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
-                            > {" "}
+                            >
+                                 {" "}
                             </Column>
                         </Table>
                     }

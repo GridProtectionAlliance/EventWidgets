@@ -26,7 +26,8 @@ import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { SpacedColor } from '@gpa-gemstone/helper-functions';
 import { ColorPicker, Input, FileUpload } from '@gpa-gemstone/react-forms';
 import { CircleGroup, Plot } from '@gpa-gemstone/react-graph';
-import { GenericController, LoadingIcon, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
+import { Alert, LoadingIcon, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
+import { ReadOnlyControllerFunctions_Gemstone } from '@gpa-gemstone/common-pages';
 import { Column, Table } from '@gpa-gemstone/react-table';
 import _ from 'lodash';
 import React from 'react';
@@ -345,16 +346,14 @@ const PQAI: EventWidget.IWidget<ISetting> = {
         }, [tagData, props.Settings.Groups]);
 
         React.useEffect(() => {
-            const controller = new GenericController<OpenXDA.Types.EventEventTag>(`${props.HomePath}api/EventWidgets/EventEventTag`, "ID", true);
+            const controller = new ReadOnlyControllerFunctions_Gemstone<OpenXDA.Types.EventEventTag>(`${props.HomePath}api/EventWidgets/EventEventTag`);
 
             setTagStatus('loading');
-            const handle = controller.DBSearch([{
+            const handle = controller.GetAll( "ID", true, [{
                 FieldName: 'TagName',
-                SearchText: 'epri.pqai',
+                SearchParameter: 'epri.pqai',
                 Operator: '=',
-                Type: 'string',
-                IsPivotColumn: false
-            }], undefined, undefined, props.EventID);
+            }], props.EventID);
 
             handle.done((tags: OpenXDA.Types.EventEventTag[]) => {
                 setTagData(tags.map(tag => JSON.parse(tag.TagData)));
@@ -375,6 +374,20 @@ const PQAI: EventWidget.IWidget<ISetting> = {
         if (tagStatus !== 'idle')
             return (
                 <LoadingIcon Show={true} />
+            );
+
+        if (tagData.length === 0)
+            return (
+                <div className="card w-100">
+                    <div className="card-header fixed-top" style={{ position: "sticky", background: "#f7f7f7" }}>
+                        PQAI Analytic
+                    </div>
+                    <div className="card-body">
+                        <Alert Class='alert-info'>
+                            No PQAI analytic data.
+                        </Alert>
+                    </div>
+                </div>
             );
 
         return (
