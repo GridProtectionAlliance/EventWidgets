@@ -34,7 +34,7 @@ import EventSearchCorrelatedSags from './Widget/CorrelatedSags'
 import SOE from './Widget/SOE'
 import EventSearchPQI from './Widget/PQI'
 import EventSearchFileInfo from './Widget/FileInfo'
-//import EventSearchNoteWindow from './Widget/NoteWindow'
+import EventSearchNoteWindow from './Widget/NoteWindow/NoteWindow'
 import Lightning from './Widget/Lightning'
 import StructureInfo from './Widget/StructureInfo'
 import PQICurve from './Widget/PQICurves'
@@ -64,7 +64,7 @@ const AllWidgets: EventWidget.IWidget<any>[] = [
     EventSearchPQI,
     Lightning,
     EventSearchFileInfo,
-    //EventSearchNoteWindow,
+    EventSearchNoteWindow,
     StructureInfo,
     PQICurve,
     InterruptionReport,
