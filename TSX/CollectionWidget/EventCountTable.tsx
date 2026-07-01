@@ -22,7 +22,7 @@
 //******************************************************************************************************
 
 import { Application } from '@gpa-gemstone/application-typings';
-import { Alert, LoadingIcon, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
+import { LoadingIcon, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
 import { Column, Table } from '@gpa-gemstone/react-table';
 import _ from 'lodash';
 import * as React from 'react';
@@ -110,11 +110,6 @@ const EventCountTable: EventWidget.ICollectionWidget<{}> = {
                 </div>
                 <div className="card-body" style={{ display: 'flex', flexDirection: "column", flex: 1, overflow: 'hidden' }}>
                     <LoadingIcon Show={status !== 'idle'} />
-                    {status === 'idle' && (data.length === 0 || colKeys.length === 0) ?
-                        <Alert Class='alert-info'>
-                            No event count data.
-                        </Alert>
-                    :
                     <Table<MeterCount>
                         Data={data}
                         SortKey={sortField}
@@ -158,7 +153,7 @@ const EventCountTable: EventWidget.ICollectionWidget<{}> = {
                                 {key.length > 5 ? key.slice(0, 5) + '.' : key}
                             </Column>
                         )}
-                    </Table>}
+                    </Table>
                 </div>
             </div>
         )

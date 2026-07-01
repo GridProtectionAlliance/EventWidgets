@@ -26,8 +26,13 @@ import moment from 'moment';
 import { EventWidget } from '../global';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { Column, Paging, Table } from '@gpa-gemstone/react-table';
-import { Alert, LoadingIcon, Search } from '@gpa-gemstone/react-interactive';
-import { Gemstone, useSearchData_Gemstone } from '@gpa-gemstone/common-pages';
+import { GenericController, LoadingIcon, Search } from '@gpa-gemstone/react-interactive';
+
+interface IPageInfo {
+    RecordsPerPage: number,
+    NumberOfPages: number,
+    TotalRecords: number
+}
 
 interface ISearchState {
     SortKey: keyof OpenXDA.Types.EventSearch,
@@ -42,112 +47,118 @@ const EventTable: EventWidget.ICollectionWidget<{}> = {
         return <></>
     },
     Widget: (props: EventWidget.ICollectionWidgetProps<{}>) => {
-        const [pageInfo, setPageInfo] = React.useState<Gemstone.Types.IPageInfo>({ PageSize: 0, PageCount: 0, TotalCount: 0 });
+        const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
+        const [pageInfo, setPageInfo] = React.useState<IPageInfo>({ RecordsPerPage: 0, NumberOfPages: 0, TotalRecords: 0 });
         const [searchState, setSearchState] = React.useState<ISearchState>({ SortKey: 'StartTime', Ascending: true, Page: 0 });
-        const controllerPath = `${props.HomePath}api/EventWidgets/Event`;
-        const filters = TransformFilter(props.CurrentFilter);
+        const [events, setEvents] = React.useState<OpenXDA.Types.EventSearch[]>([]);
 
-        const { SearchResults: events, SearchStatus: searchStatus, PaginationStatus: paginationStatus } =
-            useSearchData_Gemstone<OpenXDA.Types.EventSearch>(searchState.Page, searchState.SortKey, filters, searchState.Ascending, controllerPath, setPageInfo);
+        const EventController = React.useMemo(() => new GenericController<OpenXDA.Types.EventSearch>(
+            `${props.HomePath}api/EventWidgets/Event`, "StartTime", true
+        ), [props.HomePath]);
 
-        const status: Application.Types.Status =
-            searchStatus === 'error' || paginationStatus === 'error' ? 'error' :
-                searchStatus === 'idle' && paginationStatus === 'idle' ? 'idle' :
-                    'loading';
 
         React.useEffect(() => {
-            if (pageInfo.PageCount > 0 && searchState.Page >= pageInfo.PageCount)
-                setSearchState({ ...searchState, Page: pageInfo.PageCount - 1 });
-        }, [pageInfo.PageCount, searchState.Page]);
+            setStatus('loading');
+            const handle: JQuery.jqXHR = EventController
+                .PagedSearch(TransformFilter(props.CurrentFilter), searchState.SortKey, searchState.Ascending, searchState.Page)
+                .done((result) => {
+                    setEvents(JSON.parse(result.Data as unknown as string));
+                    setPageInfo({
+                        RecordsPerPage: result.RecordsPerPage,
+                        NumberOfPages: result.NumberOfPages,
+                        TotalRecords: result.TotalRecords
+                    });
+                    setStatus('idle');
+                }).fail(() => {
+                    setStatus('error');
+                });
+
+            return () => {
+                if (handle != null && handle?.abort != null)
+                    handle.abort();
+            }
+        }, [searchState, props.CurrentFilter]);
 
         return (
             <div className="card h-100" style={{ display: 'flex', flexDirection: "column" }}>
                 <div className="card-header">
                     {props.Title == null ?
                         'Displaying Events(s) ' +
-                        (pageInfo.TotalCount > 0 ?
-                            (pageInfo.PageSize * searchState.Page + 1) : 0) +
+                        (pageInfo.TotalRecords > 0 ?
+                            (pageInfo.RecordsPerPage * searchState.Page + 1) : 0) +
                         ' - ' +
-                        (pageInfo.PageSize * searchState.Page + events.length) +
-                        ' out of ' + pageInfo.TotalCount
+                        (pageInfo.RecordsPerPage * searchState.Page + events.length) + 
+                        ' out of ' + pageInfo.TotalRecords
                         : props.Title
                     }
                     <button className="btn btn-primary" style={{ position: 'absolute', top: 5, right: 5 }} onClick={() => ExportToCsv(events, 'EventSearch.csv')}>Export CSV</button>
                 </div>
                 <div className="card-body p-0" style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
                     <LoadingIcon Show={status !== 'idle'} />
-                    {status === 'idle' && events.length === 0 ?
-                        <Alert Class='alert-info'>
-                            No event data.
-                        </Alert>
-                        :
-                        <>
-                            <Table<OpenXDA.Types.EventSearch>
-                                Data={events}
-                                SortKey={searchState.SortKey}
-                                Ascending={searchState.Ascending}
-                                OnSort={(d) => {
-                                    if (d.colField == searchState.SortKey) {
-                                        setSearchState({
-                                            ...searchState,
-                                            Ascending: !searchState.Ascending
-                                        });
-                                    }
-                                    else {
-                                        setSearchState({
-                                            ...searchState,
-                                            SortKey: d.colField,
-                                            Ascending: searchState.Ascending
-                                        });
-                                    }
-                                }}
-                                OnClick={data => { if (props.Callback != null) props.Callback(data.row.ID); }}
-                                Selected={item => props.EventID === item.ID}
-                                KeySelector={item => item.ID}
-                            >
-                                <Column<OpenXDA.Types.EventSearch>
-                                    Key="StartTime"
-                                    Field="StartTime"
-                                    HeaderStyle={{ width: '25%' }}
-                                    RowStyle={{ width: '25%' }}
-                                    Content={row => row.item[row.key] != undefined ? moment.utc(row.item[row.key]).format('YYYY-MM-DD') : ''}
-                                >Date</Column>
-                                <Column<OpenXDA.Types.EventSearch>
-                                    Key="MeterName"
-                                    Field="MeterName"
-                                >Meter</Column>
-                                <Column<OpenXDA.Types.EventSearch>
-                                    Key="EventType"
-                                    Field="EventType"
-                                    HeaderStyle={{ width: '12%' }}
-                                    RowStyle={{ width: '12%' }}
-                                >Type</Column>
-                                <Column<OpenXDA.Types.EventSearch>
-                                    Key="Phase"
-                                    Field="Phase"
-                                    HeaderStyle={{ width: '12%' }}
-                                    RowStyle={{ width: '12%' }}
-                                >Phase</Column>
-                                <Column<OpenXDA.Types.EventSearch>
-                                    Key="PerUnitMagnitude"
-                                    Field="PerUnitMagnitude"
-                                    HeaderStyle={{ width: '12%' }}
-                                    RowStyle={{ width: '12%' }}
-                                    Content={row => row.item[row.key] != undefined ? (row.item[row.key] as number).toFixed(2) : ''}
-                                >Mag (pu)</Column>
-                                <Column<OpenXDA.Types.EventSearch>
-                                    Key="DurationSeconds"
-                                    Field="DurationSeconds"
-                                    HeaderStyle={{ width: '12%' }}
-                                    RowStyle={{ width: '12%' }}
-                                    Content={row => row.item[row.key] != undefined ? (row.item[row.key] as number).toFixed(2) : ''}
-                                >Dur (s)</Column>
-                            </Table>
-                            <div className="row justify-content-center">
-                                <Paging Current={searchState.Page + 1} Total={pageInfo.PageCount} SetPage={(p) => setSearchState({ ...searchState, Page: (p - 1) })} />
-                            </div>
-                        </>
-                    }
+                    <Table<OpenXDA.Types.EventSearch>
+                        Data={events}
+                        SortKey={searchState.SortKey}
+                        Ascending={searchState.Ascending}
+                        OnSort={(d) => {
+                            if (d.colField == searchState.SortKey) {
+                                setSearchState({
+                                    ...searchState,
+                                    Ascending: !searchState.Ascending
+                                });
+                            }
+                            else {
+                                setSearchState({
+                                    ...searchState,
+                                    SortKey: d.colField,
+                                    Ascending: searchState.Ascending
+                                });
+                            }
+                        }}
+                        OnClick={data => { if (props.Callback != null) props.Callback(data.row.ID); }}
+                        Selected={item => props.EventID === item.ID}
+                        KeySelector={item => item.ID}
+                    >
+                        <Column<OpenXDA.Types.EventSearch>
+                            Key="StartTime"
+                            Field="StartTime"
+                            HeaderStyle={{ width: '25%' }}
+                            RowStyle={{ width: '25%' }}
+                            Content={row => row.item[row.key] != undefined ? moment.utc(row.item[row.key]).format('YYYY-MM-DD') : ''}
+                        >Date</Column>
+                        <Column<OpenXDA.Types.EventSearch>
+                            Key="MeterName"
+                            Field="MeterName"
+                        >Meter</Column>
+                        <Column<OpenXDA.Types.EventSearch>
+                            Key="EventType"
+                            Field="EventType"
+                            HeaderStyle={{ width: '12%' }}
+                            RowStyle={{ width: '12%' }}
+                        >Type</Column>
+                        <Column<OpenXDA.Types.EventSearch>
+                            Key="Phase"
+                            Field="Phase"
+                            HeaderStyle={{ width: '12%' }}
+                            RowStyle={{ width: '12%' }}
+                        >Phase</Column>
+                        <Column<OpenXDA.Types.EventSearch>
+                            Key="PerUnitMagnitude"
+                            Field="PerUnitMagnitude"
+                            HeaderStyle={{ width: '12%' }}
+                            RowStyle={{ width: '12%' }}
+                            Content={row => row.item[row.key] != undefined ? (row.item[row.key] as number).toFixed(2) : ''}
+                        >Mag (pu)</Column>
+                        <Column<OpenXDA.Types.EventSearch>
+                            Key="DurationSeconds"
+                            Field="DurationSeconds"
+                            HeaderStyle={{ width: '12%' }}
+                            RowStyle={{ width: '12%' }}
+                            Content={row => row.item[row.key] != undefined ? (row.item[row.key] as number).toFixed(2) : ''}
+                        >Dur (s)</Column>
+                    </Table>
+                    <div className="row justify-content-center">
+                        <Paging Current={searchState.Page + 1} Total={pageInfo.NumberOfPages} SetPage={(p) => setSearchState({ ...searchState, Page: (p - 1) })} />
+                    </div>
                 </div>
             </div>
         );
