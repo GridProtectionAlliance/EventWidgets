@@ -21,10 +21,18 @@
 //
 //******************************************************************************************************
 
+# if IS_GEMSTONE
+using Gemstone.Configuration;
+using Gemstone.Data;
+using Gemstone.Data.Model;
+using Gemstone.StringExtensions;
+
+#else
 using GSF;
 using GSF.Configuration;
 using GSF.Data;
 using GSF.Data.Model;
+#endif
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
