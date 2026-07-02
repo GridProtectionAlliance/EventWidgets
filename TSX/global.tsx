@@ -31,6 +31,16 @@ export namespace EventWidget {
         Setting: string
     }
 
+    export interface INoteAuthorization {
+        CanAdd: boolean,
+        CanEdit: boolean,
+        CanModify: boolean
+    }
+
+    export interface IWidgetAuthorization {
+        Notes: INoteAuthorization
+    }
+
     export interface IWidgetProps<T> {
         Settings: T,
         EventID: number,
@@ -38,7 +48,7 @@ export namespace EventWidget {
         DisturbanceID?: number,
         FaultID?: number,
         HomePath: string,
-        Roles: string[],
+        WidgetAuthorization: IWidgetAuthorization,
         Name: string,
         WidgetID: number,
         EventTypes: OpenXDA.Types.EventType[]
@@ -66,7 +76,7 @@ export namespace EventWidget {
         Callback?: (eventID: number, disturbanceID?: number, faultID?: number) => void,
         // Other Props
         HomePath: string,
-        Roles: string[],
+        WidgetAuthorization: IWidgetAuthorization,
         Name: string,
         WidgetID: number,
         Title?: string

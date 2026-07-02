@@ -87,7 +87,7 @@ interface IProps {
     DisturbanceID: number,
     FaultID: number,
     HomePath: string,
-    Roles: string[],
+    WidgetAuthorization: EventWidget.IWidgetAuthorization,
     EventTypes: OpenXDA.Types.EventType[]
 }
 
@@ -134,7 +134,7 @@ const WidgetRouter = (props: IProps) => {
                         EventID={props.EventID}
                         HomePath={props.HomePath}
                         MaxHeight={props.Height - 37.5}
-                        Roles={props.Roles}
+                        WidgetAuthorization={props.WidgetAuthorization}
                         DisturbanceID={props.DisturbanceID}
                         FaultID={props.FaultID}
                         Name={props.Widget.Name}

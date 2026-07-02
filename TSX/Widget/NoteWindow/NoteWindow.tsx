@@ -82,7 +82,7 @@ const NoteWidget: EventWidget.IWidget<ISetting> = {
         const [showEdit, setShowEdit] = React.useState<boolean>(false);
         const [hover, setHover] = React.useState<'none' | 'add' | 'clear'>('none');
 
-        const isEngineer = props.Roles.includes('Engineer');
+        const canModify = props.WidgetAuthorization.Notes.CanModify;
 
         const controllers = React.useMemo(() => ({
             Event: new ReadWriteControllerFunctions_Gemstone<OpenXDA.Types.Note>(`${props.HomePath}api/OpenXDA/Note/Event`),
@@ -248,7 +248,7 @@ const NoteWidget: EventWidget.IWidget<ISetting> = {
         const handleSaveEdit = (confirm: boolean): void => {
             setShowEdit(false);
 
-            if (!confirm || !isEngineer) {
+            if (!confirm || !canModify) {
                 setEditNote(createBlankNote(noteType, noteApp, activeReferenceID, activeTags));
                 return;
             }
@@ -322,7 +322,7 @@ const NoteWidget: EventWidget.IWidget<ISetting> = {
                                     SortField={sortField}
                                     Ascending={ascending}
                                     MaxHeight={props.MaxHeight ?? 500}
-                                    AllowEdit={isEngineer}
+                                    AllowEdit={canModify}
                                     NewNote={newNote}
                                     SetNewNote={setNewNote}
                                     EditNote={editNote}
@@ -334,7 +334,8 @@ const NoteWidget: EventWidget.IWidget<ISetting> = {
                                     OnAdd={handleAdd}
                                     OnEdit={handleEdit}
                                     OnSaveEdit={handleSaveEdit}
-                                />}
+                                />
+                    }
                 </div>
             </div>
         );

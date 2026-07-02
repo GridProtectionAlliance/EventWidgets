@@ -49,7 +49,7 @@ interface IProps {
     GetEventData?: (query?: any) => Gemstone.TSX.Interfaces.AbortablePromise<any>,
     Title?: string,
     HomePath: string,
-    Roles: string[],
+    WidgetAuthorization: EventWidget.IWidgetAuthorization,
     // Widgets available to route to; defaults to AllWidgets
     AvailableWidgets?: EventWidget.ICollectionWidget<any, any, any>[]
 }
@@ -105,7 +105,7 @@ const CollectionWidgetRouter: React.FC<IProps> = (props: IProps) => {
                         CurrentFilter={props.EventFilter}
                         GetEventData={props.GetEventData}
                         HomePath={props.HomePath}
-                        Roles={props.Roles}
+                        WidgetAuthorization={props.WidgetAuthorization}
                         Name={props.Widget.Name}
                         WidgetID={props.Widget.ID}
                     />
