@@ -22,8 +22,11 @@
 //******************************************************************************************************
 
 import { ErrorBoundary } from '@gpa-gemstone/common-pages';
+import { Gemstone } from '@gpa-gemstone/application-typings';
 import { cloneDeep } from 'lodash';
 import * as React from 'react';
+import DynamicEventSearch from './CollectionWidget/DynamicEventTable/DynamicEventSearch';
+import DynamicMagDurChart from './CollectionWidget/DynamicMagDurChart/DynamicMagDurChart';
 import EventCountChart from './CollectionWidget/EventCountChart';
 import EventCountTable from './CollectionWidget/EventCountTable';
 import EventTable from './CollectionWidget/EventTable';
@@ -32,8 +35,8 @@ import PQHealthIndex from './CollectionWidget/PQHealthIndex';
 import { EventWidget } from './global';
 import { ServerErrorIcon } from '@gpa-gemstone/react-interactive';
 
-export const AllWidgets: EventWidget.ICollectionWidget<any>[] = [
-    EventTable, PQHealthIndex, MagDurChart, EventCountTable, EventCountChart
+export const AllWidgets: EventWidget.ICollectionWidget<any, any, any>[] = [
+    EventTable, PQHealthIndex, MagDurChart, EventCountTable, EventCountChart, DynamicEventSearch, DynamicMagDurChart
 ];
 
 interface IProps {
@@ -43,13 +46,18 @@ interface IProps {
     FaultID?: number,
     Callback?: (eventID: number, disturbanceID?: number, faultID?: number) => void,
     EventFilter: EventWidget.ICollectionFilter,
+    GetEventData?: (query?: any) => Gemstone.TSX.Interfaces.AbortablePromise<any>,
     Title?: string,
     HomePath: string,
-    Roles: string[]
+    Roles: string[],
+    // Widgets available to route to; defaults to AllWidgets
+    AvailableWidgets?: EventWidget.ICollectionWidget<any, any, any>[]
 }
 
 const CollectionWidgetRouter: React.FC<IProps> = (props: IProps) => {
-    const Widget = React.useMemo(() => AllWidgets.find(item => item.Name === props.Widget.Type), [props.Widget.ID]);
+    const Widget = React.useMemo(() =>
+        (props.AvailableWidgets ?? AllWidgets).find(item => item.Name === props.Widget.Type),
+        [props.Widget.ID, props.AvailableWidgets]);
 
     const Settings = React.useMemo(() => {
         if (props.Widget.Setting == null)
@@ -95,6 +103,7 @@ const CollectionWidgetRouter: React.FC<IProps> = (props: IProps) => {
                         DisturbanceID={props.DisturbanceID}
                         FaultID={props.FaultID}
                         CurrentFilter={props.EventFilter}
+                        GetEventData={props.GetEventData}
                         HomePath={props.HomePath}
                         Roles={props.Roles}
                         Name={props.Widget.Name}

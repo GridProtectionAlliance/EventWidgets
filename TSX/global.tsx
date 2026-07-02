@@ -21,7 +21,7 @@
 //
 //******************************************************************************************************
 import React from 'react';
-import { OpenXDA } from '@gpa-gemstone/application-typings';
+import { Gemstone, OpenXDA } from '@gpa-gemstone/application-typings';
 
 export namespace EventWidget {
     export interface IWidgetView {
@@ -54,11 +54,12 @@ export namespace EventWidget {
         TypeFilter?: OpenXDA.Types.EventType[]
     }
 
-    export interface ICollectionWidgetProps<T> {
+    export interface ICollectionWidgetProps<T, TEventData = unknown, TQuery = void> {
         // Widget Props
         Settings: T,
         // Control Props
         CurrentFilter: ICollectionFilter,
+        GetEventData?: (query: TQuery) => Gemstone.TSX.Interfaces.AbortablePromise<TEventData>,
         EventID?: number,
         DisturbanceID?: number,
         FaultID?: number,
@@ -85,8 +86,8 @@ export namespace EventWidget {
         Name: string,
     }
 
-    export interface ICollectionWidget<T> {
-        Widget: React.FC<ICollectionWidgetProps<T>>,
+    export interface ICollectionWidget<T, TEventData = unknown, TQuery = void> {
+        Widget: React.FC<ICollectionWidgetProps<T, TEventData, TQuery>>,
         Settings: React.FC<IWidgetSettingsProps<T>>,
         DefaultSettings: T,
         Name: string

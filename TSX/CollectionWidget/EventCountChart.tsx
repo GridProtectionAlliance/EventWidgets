@@ -71,7 +71,7 @@ const EventCountChart: EventWidget.ICollectionWidget<ISettings> = {
         );
     },
     Widget: (props: EventWidget.ICollectionWidgetProps<ISettings>) => {
-        const chartRef = React.useRef<HTMLTableSectionElement | undefined>(undefined);
+        const chartRef = React.useRef<HTMLDivElement | null>(null);
         const colorRef = React.useRef<{ [key: string]: string }>({});
         const [dimensions, setDimensions] = React.useState<{ Width: number, Height: number }>({ Width: 100, Height: 100 });
         const [tDomain, setTDomain] = React.useState<[number, number]>([0,1]);
