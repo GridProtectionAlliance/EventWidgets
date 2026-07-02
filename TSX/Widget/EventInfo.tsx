@@ -21,7 +21,7 @@
 //
 //******************************************************************************************************
 
-import { Pencil, ReactIcons } from '@gpa-gemstone/gpa-symbols';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { Select, DatePicker } from '@gpa-gemstone/react-forms';
 import { Alert, Modal } from '@gpa-gemstone/react-interactive';
 import * as React from 'react';
@@ -123,7 +123,7 @@ const EventInfo: EventWidget.IWidget<{}> = {
                                     setShowModal(true);
                                 }}
                             >
-                                <span>{Pencil}</span>
+                                <ReactIcons.Pencil />
                             </button>
                         </div>
                     </div>
