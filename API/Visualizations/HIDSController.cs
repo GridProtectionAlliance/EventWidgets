@@ -27,6 +27,7 @@ using Widgets.API.Library;
 using Newtonsoft.Json.Linq;
 
 #if IS_GEMSTONE
+using Gemstone.Security.AccessControl;
 using Microsoft.AspNetCore.Mvc;
 using openXDA.APIAuthentication;
 using RoutePrefix = Microsoft.AspNetCore.Mvc.RouteAttribute;
@@ -43,6 +44,10 @@ namespace Widgets.API.Visualizations
     /// </summary>
     [RoutePrefix("api/EventWidgets/HIDS")]
     [XDARedirect("api/Widgets/Trending")]
+#if IS_GEMSTONE
+    // All endpoints proxy read-style requests to XDA; Gemstone maps POST -> Create by verb.
+    [ResourceAccess(ResourceAccessType.Read)]
+#endif
     public class HIDSController : RedirectionController
     {
         /// <summary>
