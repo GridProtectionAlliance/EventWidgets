@@ -57,7 +57,7 @@ interface IProps {
 const CollectionWidgetRouter: React.FC<IProps> = (props: IProps) => {
     const Widget = React.useMemo(() =>
         (props.AvailableWidgets ?? AllWidgets).find(item => item.Name === props.Widget.Type),
-        [props.Widget.ID, props.AvailableWidgets]);
+        [props.Widget.Type, props.AvailableWidgets]);
 
     const Settings = React.useMemo(() => {
         if (props.Widget.Setting == null)
