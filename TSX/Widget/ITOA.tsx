@@ -209,7 +209,7 @@ const ITOA: EventWidget.IWidget<ISetting> = {
                             </div>
                             : status === 'error' ? 
                                 <Alert Class='alert-danger'>
-                                    An error occured while fetching ITOA data, please check SystemCenter for more details.
+                                    An error occured while fetching ITOA data, please check System Center for more details.
                                 </Alert>
                             :
                             <Table<ItoaInfo>

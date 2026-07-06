@@ -123,6 +123,9 @@ const EventSearchFileInfo: EventWidget.IWidget<ISetting> = {
             <div className="card">
                 <div className="card-header fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>
                     File Info:
+                </div>
+
+                <div className="card-body">
                     {meterConfigurationStatus === 'loading' ?
                         <div className='pull-right'>
                             <ReactIcons.SpiningIcon Size={'1em'} />
@@ -132,9 +135,6 @@ const EventSearchFileInfo: EventWidget.IWidget<ISetting> = {
                             Meter Configuration Via System Center
                         </a>
                     }
-                </div>
-
-                <div className="card-body">
                     {fileNameStatus === 'loading' ?
                         <div className='d-flex align-items-center justify-content-center' style={{ height: '1.5em' }}>
                             <ReactIcons.SpiningIcon Size={'1em'} />
@@ -143,8 +143,8 @@ const EventSearchFileInfo: EventWidget.IWidget<ISetting> = {
                             <Alert Class='alert-info'>
                                 No file name data.
                             </Alert>
-                        :
-                        <p>{fileName}</p>
+                            :
+                            <p>{fileName}</p>
                     }
                     {mappedChannelsStatus === 'loading' ?
                         <div className='d-flex align-items-center justify-content-center' style={{ height: 250 }}>
@@ -154,36 +154,36 @@ const EventSearchFileInfo: EventWidget.IWidget<ISetting> = {
                             <Alert Class='alert-info'>
                                 No mapped channel data.
                             </Alert>
-                        :
-                        <Table<IMappedChannel>
-                            Data={mappedChannels}
-                            OnClick={() => { /* Do Nothing */ }}
-                            OnSort={() => { /* Do Nothing */ }}
-                            SortKey={''}
-                            KeySelector={(item) => item.ID}
-                            Ascending={true}
-                            TableClass="table"
-                            TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                            TbodyStyle={{ display: 'block', overflowY: 'auto', width: '100%', maxHeight: props.MaxHeight ?? 500 }}
-                            RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        >
-                            <Column<IMappedChannel>
-                                Key={'Channel'}
-                                AllowSort={false}
-                                Field={'Channel'}
-                                HeaderStyle={{ width: 'auto' }}
-                                RowStyle={{ width: 'auto' }}
-                            > Channel
-                            </Column>
-                            <Column<IMappedChannel>
-                                Key={'Mapping'}
-                                AllowSort={false}
-                                Field={'Mapping'}
-                                HeaderStyle={{ width: 'auto' }}
-                                RowStyle={{ width: 'auto' }}
-                            > Mapping
-                            </Column>
-                        </Table>
+                            :
+                            <Table<IMappedChannel>
+                                Data={mappedChannels}
+                                OnClick={() => { /* Do Nothing */ }}
+                                OnSort={() => { /* Do Nothing */ }}
+                                SortKey={''}
+                                KeySelector={(item) => item.ID}
+                                Ascending={true}
+                                TableClass="table"
+                                TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                                TbodyStyle={{ display: 'block', overflowY: 'auto', width: '100%', maxHeight: props.MaxHeight ?? 500 }}
+                                RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                            >
+                                <Column<IMappedChannel>
+                                    Key={'Channel'}
+                                    AllowSort={false}
+                                    Field={'Channel'}
+                                    HeaderStyle={{ width: 'auto' }}
+                                    RowStyle={{ width: 'auto' }}
+                                > Channel
+                                </Column>
+                                <Column<IMappedChannel>
+                                    Key={'Mapping'}
+                                    AllowSort={false}
+                                    Field={'Mapping'}
+                                    HeaderStyle={{ width: 'auto' }}
+                                    RowStyle={{ width: 'auto' }}
+                                > Mapping
+                                </Column>
+                            </Table>
                     }
                 </div>
             </div>

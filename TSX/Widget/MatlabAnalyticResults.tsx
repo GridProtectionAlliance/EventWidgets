@@ -28,7 +28,6 @@ import { Application } from '@gpa-gemstone/application-typings';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { Alert } from '@gpa-gemstone/react-interactive';
 
-
 interface IMatlabAnalytics {
     TagName: string,
     TagDescription: string,
@@ -54,7 +53,6 @@ const MatlabAnalyticResults: EventWidget.IWidget<{}> = {
             return () => { if (handle != null && handle.abort != null) handle.abort(); }
         }, [props.EventID])
 
-
         function getMatlabAnalytcis(): JQuery.jqXHR<IMatlabAnalytics[]> {
             const handle = $.ajax({
                 type: "GET",
@@ -73,7 +71,9 @@ const MatlabAnalyticResults: EventWidget.IWidget<{}> = {
 
         return (
             <div className="card">
-                <div className="card-header fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>Matlab Analytic Results</div>
+                <div className="card-header fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>
+                    MATLAB Analytic Results
+                </div>
                 <div className="card-body">
                     {status === 'loading' ?
                         <div className='d-flex align-items-center justify-content-center' style={{ height: 250 }}>
@@ -83,27 +83,28 @@ const MatlabAnalyticResults: EventWidget.IWidget<{}> = {
                             <Alert Class='alert-info'>
                                 No Matlab analytic result data.
                             </Alert>
-                        :
-                    <Table<IMatlabAnalytics>
-                        Data={data}
-                        KeySelector={item => item.EventTagID}
-                        OnSort={() => {/*Do Nothing*/ }}
-                        SortKey={''}
-                        Ascending={true}
-                        TableClass="table"
-                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', height: 50 }}
-                        TbodyStyle={{ display: 'block', overflowY: 'auto', width: '100%', maxHeight: props.MaxHeight ?? 500 }}
-                        RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    >
-                        <Column<IMatlabAnalytics>
-                            Key={'TagName'}
-                            AllowSort={false}
-                            Field={'TagName'}
-                            HeaderStyle={{ width: 'auto' }}
-                            RowStyle={{ width: 'auto' }}
-                        > Tag Name
-                        </Column>
-                    </Table>}
+                            :
+                            <Table<IMatlabAnalytics>
+                                Data={data}
+                                KeySelector={item => item.EventTagID}
+                                OnSort={() => {/*Do Nothing*/ }}
+                                SortKey={''}
+                                Ascending={true}
+                                TableClass="table"
+                                TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', height: 50 }}
+                                TbodyStyle={{ display: 'block', overflowY: 'auto', width: '100%', maxHeight: props.MaxHeight ?? 500 }}
+                                RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                            >
+                                <Column<IMatlabAnalytics>
+                                    Key={'TagName'}
+                                    AllowSort={false}
+                                    Field={'TagName'}
+                                    HeaderStyle={{ width: 'auto' }}
+                                    RowStyle={{ width: 'auto' }}
+                                > Tag Name
+                                </Column>
+                            </Table>
+                    }
                 </div>
             </div>
         );

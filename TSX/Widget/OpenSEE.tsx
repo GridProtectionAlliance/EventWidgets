@@ -203,7 +203,7 @@ const EventSearchOpenSEE: EventWidget.IWidget<ISetting> = {
                         </div>
                         : !hasData ?
                             <Alert Class='alert-info'>
-                                No OpenSEE data.
+                                No openSEE data.
                             </Alert>
                         :
                         <div className="row m-0">

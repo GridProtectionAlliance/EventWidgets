@@ -102,7 +102,7 @@ const PQICurves: EventWidget.IWidget<{}> = {
                         </div>
                         : status === 'error' ?
                             <Alert Class='alert-danger'>
-                                An error occurred while fetching PQI data, please check SystemCenter for more details.
+                                An error occurred while fetching PQI data, please check System Center for more details.
                             </Alert>
                             : hasPQIData === false ?
                                 <Alert Class='alert-info'>

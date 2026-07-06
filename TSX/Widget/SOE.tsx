@@ -194,7 +194,7 @@ const SOE: EventWidget.IWidget<ISetting> = {
                             :
                             status  === 'error' ? 
                                 <Alert Class='alert-danger'>
-                                    An error occured while fetching SOE data, please check SystemCenter for more details.
+                                    An error occured while fetching SOE data, please check System Center for more details.
                                 </Alert>
                             :
                             <Table<SOEInfo>

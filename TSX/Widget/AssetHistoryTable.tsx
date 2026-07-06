@@ -48,7 +48,7 @@ const AssetHistoryTable: EventWidget.IWidget<ISetting> = {
                         Field={'OpenSeeUrl'}
                         Setter={(record) => props.SetSettings(record)}
                         Valid={() => true}
-                        Label={'OpenSEE URL'} />
+                        Label={'openSEE URL'} />
                 </div>
             </div>
         )
@@ -143,7 +143,7 @@ const AssetHistoryTable: EventWidget.IWidget<ISetting> = {
                                 Field={'ID'}
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
-                                Content={row => <a href={props.Settings.OpenSeeUrl + '?eventid=' + row.item.ID} target="_blank">View in OpenSEE</a>}
+                                Content={row => <a href={props.Settings.OpenSeeUrl + '?eventid=' + row.item.ID} target="_blank">View in openSEE</a>}
                             > {" "}
                             </Column>
                         </Table>

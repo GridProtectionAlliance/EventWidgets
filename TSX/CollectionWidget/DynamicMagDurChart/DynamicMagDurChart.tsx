@@ -242,13 +242,14 @@ const DynamicMagDurChart: EventWidget.ICollectionWidget<ISettings, DynamicEventS
                     {plotContent}
                 </Plot>
                 {status == 'loading' ? null :
-                    data.length == props.Settings.NumberResults ?
+                    events.length == props.Settings.NumberResults ?
                         <div style={{ padding: 10, backgroundColor: '#458EFF', color: 'white' }} ref={countDivRef}>
-                            Only the first {data.length} chronological results are shown - please narrow your search or increase the number of results in the application settings.
+                            Only the first {events.length} chronological results are shown - please narrow your search or increase the number of results in the application settings.
                         </div> :
                         <div style={{ padding: 10, backgroundColor: '#458EFF', color: 'white' }} ref={countDivRef}>
-                            {data.length} results
-                        </div>}
+                            {events.length} results
+                        </div>
+                }
                 <DynamicMagDurEventList
                     Select={(eventID, row) => {
                         if (props.Callback != null)
