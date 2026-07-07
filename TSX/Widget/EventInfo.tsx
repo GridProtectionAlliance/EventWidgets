@@ -115,9 +115,12 @@ const EventInfo: EventWidget.IWidget<{}> = {
 
         return (
             <div className="card">
-                <div className="card-header">Event Info:
-                    <div className='pull-right'>
-                        <div className="form-inline">
+                <div className="card-header">
+                    <div className='row'>
+                        <div className='col-6'>
+                            Event Info:
+                        </div>
+                        <div className="col-6 justify-content-end d-flex">
                             <button className="btn btn-sm"
                                 onClick={() => {
                                     setShowModal(true);
@@ -137,43 +140,43 @@ const EventInfo: EventWidget.IWidget<{}> = {
                             <Alert Class='alert-info'>
                                 No event info data.
                             </Alert>
-                        :
-                        <Table<IStat>
-                            TableClass="table table-hover"
-                            Data={rows}
-                            SortKey={''}
-                            Ascending={false}
-                            TableStyle={{
-                                padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
-                                tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
-                            }}
-                            TheadStyle={{ fontSize: 'smaller', tableLayout: 'fixed', display: 'table', width: '100%' }}
-                            TbodyStyle={{ display: 'block', overflowY: 'auto', flex: 1 }}
-                            RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
-                            Selected={() => false}
-                            KeySelector={(item) => item.Stat}
-                            OnSort={() => { }}
-                        >
-                            <Column<IStat>
-                                Key={'Stat'}
-                                AllowSort={false}
-                                Field={'Stat'}
-                                HeaderStyle={{ width: 'auto', textAlign: 'left' }}
-                                RowStyle={{ width: 'auto', textAlign: 'left' }}
+                            :
+                            <Table<IStat>
+                                TableClass="table table-hover"
+                                Data={rows}
+                                SortKey={''}
+                                Ascending={false}
+                                TableStyle={{
+                                    padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
+                                    tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
+                                }}
+                                TheadStyle={{ fontSize: 'smaller', tableLayout: 'fixed', display: 'table', width: '100%' }}
+                                TbodyStyle={{ display: 'block', overflowY: 'auto', flex: 1 }}
+                                RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
+                                Selected={() => false}
+                                KeySelector={(item) => item.Stat}
+                                OnSort={() => { }}
                             >
-                                Property
-                            </Column>
-                            <Column<IStat>
-                                Key={'Value'}
-                                AllowSort={false}
-                                Field={'Value'}
-                                HeaderStyle={{ width: 'auto', textAlign: 'right' }}
-                                RowStyle={{ width: 'auto', textAlign: 'right' }}
-                                Content={(d) => d.item.IsTime ? moment(d.item.Value).format(momentDateFormat + ' ' + momentTimeFormat) : d.item.Value}
-                            >
-                                Value
-                            </Column>
-                        </Table>}
+                                <Column<IStat>
+                                    Key={'Stat'}
+                                    AllowSort={false}
+                                    Field={'Stat'}
+                                    HeaderStyle={{ width: 'auto', textAlign: 'left' }}
+                                    RowStyle={{ width: 'auto', textAlign: 'left' }}
+                                >
+                                    Property
+                                </Column>
+                                <Column<IStat>
+                                    Key={'Value'}
+                                    AllowSort={false}
+                                    Field={'Value'}
+                                    HeaderStyle={{ width: 'auto', textAlign: 'right' }}
+                                    RowStyle={{ width: 'auto', textAlign: 'right' }}
+                                    Content={(d) => d.item.IsTime ? moment(d.item.Value).format(momentDateFormat + ' ' + momentTimeFormat) : d.item.Value}
+                                >
+                                    Value
+                                </Column>
+                            </Table>}
                 </div>
 
                 {statsData == null ? null :
