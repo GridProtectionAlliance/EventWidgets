@@ -85,8 +85,6 @@ const DynamicMagDurChart: EventWidget.ICollectionWidget<ISettings, DynamicEventS
     Widget: (props: EventWidget.ICollectionWidgetProps<ISettings, DynamicEventSearchRow[], IDynamicEventSearchQuery>) => {
         const bodyRef = React.useRef<HTMLDivElement | null>(null);
         const { width: bodyWidth, height: bodyHeight } = useGetContainerPosition(bodyRef);
-        const countDivRef = React.useRef<HTMLDivElement | null>(null);
-        const { height: countHeight } = useGetContainerPosition(countDivRef);
         const empty = React.useCallback(() => {/*Do Nothing*/ }, []);
 
         const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
@@ -136,6 +134,8 @@ const DynamicMagDurChart: EventWidget.ICollectionWidget<ISettings, DynamicEventS
             handle.then((data) => {
                 setEvents(data);
                 setStatus('idle');
+                if (props.OnDataLoaded != null)
+                    props.OnDataLoaded(data.length);
             }, () => {
                 setStatus('error');
             });
@@ -144,7 +144,7 @@ const DynamicMagDurChart: EventWidget.ICollectionWidget<ISettings, DynamicEventS
                 if (handle?.abort != null)
                     handle.abort();
             };
-        }, [props.GetEventData, props.CurrentFilter, props.HomePath, props.Settings.NumberResults, sortField, ascending]);
+        }, [props.GetEventData, props.CurrentFilter, props.HomePath, props.Settings.NumberResults, props.OnDataLoaded, sortField, ascending]);
 
         const data: IData[] = React.useMemo(() => {
             return events
@@ -225,7 +225,7 @@ const DynamicMagDurChart: EventWidget.ICollectionWidget<ISettings, DynamicEventS
         const content = (
             <>
                 <LoadingIcon Show={status !== 'idle' || magDurStatus !== 'idle'} />
-                <Plot height={(bodyHeight ?? 500) - countHeight} width={bodyWidth ?? 500} showBorder={false} menuLocation={'right'}
+                <Plot height={bodyHeight ?? 500} width={bodyWidth ?? 500} showBorder={false} menuLocation={'right'}
                     defaultTdomain={[0.00001, 1000]}
                     defaultYdomain={[0, 5]}
                     Tmax={1000}
@@ -241,15 +241,6 @@ const DynamicMagDurChart: EventWidget.ICollectionWidget<ISettings, DynamicEventS
                     zoom={true} pan={true} useMetricFactors={false} XAxisType={'log'} onSelect={empty}>
                     {plotContent}
                 </Plot>
-                {status == 'loading' ? null :
-                    events.length == props.Settings.NumberResults ?
-                        <div style={{ padding: 10, backgroundColor: '#458EFF', color: 'white' }} ref={countDivRef}>
-                            Only the first {events.length} chronological results are shown - please narrow your search or increase the number of results in the application settings.
-                        </div> :
-                        <div style={{ padding: 10, backgroundColor: '#458EFF', color: 'white' }} ref={countDivRef}>
-                            {events.length} results
-                        </div>
-                }
                 <DynamicMagDurEventList
                     Select={(eventID, row) => {
                         if (props.Callback != null)

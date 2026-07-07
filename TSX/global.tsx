@@ -74,6 +74,7 @@ export namespace EventWidget {
         DisturbanceID?: number,
         FaultID?: number,
         Callback?: (eventID: number, disturbanceID?: number, faultID?: number) => void,
+        OnDataLoaded?: (count: number) => void,
         // Other Props
         HomePath: string,
         WidgetAuthorization: IWidgetAuthorization,

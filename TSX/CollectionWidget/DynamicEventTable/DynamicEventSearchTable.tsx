@@ -19,7 +19,6 @@
 import * as React from 'react';
 import { LoadingIcon } from '@gpa-gemstone/react-interactive';
 import { Column, ConfigurableTable, ConfigurableColumn } from '@gpa-gemstone/react-table';
-import { useGetContainerPosition } from '@gpa-gemstone/helper-functions';
 import { Application } from '@gpa-gemstone/application-typings';
 import { DynamicEventSearchRow } from './DynamicEventSearchData';
 
@@ -37,7 +36,6 @@ export interface IDynamicEventSearchListProps {
     Status: Application.Types.Status,
     SortField: string,
     Ascending: boolean,
-    NumberResults: number,
     OnSort: (colKey: string) => void,
     LocalStorageKey?: string,
     SettingsPortal?: string,
@@ -46,8 +44,6 @@ export interface IDynamicEventSearchListProps {
 
 export function DynamicEventSearchList(props: IDynamicEventSearchListProps) {
     const containerRef = React.useRef<HTMLDivElement | null>(null);
-    const countRef = React.useRef<HTMLDivElement | null>(null);
-    const { offsetHeight: countHeight } = useGetContainerPosition(countRef);
     const [cols, setCols] = React.useState<IColumn[]>([]);
 
     const data = props.Data;
@@ -155,7 +151,7 @@ export function DynamicEventSearchList(props: IDynamicEventSearchListProps) {
                         SortKey={props.SortField}
                         Ascending={props.Ascending}
                         TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', height: 60 }}
-                        TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: props.Height - countHeight - 60 }}
+                        TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: props.Height - 60 }}
                         RowStyle={{ display: 'table', tableLayout: 'fixed', width: 'calc(100%)' }}
                         TableStyle={{ marginBottom: 0 }}
                         Selected={(item) => {
@@ -191,14 +187,6 @@ export function DynamicEventSearchList(props: IDynamicEventSearchListProps) {
                             </ConfigurableColumn>
                         ))}
                     </ConfigurableTable> : null}
-                {status == 'loading' ? null :
-                    data.length == props.NumberResults ?
-                        <div style={{ padding: 10, backgroundColor: '#458EFF', color: 'white' }} ref={countRef}>
-                            Only the first {data.length} results are shown (sorted {(props.Ascending ? 'ascending' : 'descending')} by {props.SortField}) - please narrow your search or increase the number of results in the application settings.
-                        </div> :
-                        <div style={{ padding: 10, backgroundColor: '#458EFF', color: 'white' }} ref={countRef}>
-                            {data.length} results
-                        </div>}
             </div>
         </>
     );

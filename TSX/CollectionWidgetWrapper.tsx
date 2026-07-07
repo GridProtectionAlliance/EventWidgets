@@ -47,6 +47,7 @@ interface IProps {
     Callback?: (eventID: number, disturbanceID?: number, faultID?: number) => void,
     EventFilter: EventWidget.ICollectionFilter,
     GetEventData?: (query?: any) => Gemstone.TSX.Interfaces.AbortablePromise<any>,
+    OnDataLoaded?: (count: number) => void,
     Title?: string,
     HomePath: string,
     WidgetAuthorization: EventWidget.IWidgetAuthorization,
@@ -104,6 +105,7 @@ const CollectionWidgetRouter: React.FC<IProps> = (props: IProps) => {
                         FaultID={props.FaultID}
                         CurrentFilter={props.EventFilter}
                         GetEventData={props.GetEventData}
+                        OnDataLoaded={props.OnDataLoaded}
                         HomePath={props.HomePath}
                         WidgetAuthorization={props.WidgetAuthorization}
                         Name={props.Widget.Name}

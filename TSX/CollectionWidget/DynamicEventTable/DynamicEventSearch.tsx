@@ -86,6 +86,8 @@ const DynamicEventSearch: EventWidget.ICollectionWidget<ISettings, DynamicEventS
             handle.then((data) => {
                 setEvents(data);
                 setStatus('idle');
+                if (props.OnDataLoaded != null)
+                    props.OnDataLoaded(data.length);
             }, () => {
                 setStatus('error');
             });
@@ -94,7 +96,7 @@ const DynamicEventSearch: EventWidget.ICollectionWidget<ISettings, DynamicEventS
                 if (handle?.abort != null)
                     handle.abort();
             };
-        }, [props.GetEventData, props.CurrentFilter, props.HomePath, props.Settings.NumberResults, sortField, ascending]);
+        }, [props.GetEventData, props.CurrentFilter, props.HomePath, props.Settings.NumberResults, props.OnDataLoaded, sortField, ascending]);
 
         const content = (
             <DynamicEventSearchList
@@ -108,7 +110,6 @@ const DynamicEventSearch: EventWidget.ICollectionWidget<ISettings, DynamicEventS
                 Status={status}
                 SortField={sortField}
                 Ascending={ascending}
-                NumberResults={props.Settings.NumberResults}
                 OnSort={(colKey) => {
                     if (colKey == sortField)
                         setAscending(!ascending);
