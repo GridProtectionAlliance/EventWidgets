@@ -23,6 +23,9 @@
 
 import React from 'react';
 import { EventWidget } from '../global';
+import { Application } from '@gpa-gemstone/application-typings';
+import { Alert } from '@gpa-gemstone/react-interactive';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 
 const StructureInfo: EventWidget.IWidget<{}> = {
     Name: 'StructureInfo',
@@ -33,6 +36,7 @@ const StructureInfo: EventWidget.IWidget<{}> = {
     Widget: (props: EventWidget.IWidgetProps<{}>) => {
         const [structureInfo, setStructureInfo] = React.useState<Array<{ StrNumber: string, Latitude: number, Longitude: number, Imagepath: string }>>([]);
         const [selectedIndex, setSelectedIndex] = React.useState<number>(-1);
+        const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
 
         const getFaultInfo = async (): Promise<Array<{ StationName: string, Inception: number, Latitude: number, Longitude: number, Distance: number, AssetName: string }>> => {
             const res = await $.ajax({
@@ -60,11 +64,17 @@ const StructureInfo: EventWidget.IWidget<{}> = {
 
         React.useEffect(() => {
             const fetchData = async () => {
-                const faultInfo = await getFaultInfo();
-                if (faultInfo == null || faultInfo.length == 0) return;
-                const nearestStructure = await getNearestStructureInfo(faultInfo[0].StationName, faultInfo[0].AssetName, faultInfo[0].Distance);
-                setStructureInfo(nearestStructure);
-                setSelectedIndex(nearestStructure.length > 0 ? 0 : -1);
+                setStatus('loading');
+                try {
+                    const faultInfo = await getFaultInfo();
+                    if (faultInfo == null || faultInfo.length == 0) return;
+                    const nearestStructure = await getNearestStructureInfo(faultInfo[0].StationName, faultInfo[0].AssetName, faultInfo[0].Distance);
+                    setStructureInfo(nearestStructure);
+                    setSelectedIndex(nearestStructure.length > 0 ? 0 : -1);
+                    setStatus('idle');
+                } catch {
+                    setStatus('error');
+                }
             };
             fetchData();
         }, []);
@@ -84,6 +94,16 @@ const StructureInfo: EventWidget.IWidget<{}> = {
                     </select>
                 </div>
                 <div className="card-body" style={{ maxHeight: props.MaxHeight ?? 500, overflowY: 'auto' }}>
+                    {status === 'error' ?
+                        <Alert Class='alert-danger'>
+                            An error occurred while fetching structure info data.
+                        </Alert>
+                    : null}
+                    {status === 'loading' ?
+                        <div className='d-flex align-items-center justify-content-center' style={{ height: 250 }}>
+                            <ReactIcons.SpiningIcon Size={'50%'} />
+                        </div>
+                    : <>
                     <table className='table'>
                         <thead><tr><th>Number</th><th>Lat</th><th>Lon</th></tr></thead>
                         <tbody>
@@ -95,6 +115,8 @@ const StructureInfo: EventWidget.IWidget<{}> = {
                         </tbody>
                     </table>
                     <img src={`${props.HomePath}api/EventWidgets/ESRIMap/Image/${selectedIndex === -1 ? btoa(test) : btoa(structureInfo[selectedIndex].Imagepath)}`} style={{ width: '100%' }} />
+                    </>
+                    }
                 </div>
             </div>
         );

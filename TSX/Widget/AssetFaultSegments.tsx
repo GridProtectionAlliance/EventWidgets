@@ -70,11 +70,16 @@ const EventSearchAssetFaultSegments: EventWidget.IWidget<{}> = {
                     Fault Evolution Summary:
                 </div>
                 <div className="card-body">
+                    {status === 'error' ?
+                        <Alert Class="alert-danger">
+                            An error occurred while fetching fault evolution data.
+                        </Alert>
+                    : null}
                     {status === 'loading' ?
                         <div className='d-flex align-items-center justify-content-center' style={{ height: 250 }}>
                             <ReactIcons.SpiningIcon Size={'50%'} />
                         </div>
-                        : data.length === 0 ? 
+                        : data.length === 0 ?
                             <Alert Class="alert-info">
                                 No fault evolution data.
                             </Alert>

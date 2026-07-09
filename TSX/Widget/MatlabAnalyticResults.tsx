@@ -75,6 +75,11 @@ const MatlabAnalyticResults: EventWidget.IWidget<{}> = {
                     MATLAB Analytic Results
                 </div>
                 <div className="card-body">
+                    {status === 'error' ?
+                        <Alert Class='alert-danger'>
+                            An error occurred while fetching Matlab analytic result data.
+                        </Alert>
+                    : null}
                     {status === 'loading' ?
                         <div className='d-flex align-items-center justify-content-center' style={{ height: 250 }}>
                             <ReactIcons.SpiningIcon Size={'50%'} />

@@ -63,6 +63,11 @@ const AssetVoltageDisturbances: EventWidget.IWidget<{}> = {
                 <div className="card-header fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>
                     Voltage Disturbance in Waveform:</div>
                 <div className="card-body">
+                    {status === 'error' ?
+                        <Alert Class='alert-danger'>
+                            An error occurred while fetching voltage disturbance data.
+                        </Alert>
+                    : null}
                     {status === 'loading' ?
 
                         <div className='d-flex align-items-center justify-content-center' style={{ height: 250 }}>

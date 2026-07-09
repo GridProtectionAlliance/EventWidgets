@@ -26,7 +26,7 @@ import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { SpacedColor } from '@gpa-gemstone/helper-functions';
 import { ColorPicker, Input, FileUpload } from '@gpa-gemstone/react-forms';
 import { CircleGroup, Plot } from '@gpa-gemstone/react-graph';
-import { Alert, LoadingIcon, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
+import { Alert } from '@gpa-gemstone/react-interactive';
 import { ReadOnlyControllerFunctions_Gemstone } from '@gpa-gemstone/common-pages';
 import { Column, Table } from '@gpa-gemstone/react-table';
 import _ from 'lodash';
@@ -87,7 +87,7 @@ const PQAI: EventWidget.IWidget<ISetting> = {
 
         }, [props.Settings.Groups, selectedIndex]);
 
-        const setGroup = React.useCallback((record?: IGroup, index?: number) => {
+        const setGroup = React.useCallback((record: IGroup | null, index?: number) => {
             const newList = [...props.Settings.Groups];
 
             if (record == null) {
@@ -145,7 +145,7 @@ const PQAI: EventWidget.IWidget<ISetting> = {
                 let failure = false
                 r.onload = (e) => {
                     const lines = new TextDecoder('utf-8')
-                        .decode(e.target.result as ArrayBuffer)
+                        .decode(e.target?.result as ArrayBuffer)
                         .split('\n')
                         .slice(1); // skip header line
 
@@ -247,7 +247,7 @@ const PQAI: EventWidget.IWidget<ISetting> = {
                                     Content={row => (
                                         <Input<IDataPoint>
                                             Valid={() => true}
-                                            Label={null}
+                                            Label={""}
                                             Type={"number"}
                                             Record={row.item}
                                             Field={0}
@@ -260,7 +260,7 @@ const PQAI: EventWidget.IWidget<ISetting> = {
                                     Content={row => (
                                         <Input<IDataPoint>
                                             Valid={() => true}
-                                            Label={null}
+                                            Label={""}
                                             Type={"number"}
                                             Record={row.item}
                                             Field={1}
@@ -317,7 +317,14 @@ const PQAI: EventWidget.IWidget<ISetting> = {
                                 </div>
                             </div>
                             <div className="row w-100">
-                                <PlotComponent ShowLegend={false} Groups={displayedGroup} />
+                                <div className="card w-100">
+                                    <div className="card-header fixed-top" style={{ position: "sticky", background: "#f7f7f7" }}>
+                                        PQAI Analytic
+                                    </div>
+                                    <div className="card-body p-0">
+                                        <PlotComponent ShowLegend={false} Groups={displayedGroup} />
+                                    </div>
+                                </div>
                             </div>
                         </>
                     }
@@ -366,32 +373,30 @@ const PQAI: EventWidget.IWidget<ISetting> = {
             return () => { if (handle?.abort != null) handle.abort(); }
         }, [props.EventID, props.HomePath]);
 
-        if (tagStatus === 'error')
-            return (
-                <ServerErrorIcon Show={true} />
-            );
-
-        if (tagStatus !== 'idle')
-            return (
-                <LoadingIcon Show={true} />
-            );
-
-        if (tagData.length === 0)
-            return (
-                <div className="card w-100">
-                    <div className="card-header fixed-top" style={{ position: "sticky", background: "#f7f7f7" }}>
-                        PQAI Analytic
-                    </div>
-                    <div className="card-body">
-                        <Alert Class='alert-info'>
-                            No PQAI analytic data.
-                        </Alert>
-                    </div>
-                </div>
-            );
-
         return (
-            <PlotComponent ShowLegend={true} Groups={props.Settings.Groups} EventPoints={plotTagData} />
+            <div className="card w-100">
+                <div className="card-header fixed-top" style={{ position: "sticky", background: "#f7f7f7" }}>
+                    PQAI Analytic
+                </div>
+                <div className="card-body p-0">
+                    {tagStatus === 'error' ?
+                        <Alert Class='alert-danger'>
+                            An error occurred while fetching PQAI analytic data.
+                        </Alert>
+                    : null}
+                    {tagStatus === 'loading' || tagStatus === 'uninitiated' ?
+                        <div className='d-flex align-items-center justify-content-center' style={{ height: 250 }}>
+                            <ReactIcons.SpiningIcon Size={'50%'} />
+                        </div>
+                        : tagData.length === 0 ?
+                            <Alert Class='alert-info'>
+                                No PQAI analytic data.
+                            </Alert>
+                        :
+                        <PlotComponent ShowLegend={true} Groups={props.Settings.Groups} EventPoints={plotTagData} />
+                    }
+                </div>
+            </div>
         );
     }
 }
@@ -476,11 +481,7 @@ function PlotComponent(props: IPlotProps) {
     }, [props.ShowLegend]);
 
     return (
-        <div className="card w-100">
-            <div className="card-header fixed-top" style={{ position: "sticky", background: "#f7f7f7" }}>
-                PQAI Analytic
-            </div>
-            <div className="card-body row p-0" ref={containerRef}>
+        <div className="row w-100 m-0" ref={containerRef}>
                 <div className="col" style={{ height: dims.height, maxWidth: dims.leftOverWidth / 2, padding: '0px', position: "static", display: "block" }} />
                 <Plot
                     height={dims.height}
@@ -529,7 +530,6 @@ function PlotComponent(props: IPlotProps) {
                         )
                     }
                 </Plot>
-            </div>
         </div>
     );
 }

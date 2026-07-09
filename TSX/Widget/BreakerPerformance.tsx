@@ -92,6 +92,11 @@ const EventSearchBreakerPerformance: EventWidget.IWidget<{}> = {
                     Historic Breaker Performance:
                 </div>
                 <div className="card-body" ref={divref}>
+                    {status === 'error' ?
+                        <Alert Class='alert-danger'>
+                            An error occurred while fetching historic breaker performance data.
+                        </Alert>
+                    : null}
                     {status === 'loading' ?
                         <div className='d-flex align-items-center justify-content-center' style={{ height: 250 }}>
                             <ReactIcons.SpiningIcon Size={'50%'} />

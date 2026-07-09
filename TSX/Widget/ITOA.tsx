@@ -203,14 +203,15 @@ const ITOA: EventWidget.IWidget<ISetting> = {
                         </div>
                     </div>
                     <div style={{ maxHeight: 200, overflowY: 'auto' }}>
+                        {status === 'error' ?
+                            <Alert Class='alert-danger'>
+                                An error occurred while fetching ITOA data. Please check System Center for more details.
+                            </Alert>
+                        : null}
                         {status === 'loading' ?
                             <div className='d-flex align-items-center justify-content-center' style={{ height: 250 }}>
                                 <ReactIcons.SpiningIcon Size={'50%'} />
                             </div>
-                            : status === 'error' ? 
-                                <Alert Class='alert-danger'>
-                                    An error occured while fetching ITOA data, please check System Center for more details.
-                                </Alert>
                             :
                             <Table<ItoaInfo>
                                 Data={data}

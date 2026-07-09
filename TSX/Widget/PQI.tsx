@@ -77,14 +77,16 @@ const EventSearchPQI: EventWidget.IWidget<{}> = {
                     Power Quality Investigator:
                 </div>
                 <div className="card-body">
+                    {status === 'error' ?
+                        <Alert Class='alert-danger'>
+                            An error occurred while fetching PQI data. Please check System Center for more details.
+                        </Alert>
+                    : null}
                     {status === 'loading' || status === 'uninitiated' ?
                         <div className='d-flex align-items-center justify-content-center' style={{ height: 250 }}>
                             <ReactIcons.SpiningIcon Size={'50%'} />
                         </div>
-                        : status === 'error' ?
-                            <Alert Class='alert-danger'>
-                                An error occurred while fetching PQI data, please check System Center for more details.
-                            </Alert>
+                        : status === 'error' ? null
                             : hasPQIData === false ?
                                 <Alert Class='alert-info'>
                                     PQI data source does not have data for this event.

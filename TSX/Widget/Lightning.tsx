@@ -27,6 +27,8 @@ import moment from 'moment';
 import { EventWidget } from '../global';
 import { Table, Column } from '@gpa-gemstone/react-table';
 import { useGetContainerPosition } from '@gpa-gemstone/helper-functions';
+import { Application } from '@gpa-gemstone/application-typings';
+import { Alert } from '@gpa-gemstone/react-interactive';
 
 const TVALightningChart: EventWidget.IWidget<{}> = {
     Name: 'Lightning',
@@ -51,6 +53,7 @@ const TVALightningChart: EventWidget.IWidget<{}> = {
         const [tableData, setTableData] = React.useState<{ Day: { Data: Array<number> } }>({ Day: { Data: [] } });
         const [xcoord, setXcoord] = React.useState<number | null>(null);
         const [xaxis, setXaxis] = React.useState<Array<number>>([]);
+        const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
 
         React.useEffect(() => {
             setHidden(true);
@@ -66,7 +69,10 @@ const TVALightningChart: EventWidget.IWidget<{}> = {
                 dataType: 'json',
                 cache: true,
                 async: true
-            }).done(data => MakeDict(data));
+            }).done(data => {
+                setStatus('idle');
+                MakeDict(data);
+            }).fail(() => setStatus('error'));
 
 
             return function () {
@@ -186,9 +192,14 @@ const TVALightningChart: EventWidget.IWidget<{}> = {
         }
 
         return (
-            <div className="card" hidden={hidden} ref={divref}>
+            <div className="card" hidden={hidden && status !== 'error'} ref={divref}>
                 <div className="card-header fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>30 Day Lightning History:</div>
                 <div className="card-body">
+                    {status === 'error' ?
+                        <Alert Class='alert-danger'>
+                            An error occurred while fetching lightning data. Please check System Center for more details.
+                        </Alert>
+                    : null}
                     <svg width={svgWidth} height={svgHeight} onMouseOver={handleMouseOver} onMouseMove={handleMouseOver} onMouseOut={() => setTooltipX(svgWidth + 1)}>
                         <path stroke='red' d={`M0,0V0,${height}`} transform={`translate(${tooltipX},0)`}></path>
 

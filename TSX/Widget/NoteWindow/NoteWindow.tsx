@@ -26,7 +26,7 @@ import moment from 'moment';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { ReadWriteControllerFunctions_Gemstone } from '@gpa-gemstone/common-pages';
-import { ServerErrorIcon } from '@gpa-gemstone/react-interactive';
+import { Alert } from '@gpa-gemstone/react-interactive';
 import { MultiCheckBoxSelect, Select } from '@gpa-gemstone/react-forms';
 import { EventWidget } from '../../global';
 import NoteTable from './NoteTable';
@@ -304,13 +304,16 @@ const NoteWidget: EventWidget.IWidget<ISetting> = {
                             />
                         </div>
                     </div>
+                    {metadataError || noteStatus === 'error' ?
+                        <Alert Class='alert-danger'>
+                            An error occurred while fetching note data.
+                        </Alert>
+                    : null}
                     {metadataLoading || noteStatus === 'loading' ?
                         <div className='d-flex align-items-center justify-content-center' style={{ height: 250 }}>
                             <ReactIcons.SpiningIcon Size={'50%'} />
                         </div>
-                        : metadataError || noteStatus === 'error' ?
-                            <ServerErrorIcon Show={true} Size={40} />
-                            : selectedTags.length === 0 ?
+                        : selectedTags.length === 0 ?
                                 <div className={'alert alert-warning'}>
                                     <p>At least 1 Type needs to be selected.</p>
                                 </div>

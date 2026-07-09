@@ -197,6 +197,11 @@ const EventSearchOpenSEE: EventWidget.IWidget<ISetting> = {
                     </a>
                 </div>
                 <div className="card-body p-0">
+                    {vDataStatus === 'error' || iDataStatus === 'error' || tceDataStatus === 'error' ?
+                        <Alert Class='alert-danger'>
+                            An error occurred while fetching openSEE data.
+                        </Alert>
+                    : null}
                     {isLoading ?
                         <div className="d-flex justify-content-center align-items-center" style={{ height: 250 }}>
                             <ReactIcons.SpiningIcon Size={'50%'} />
