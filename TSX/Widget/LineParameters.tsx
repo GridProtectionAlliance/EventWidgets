@@ -80,7 +80,7 @@ const LineParameters: EventWidget.IWidget<ISetting> = {
             setStatus('loading');
             const handle = $.ajax({
                 type: "GET",
-                url: `${props.HomePath}/EventWidgets/LineParameter/${props.EventID}`,
+                url: `${props.HomePath}api/EventWidgets/LineParameter/${props.EventID}`,
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
                 cache: true,
@@ -132,6 +132,11 @@ const LineParameters: EventWidget.IWidget<ISetting> = {
                     }
                 </div>
                 <div className="card-body">
+                    {status === 'error' ?
+                        <Alert Class='alert-danger'>
+                            An error occurred while fetching line parameter data.
+                        </Alert>
+                    : null}
                     {status === 'loading' ?
                         <div className='d-flex align-items-center justify-content-center' style={{ height: 250 }}>
                             <ReactIcons.SpiningIcon Size={'50%'} />
