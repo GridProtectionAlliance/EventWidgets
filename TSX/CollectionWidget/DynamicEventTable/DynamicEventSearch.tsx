@@ -25,7 +25,7 @@ import { DynamicEventSearchList } from './DynamicEventSearchTable';
 import { DynamicEventSearchRow, FetchFallbackDynamicEventSearchData, IDynamicEventSearchQuery } from './DynamicEventSearchData';
 import { EventWidget } from '../../global';
 
-const LocalStorageKey = 'EventWidgets.DynamicEventSearch.TableCols';
+export const LocalStorageKey = 'EventWidgets.DynamicEventSearch.TableCols';
 
 interface ISettings {
     ShowCard: boolean,

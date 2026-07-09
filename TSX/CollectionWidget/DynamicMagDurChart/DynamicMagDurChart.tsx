@@ -31,8 +31,6 @@ import { EventWidget } from '../../global';
 import { DynamicEventSearchRow, FetchFallbackDynamicEventSearchData, IDynamicEventSearchQuery } from '../DynamicEventTable/DynamicEventSearchData';
 import { DynamicMagDurEventList } from './DynamicMagDurEventList';
 
-const LocalStorageKey = 'EventWidgets.DynamicMagDurChart.TableCols';
-
 interface ISettings {
     Aggregate: boolean,
     ShowCard: boolean,
@@ -249,7 +247,6 @@ const DynamicMagDurChart: EventWidget.ICollectionWidget<ISettings, DynamicEventS
                     Magnitude={selectedMag}
                     Duration={selectedDur}
                     Height={bodyHeight ?? 500}
-                    Width={bodyWidth ?? 500}
                     Data={events}
                     SortField={sortField}
                     Ascending={ascending}
@@ -261,7 +258,10 @@ const DynamicMagDurChart: EventWidget.ICollectionWidget<ISettings, DynamicEventS
                             setAscending(true);
                         }
                     }}
-                    LocalStorageKey={LocalStorageKey}
+                    OnClose={() => {
+                        setSelectedDur(0);
+                        setSelectedMag(0);
+                    }}
                 />
             </>
         );

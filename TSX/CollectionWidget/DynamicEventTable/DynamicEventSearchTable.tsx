@@ -44,30 +44,23 @@ export interface IDynamicEventSearchListProps {
 
 export function DynamicEventSearchList(props: IDynamicEventSearchListProps) {
     const containerRef = React.useRef<HTMLDivElement | null>(null);
-    const [cols, setCols] = React.useState<IColumn[]>([]);
 
-    const data = props.Data;
-    const status = props.Status;
+    const cols = React.useMemo<IColumn[]>(() => {
+        if (props.Data.length == 0)
+            return [];
 
-    React.useEffect(() => {
-        if (data.length == 0)
-            return;
-
-        const flds = Object.keys(data[0]).filter(item => item != "Time" && item != "DisturbanceID" && item != "EventID" && item != "EventID1" && item != 'MagDurDuration' && item != 'MagDurMagnitude').sort();
-
-        if (flds.length != cols.length)
-            setCols(flds.map(item => ({
-                field: item, key: item, label: item
-            })))
-
-    }, [data])
+        return Object.keys(props.Data[0])
+            .filter(item => item != "Time" && item != "DisturbanceID" && item != "EventID" && item != "EventID1" && item != 'MagDurDuration' && item != 'MagDurMagnitude')
+            .sort()
+            .map(item => ({ field: item, key: item, label: item }));
+    }, [props.Data]);
 
     const setScrollBar = React.useCallback(() => {
         if (containerRef.current == null) return;
 
         const rowHeight = $(containerRef.current).find('tbody').children()[0].clientHeight;
-        const index = data.map(a => a.EventID.toString()).indexOf(props.Eventid.toString());
-        const tableHeight = data.length * rowHeight;
+        const index = props.Data.map(a => a.EventID.toString()).indexOf(props.Eventid.toString());
+        const tableHeight = props.Data.length * rowHeight;
         const windowHeight = window.innerHeight - 314;
         const tableSectionCount = Math.ceil(tableHeight / windowHeight);
         const tableSectionHeight = Math.ceil(tableHeight / tableSectionCount);
@@ -80,23 +73,23 @@ export function DynamicEventSearchList(props: IDynamicEventSearchListProps) {
 
         if (scrollTop <= sectionIndex * tableSectionHeight || scrollTop >= (sectionIndex + 1) * tableSectionHeight - tableSectionHeight / 2)
             $(containerRef.current).find('tbody').scrollTop(sectionIndex * tableSectionHeight);
-    }, [data, props.Eventid])
+    }, [props.Data, props.Eventid])
 
     const handleKeyPress = React.useCallback((event: KeyboardEvent) => {
-        if (data.length == 0) return;
+        if (props.Data.length == 0) return;
 
-        const index = data.map(a => a.EventID.toString()).indexOf(props.Eventid.toString());
+        const index = props.Data.map(a => a.EventID.toString()).indexOf(props.Eventid.toString());
 
         if (event.keyCode == 40) // arrow down key
         {
             event.preventDefault();
 
             if (props.Eventid == -1 || index < 0)
-                props.SelectEvent(data[0].EventID, data[0]);
-            else if (index == data.length - 1)
-                props.SelectEvent(data[0].EventID, data[0]);
+                props.SelectEvent(props.Data[0].EventID, props.Data[0]);
+            else if (index == props.Data.length - 1)
+                props.SelectEvent(props.Data[0].EventID, props.Data[0]);
             else
-                props.SelectEvent(data[index + 1].EventID, data[index + 1]);
+                props.SelectEvent(props.Data[index + 1].EventID, props.Data[index + 1]);
 
         }
         else if (event.keyCode == 38)  // arrow up key
@@ -104,15 +97,15 @@ export function DynamicEventSearchList(props: IDynamicEventSearchListProps) {
             event.preventDefault();
 
             if (props.Eventid == -1 || index < 0)
-                props.SelectEvent(data[data.length - 1].EventID, data[data.length - 1]);
+                props.SelectEvent(props.Data[props.Data.length - 1].EventID, props.Data[props.Data.length - 1]);
             else if (index == 0)
-                props.SelectEvent(data[data.length - 1].EventID, data[data.length - 1]);
+                props.SelectEvent(props.Data[props.Data.length - 1].EventID, props.Data[props.Data.length - 1]);
             else
-                props.SelectEvent(data[index - 1].EventID, data[index - 1]);
+                props.SelectEvent(props.Data[index - 1].EventID, props.Data[index - 1]);
         }
 
         setScrollBar();
-    }, [data, props.Eventid, setScrollBar, props.SelectEvent])
+    }, [props.Data, props.Eventid, setScrollBar, props.SelectEvent])
 
     //Effect to handle key press events
     React.useEffect(() => {
@@ -134,20 +127,21 @@ export function DynamicEventSearchList(props: IDynamicEventSearchListProps) {
             return <> <br /> {item} </>
         })
     }
+    
     return (
         <>
             <div ref={containerRef} style={{
-                width: '100%', maxHeight: props.Height, overflowY: "hidden", overflowX: "hidden", opacity: (status == 'loading' ? 0.5 : undefined),
-                backgroundColor: (status == 'loading' ? '#00000' : undefined)
+                width: '100%', maxHeight: props.Height, overflowY: "hidden", overflowX: "hidden", opacity: (props.Status == 'loading' ? 0.5 : undefined),
+                backgroundColor: (props.Status == 'loading' ? '#00000' : undefined)
             }}>
-                {status == 'loading' ? <div style={{ height: '40px', width: '40px', margin: 'auto' }}>
+                {props.Status == 'loading' ? <div style={{ height: '40px', width: '40px', margin: 'auto' }}>
                     <LoadingIcon Show={true} Size={40} />
                 </div> : null}
                 {cols.length > 0 ?
                     <ConfigurableTable<any>
                         LocalStorageKey={props.LocalStorageKey ?? "SEbrowser.EventSearch.TableCols"}
                         TableClass="table table-hover"
-                        Data={data}
+                        Data={props.Data}
                         SortKey={props.SortField}
                         Ascending={props.Ascending}
                         TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', height: 60 }}
