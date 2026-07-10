@@ -121,6 +121,7 @@ const EventInfo: EventWidget.IWidget<{}> = {
                             Event Info:
                         </div>
                         <div className="col-6 justify-content-end d-flex">
+                            {props.WidgetAuthorization.EventInfo.Update ?
                             <button className="btn btn-sm"
                                 onClick={() => {
                                     setShowModal(true);
@@ -128,6 +129,7 @@ const EventInfo: EventWidget.IWidget<{}> = {
                             >
                                 <ReactIcons.Pencil />
                             </button>
+                            : null}
                         </div>
                     </div>
                 </div>

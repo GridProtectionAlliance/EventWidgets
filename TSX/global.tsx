@@ -31,14 +31,15 @@ export namespace EventWidget {
         Setting: string
     }
 
-    export interface INoteAuthorization {
-        CanAdd: boolean,
-        CanEdit: boolean,
-        CanModify: boolean
+    export interface IMutationAuthorization {
+        Create: boolean,
+        Update: boolean,
+        Delete: boolean
     }
 
     export interface IWidgetAuthorization {
-        Notes: INoteAuthorization
+        Notes: IMutationAuthorization,
+        EventInfo: IMutationAuthorization
     }
 
     export interface IWidgetProps<T> {

@@ -37,7 +37,8 @@ interface IProps {
     SortField: keyof OpenXDA.Types.Note,
     Ascending: boolean,
     MaxHeight: number,
-    AllowEdit: boolean,
+    AllowCreate: boolean,
+    AllowUpdate: boolean,
     NewNote: OpenXDA.Types.Note,
     SetNewNote: (note: OpenXDA.Types.Note) => void,
     EditNote: OpenXDA.Types.Note,
@@ -57,7 +58,7 @@ const NoteTable = (props: IProps) => {
     return (
         <div style={{ border: '0px', maxHeight: props.MaxHeight, width: '100%' }}>
             <div style={{ maxHeight: props.MaxHeight - 100, overflowY: 'auto', width: '100%' }}>
-                {props.AllowEdit ?
+                {props.AllowCreate ?
                     <>
                         <NoteOptions
                             Record={props.NewNote}
@@ -160,7 +161,7 @@ const NoteTable = (props: IProps) => {
                         :
                         <></>
                     }
-                    {props.AllowEdit ?
+                    {props.AllowUpdate ?
                         <Column<OpenXDA.Types.Note>
                             Key='buttons'
                             HeaderStyle={{ width: 'auto' }}

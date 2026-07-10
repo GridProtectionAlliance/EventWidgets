@@ -82,7 +82,8 @@ const NoteWidget: EventWidget.IWidget<ISetting> = {
         const [showEdit, setShowEdit] = React.useState<boolean>(false);
         const [hover, setHover] = React.useState<'none' | 'add' | 'clear'>('none');
 
-        const canModify = props.WidgetAuthorization.Notes.CanModify;
+        const canCreate = props.WidgetAuthorization.Notes.Create;
+        const canUpdate = props.WidgetAuthorization.Notes.Update;
 
         const controllers = React.useMemo(() => ({
             Event: new ReadWriteControllerFunctions_Gemstone<OpenXDA.Types.Note>(`${props.HomePath}api/OpenXDA/Note/Event`),
@@ -231,6 +232,9 @@ const NoteWidget: EventWidget.IWidget<ISetting> = {
         };
 
         const handleAdd = (record: OpenXDA.Types.Note): void => {
+            if (!canCreate)
+                return;
+
             const note = createActionNote(record);
 
             setNoteStatus('loading');
@@ -248,7 +252,7 @@ const NoteWidget: EventWidget.IWidget<ISetting> = {
         const handleSaveEdit = (confirm: boolean): void => {
             setShowEdit(false);
 
-            if (!confirm || !canModify) {
+            if (!confirm || !canUpdate) {
                 setEditNote(createBlankNote(noteType, noteApp, activeReferenceID, activeTags));
                 return;
             }
@@ -325,7 +329,8 @@ const NoteWidget: EventWidget.IWidget<ISetting> = {
                                     SortField={sortField}
                                     Ascending={ascending}
                                     MaxHeight={props.MaxHeight ?? 500}
-                                    AllowEdit={canModify}
+                                    AllowCreate={canCreate}
+                                    AllowUpdate={canUpdate}
                                     NewNote={newNote}
                                     SetNewNote={setNewNote}
                                     EditNote={editNote}

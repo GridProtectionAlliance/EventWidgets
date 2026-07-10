@@ -62,6 +62,9 @@ namespace Widgets.API.Model
             await ForwardRequest(token).ConfigureAwait(false);
 
         [Route("save/{EventID:int}"), HttpPost]
+#if IS_GEMSTONE
+        [ResourceAccess(ResourceAccessType.Update)]
+#endif
         public async ServerResponse SetEvent([FromBody] JObject postData, int EventID, CancellationToken token) =>
             await ForwardRequest(postData, token).ConfigureAwait(false);
     }
