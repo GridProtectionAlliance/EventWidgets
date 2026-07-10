@@ -96,7 +96,7 @@ const EventSearchBreakerPerformance: EventWidget.IWidget<{}> = {
                         <Alert Class='alert-danger'>
                             An error occurred while fetching historic breaker performance data.
                         </Alert>
-                    : null}
+                        : null}
                     {status === 'loading' ?
                         <div className='d-flex align-items-center justify-content-center' style={{ height: 250 }}>
                             <ReactIcons.SpiningIcon Size={'50%'} />
@@ -119,6 +119,7 @@ const EventSearchBreakerPerformance: EventWidget.IWidget<{}> = {
                                     zoom={false}
                                     pan={false}
                                     useMetricFactors={false}
+                                    yDomain="AutoValue"
                                 >
                                     <LineWithThreshold
                                         highlightHover={true}
@@ -146,6 +147,7 @@ const EventSearchBreakerPerformance: EventWidget.IWidget<{}> = {
                                     zoom={false}
                                     pan={false}
                                     useMetricFactors={false}
+                                    yDomain="AutoValue"
                                 >
                                     <LineWithThreshold
                                         highlightHover={true}
@@ -161,8 +163,20 @@ const EventSearchBreakerPerformance: EventWidget.IWidget<{}> = {
                                         legend={'Pickup Time'}
                                     />
                                 </Plot>
-                                <Plot height={400} width={Width - 100} showBorder={false} defaultTdomain={[Tstart, Tend]} legend={'bottom'} Tlabel={'Time'}
-                                    Ylabel={'TCC (A/s)'} showMouse={true} zoom={false} pan={false} useMetricFactors={false}>
+                                <Plot
+                                    height={400}
+                                    width={Width - 100}
+                                    showBorder={false}
+                                    defaultTdomain={[Tstart, Tend]}
+                                    legend={'bottom'}
+                                    Tlabel={'Time'}
+                                    Ylabel={'TCC (A/s)'}
+                                    showMouse={true}
+                                    zoom={false}
+                                    pan={false}
+                                    useMetricFactors={false}
+                                    yDomain="AutoValue"
+                                >
                                     <LineWithThreshold
                                         highlightHover={true}
                                         showPoints={true}
