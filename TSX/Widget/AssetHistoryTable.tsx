@@ -80,9 +80,11 @@ const AssetHistoryTable: EventWidget.IWidget<ISetting> = {
         return (
             <div className="card">
                 <div className="card-header fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>
-                    Event History for {assetName}:
-                    <div className='pull-right'>
-                        <div className="form-inline">
+                    <div className="row">
+                        <div className="col-6 d-flex align-items-center">
+                            Event History for {assetName}:
+                        </div>
+                        <div className="col-6 d-flex justify-content-end">
                             <Select
                                 Record={{ count }}
                                 Field='count'
@@ -95,6 +97,7 @@ const AssetHistoryTable: EventWidget.IWidget<ISetting> = {
                                 ]}
                                 Setter={(record) => setCount(record.count)}
                                 Label="Number of events: "
+                                Style={{ marginBottom: 0 }}
                             />
                         </div>
                     </div>

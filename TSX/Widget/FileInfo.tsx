@@ -126,15 +126,15 @@ const EventSearchFileInfo: EventWidget.IWidget<ISetting> = {
                 </div>
 
                 <div className="card-body">
-                    {meterConfigurationStatus === 'loading' ?
-                        <div className='pull-right'>
+                    <div className="d-flex justify-content-end">
+                        {meterConfigurationStatus === 'loading' ?
                             <ReactIcons.SpiningIcon Size={'1em'} />
-                        </div>
-                        :
-                        <a className="pull-right" target="_blank" href={props.Settings.SystemCenterUrl + `?name=ConfigurationHistory&MeterKey=${meterKey}&MeterConfigurationID=${meterConfigurationID}`}>
-                            Meter Configuration Via System Center
-                        </a>
-                    }
+                            :
+                            <a target="_blank" href={props.Settings.SystemCenterUrl + `?name=ConfigurationHistory&MeterKey=${meterKey}&MeterConfigurationID=${meterConfigurationID}`}>
+                                Meter Configuration Via System Center
+                            </a>
+                        }
+                    </div>
                     {fileNameStatus === 'error' ?
                         <Alert Class='alert-danger'>
                             An error occurred while fetching file name data.

@@ -124,12 +124,19 @@ const LineParameters: EventWidget.IWidget<ISetting> = {
 
         return (
             <div className="card">
-                <div className="card-header fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>Line Parameters:
-                    {lineParameters == null ? null :
-                        <a className="pull-right" target="_blank"
-                            href={`${props.Settings.SystemCenterURL}?name=Asset&AssetID=${lineParameters.ID}`}
-                        >Line Configuration Via System Center</a>
-                    }
+                <div className="card-header fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>
+                    <div className="row">
+                        <div className="col-6 d-flex align-items-center">
+                            Line Parameters:
+                        </div>
+                        <div className="col-6 d-flex justify-content-end">
+                            {lineParameters == null ? null :
+                                <a target="_blank"
+                                    href={`${props.Settings.SystemCenterURL}?name=Asset&AssetID=${lineParameters.ID}`}
+                                >Line Configuration Via System Center</a>
+                            }
+                        </div>
+                    </div>
                 </div>
                 <div className="card-body">
                     {status === 'error' ?

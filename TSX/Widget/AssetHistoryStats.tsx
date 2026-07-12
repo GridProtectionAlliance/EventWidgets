@@ -78,15 +78,18 @@ const AssetHistoryStats: EventWidget.IWidget<{}> = {
         return (
             <div className="card">
                 <div className="card-header fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>
-                    Event Statistics for {statsData?.AssetName}:
-                    <div className='pull-right'>
-                        <div className="form-inline">
+                    <div className="row">
+                        <div className="col-6 d-flex align-items-center">
+                            Event Statistics for {statsData?.AssetName}:
+                        </div>
+                        <div className="col-6 d-flex justify-content-end">
                             <Select
                                 Record={{ time }}
                                 Field='time'
                                 Options={TimeWindowOptions}
                                 Setter={(record) => setTime(record.time)}
                                 Label="Time Window: "
+                                Style={{ marginBottom: 0 }}
                             />
                         </div>
                     </div>

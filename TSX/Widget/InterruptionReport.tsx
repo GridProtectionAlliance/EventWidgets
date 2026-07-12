@@ -20,7 +20,6 @@
 //       Generated original version of source code.
 //
 //******************************************************************************************************
-
 import { Table, Column } from '@gpa-gemstone/react-table';
 import { Select } from '@gpa-gemstone/react-forms';
 import moment from 'moment';
@@ -70,9 +69,11 @@ const InterruptionReport: EventWidget.IWidget<{}> = {
         return (
             <div className="card">
                 <div className="card-header fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>
-                    Interruption Report:
-                    <div className='pull-right'>
-                        <div className="form-inline">
+                    <div className="row">
+                        <div className="col-6 d-flex align-items-center">
+                            Interruption Report:
+                        </div>
+                        <div className="col-6 d-flex justify-content-end">
                             <Select
                                 Record={{ hours }}
                                 Field='hours'
@@ -86,6 +87,7 @@ const InterruptionReport: EventWidget.IWidget<{}> = {
                                 ]}
                                 Setter={(record) => setHours(record.hours)}
                                 Label="Time Window (hrs)"
+                                Style={{ marginBottom: 0 }}
                             />
                         </div>
                     </div>
@@ -95,7 +97,7 @@ const InterruptionReport: EventWidget.IWidget<{}> = {
                         <Alert Class='alert-danger'>
                             An error occurred while fetching interruption report data.
                         </Alert>
-                    : null}
+                        : null}
                     {status === 'loading' ?
                         <div className='d-flex align-items-center justify-content-center' style={{ height: 250 }}>
                             <ReactIcons.SpiningIcon Size={'50%'} />

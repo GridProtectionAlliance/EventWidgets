@@ -100,13 +100,17 @@ const FaultInfo: EventWidget.IWidget<{}> = {
         return (
             <div className="card">
                 <div className="card-header fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>
-                    Fault Information:
-                    {linksStatus === 'loading' ?
-                        <div className='pull-right'>
-                            <ReactIcons.SpiningIcon Size={'1em'} />
+                    <div className="row">
+                        <div className="col-6 d-flex align-items-center">
+                            Fault Information:
                         </div>
-                        : null
-                    }
+                        <div className="col-6 d-flex justify-content-end">
+                            {linksStatus === 'loading' ?
+                                <ReactIcons.SpiningIcon Size={'1em'} />
+                                : null
+                            }
+                        </div>
+                    </div>
                 </div>
                 <div className="card-body">
                     {faultInfoStatus === 'error' ?
