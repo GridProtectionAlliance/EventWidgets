@@ -126,36 +126,39 @@ const EventSearchFileInfo: EventWidget.IWidget<ISetting> = {
                 </div>
 
                 <div className="card-body">
-                    <div className="d-flex justify-content-end">
-                        {meterConfigurationStatus === 'loading' ?
-                            <ReactIcons.SpiningIcon Size={'1em'} />
-                            :
-                            <a target="_blank" href={props.Settings.SystemCenterUrl + `?name=ConfigurationHistory&MeterKey=${meterKey}&MeterConfigurationID=${meterConfigurationID}`}>
-                                Meter Configuration Via System Center
-                            </a>
-                        }
+                    <div className="row">
+                        <div className="col-6">
+                            {fileNameStatus === 'error' ?
+                                <Alert Class='alert-danger'>
+                                    An error occurred while fetching file name data.
+                                </Alert>
+                                : null}
+                            {fileNameStatus === 'loading' ?
+                                <div className='d-flex align-items-center justify-content-center' style={{ height: '1.5em' }}>
+                                    <ReactIcons.SpiningIcon Size={'1em'} />
+                                </div>
+                                : fileName.length === 0 && fileNameStatus !== 'error' ?
+                                    <Alert Class='alert-info'>
+                                        No file name data.
+                                    </Alert>
+                                    : <p>{fileName}</p>
+                            }
+                        </div>
+                        <div className="col-6 d-flex justify-content-end">
+                            {meterConfigurationStatus === 'loading' ?
+                                <ReactIcons.SpiningIcon Size={'1em'} />
+                                :
+                                <a target="_blank" href={props.Settings.SystemCenterUrl + `?name=ConfigurationHistory&MeterKey=${meterKey}&MeterConfigurationID=${meterConfigurationID}`}>
+                                    Meter Configuration Via System Center
+                                </a>
+                            }
+                        </div>
                     </div>
-                    {fileNameStatus === 'error' ?
-                        <Alert Class='alert-danger'>
-                            An error occurred while fetching file name data.
-                        </Alert>
-                    : null}
                     {mappedChannelsStatus === 'error' ?
                         <Alert Class='alert-danger'>
                             An error occurred while fetching mapped channel data.
                         </Alert>
-                    : null}
-                    {fileNameStatus === 'loading' ?
-                        <div className='d-flex align-items-center justify-content-center' style={{ height: '1.5em' }}>
-                            <ReactIcons.SpiningIcon Size={'1em'} />
-                        </div>
-                        : fileName.length === 0 ?
-                            <Alert Class='alert-info'>
-                                No file name data.
-                            </Alert>
-                            :
-                            <p>{fileName}</p>
-                    }
+                        : null}
                     {mappedChannelsStatus === 'loading' ?
                         <div className='d-flex align-items-center justify-content-center' style={{ height: 250 }}>
                             <ReactIcons.SpiningIcon Size={'50%'} />
