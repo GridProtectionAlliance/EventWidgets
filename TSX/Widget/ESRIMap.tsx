@@ -69,72 +69,103 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
         lscLayerURL: `http://pq/arcgisproxynew/proxy.ashx?https://gis.tva.gov/arcgis/rest/services/EGIS_Transmission/Transmission_Station_Assets/MapServer/`
     },
     Settings: (props) => {
-        return (<>
-            <div className="row">
-                <div className="col">
-                    <Input<ISettings>
-                        Record={props.Settings}
-                        Field={'transmissionLayerURL'}
-                        Help={'The URL for transmission layer in ESRIMap Widget.'}
-                        Setter={(record) => props.SetSettings(record)}
-                        Valid={() => true}
-                        Label={'Transmission layer URl'} />
+        return (
+            <>
+                <div className="row">
+                    <div className="col">
+                        <Input<ISettings>
+                            Record={props.Settings}
+                            Field={'transmissionLayerURL'}
+                            Help={'The URL for transmission layer in ESRIMap Widget.'}
+                            Setter={(record) => props.SetSettings(record)}
+                            Valid={() => true}
+                            Label={'Transmission layer URl'}
+                        />
+                    </div>
                 </div>
-            </div>
-            <div className="row">
-
-                <div className="col">
-                    <Input<ISettings>
-                        Record={props.Settings}
-                        Field={'safetyLayerURL'}
-                        Help={'The URL for safety layer in ESRIMap Widget.'}
-                        Setter={(record) => props.SetSettings(record)}
-                        Valid={() => true}
-                        Label={'Safety layer URl'} />
+                <div className="row">
+                    <div className="col">
+                        <Input<ISettings>
+                            Record={props.Settings}
+                            Field={'safetyLayerURL'}
+                            Help={'The URL for safety layer in ESRIMap Widget.'}
+                            Setter={(record) => props.SetSettings(record)}
+                            Valid={() => true}
+                            Label={'Safety layer URl'}
+                        />
+                    </div>
                 </div>
-            </div>
-            <div className="row">
-                <div className="col">
-                    <Input<ISettings>
-                        Record={props.Settings}
-                        Field={'lscLayerURL'}
-                        Help={'The URL for lsc layer in ESRIMap Widget.'}
-                        Setter={(record) => props.SetSettings(record)}
-                        Valid={() => true}
-                        Label={'LSC layer URl'} />
+                <div className="row">
+                    <div className="col">
+                        <Input<ISettings>
+                            Record={props.Settings}
+                            Field={'lscLayerURL'}
+                            Help={'The URL for lsc layer in ESRIMap Widget.'}
+                            Setter={(record) => props.SetSettings(record)}
+                            Valid={() => true}
+                            Label={'LSC layer URl'}
+                        />
+                    </div>
                 </div>
-            </div>
-            <div className="row">
-                <div className="col">
-                    <Input<ISettings>
-                        Record={props.Settings}
-                        Field={'Zoom'}
-                        Help={'The Zoom setting for ESRIMap widget. ex: 7'}
-                        Setter={(record) => props.SetSettings(record)}
-                        Valid={() => true}
-                        Label={'Zoom setting'} />
+                <div className="row">
+                    <div className="col">
+                        <Input<ISettings>
+                            Record={props.Settings}
+                            Field={'bufferLayerURL'}
+                            Help={'The URL for buffer layer in ESRIMap Widget.'}
+                            Setter={(record) => props.SetSettings(record)}
+                            Valid={() => true}
+                            Label={'Buffer layer URL'}
+                        />
+                    </div>
                 </div>
-            </div>
-            <div className="row">
-                <div className="col">
-                    <Input<ISettings>
-                        Record={props.Settings}
-                        Field={'CenterLong'}
-                        Help={'The Center (Longitude) setting for ESRIMap widget.'}
-                        Setter={(record) => props.SetSettings(record)}
-                        Valid={() => true}
-                        Label={'Center Longitude'} />
+                <div className="row">
+                    <div className="col">
+                        <Input<ISettings>
+                            Record={props.Settings}
+                            Field={'radarLayerURL'}
+                            Help={'The URL for radar layer in ESRIMap Widget.'}
+                            Setter={(record) => props.SetSettings(record)}
+                            Valid={() => true}
+                            Label={'Radar layer URL'}
+                        />
+                    </div>
                 </div>
-                <div className="col">
-                    <Input<ISettings>
-                        Record={props.Settings}
-                        Field={'CenterLat'}
-                        Help={'The Center (Latitude) setting for ESRIMap widget.'}
-                        Setter={(record) => props.SetSettings(record)}
-                        Valid={() => true}
-                        Label={'Center Latitude'} />
+                <div className="row">
+                    <div className="col">
+                        <Input<ISettings>
+                            Record={props.Settings}
+                            Field={'Zoom'}
+                            Help={'The Zoom setting for ESRIMap widget. ex: 7'}
+                            Setter={(record) => props.SetSettings(record)}
+                            Valid={() => true}
+                            Label={'Zoom setting'}
+                        />
+                    </div>
                 </div>
-            </div> </>
+                <div className="row">
+                    <div className="col">
+                        <Input<ISettings>
+                            Record={props.Settings}
+                            Field={'CenterLong'}
+                            Help={'The Center (Longitude) setting for ESRIMap widget.'}
+                            Setter={(record) => props.SetSettings(record)}
+                            Valid={() => true}
+                            Label={'Center Longitude'}
+                        />
+                    </div>
+                    <div className="col">
+                        <Input<ISettings>
+                            Record={props.Settings}
+                            Field={'CenterLat'}
+                            Help={'The Center (Latitude) setting for ESRIMap widget.'}
+                            Setter={(record) => props.SetSettings(record)}
+                            Valid={() => true}
+                            Label={'Center Latitude'}
+                        />
+                    </div>
+                </div>
+            </>
         )
     },
     Widget: (props: EventWidget.IWidgetProps<ISettings>) => {
