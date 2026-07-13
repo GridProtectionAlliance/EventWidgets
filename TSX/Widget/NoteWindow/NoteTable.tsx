@@ -36,7 +36,6 @@ interface IProps {
     NoteApplications: OpenXDA.Types.NoteApplication[],
     SortField: keyof OpenXDA.Types.Note,
     Ascending: boolean,
-    MaxHeight: number,
     AllowCreate: boolean,
     AllowUpdate: boolean,
     NewNote: OpenXDA.Types.Note,
@@ -56,8 +55,8 @@ const NoteTable = (props: IProps) => {
     const useFixedApp = props.NoteApplications.length === 1;
 
     return (
-        <div style={{ border: '0px', maxHeight: props.MaxHeight, width: '100%' }}>
-            <div style={{ maxHeight: props.MaxHeight - 100, overflowY: 'auto', width: '100%' }}>
+        <div style={{ border: '0px', width: '100%', display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
+            <div style={{ width: '100%', display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
                 {props.AllowCreate ?
                     <>
                         <NoteOptions
@@ -79,7 +78,7 @@ const NoteTable = (props: IProps) => {
                                 Add Note
                             </button>
                             <ToolTip Show={props.Hover === 'add' && (props.NewNote.Note == null || props.NewNote.Note.length === 0)} Position='top' Target='Add'>
-                                <p><ReactIcons.CrossMark /> A note needs to be entered.</p>
+                                <p><ReactIcons.CrossMark Color="var(--danger)" /> A note needs to be entered.</p>
                             </ToolTip>
                         </div>
                         <div className='btn-group mr-2'>
@@ -94,7 +93,7 @@ const NoteTable = (props: IProps) => {
                                 Clear
                             </button>
                             <ToolTip Show={props.Hover === 'clear' && (props.NewNote.Note == null || props.NewNote.Note.length === 0)} Position='top' Target='ClearNote'>
-                                <p><ReactIcons.CrossMark /> The note field is already empty.</p>
+                                <p><ReactIcons.CrossMark Color="var(--danger)" /> The note field is already empty.</p>
                             </ToolTip>
                         </div>
                     </>
@@ -106,7 +105,13 @@ const NoteTable = (props: IProps) => {
                     Ascending={props.Ascending}
                     OnSort={props.OnSort}
                     OnClick={() => { return; }}
-                    TbodyStyle={{ maxHeight: props.MaxHeight - 300 }}
+                    TableStyle={{
+                        padding: 0, width: '100%', flex: 1, minHeight: 0,
+                        tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
+                    }}
+                    TheadStyle={{ tableLayout: 'fixed', display: 'table', width: '100%' }}
+                    RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
+                    TbodyStyle={{ display: 'block', overflowY: 'auto', flex: 1, minHeight: 0 }}
                     Selected={() => false}
                     KeySelector={(note) => note.ID}
                 >
@@ -185,7 +190,7 @@ const NoteTable = (props: IProps) => {
                     DisableConfirm={props.EditNote.Note == null || props.EditNote.Note.length === 0}
                     ShowX={true}
                     ConfirmShowToolTip={props.EditNote.Note == null || props.EditNote.Note.length === 0}
-                    ConfirmToolTipContent={<p><ReactIcons.CrossMark /> An empty Note can not be saved.</p>}
+                    ConfirmToolTipContent={<p><ReactIcons.CrossMark Color="var(--danger)" /> An empty Note can not be saved.</p>}
                 >
                     <NoteOptions
                         ShowApplications={!useFixedApp}

@@ -287,7 +287,7 @@ const NoteWidget: EventWidget.IWidget<ISetting> = {
         return (
             <div className='card' style={{ maxHeight: props.MaxHeight ?? 500 }}>
                 <div className='card-header fixed-top' style={{ position: 'sticky', background: '#f7f7f7' }}>Notes:</div>
-                <div className='card-body'>
+                <div className='card-body' style={{ display: 'flex', flexDirection: 'column', minHeight: 0, overflow: 'hidden' }}>
                     <div className='row'>
                         <div className='col'>
                             <MultiCheckBoxSelect
@@ -328,7 +328,6 @@ const NoteWidget: EventWidget.IWidget<ISetting> = {
                                     NoteApplications={[noteApp]}
                                     SortField={sortField}
                                     Ascending={ascending}
-                                    MaxHeight={props.MaxHeight ?? 500}
                                     AllowCreate={canCreate}
                                     AllowUpdate={canUpdate}
                                     NewNote={newNote}
