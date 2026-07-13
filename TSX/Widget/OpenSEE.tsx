@@ -24,8 +24,14 @@ import { Line, Plot } from '@gpa-gemstone/react-graph';
 import React from 'react';
 import { EventWidget } from '../global';
 import { Input } from '@gpa-gemstone/react-forms';
+import { useGetContainerPosition } from "@gpa-gemstone/helper-functions";
 
-interface ISeries { label: string, color: string, data: [number, number][] }
+interface ISeries {
+    label: string,
+    color: string,
+    data: [number, number][]
+}
+
 interface IPartialOpenseeSettings {
     Colors: {
         Va: string,
@@ -43,9 +49,33 @@ interface IPartialOpenseeSettings {
         random: string
     }
 }
-interface ISetting { OpenSeeUrl: string }
-const EventSearchOpenSEE: EventWidget.IWidget<ISetting> = {
 
+const defaultSettings: IPartialOpenseeSettings = {
+    Colors: {
+        Va: "#A30000",
+        Vb: "#0029A3",
+        Vc: "#007A29",
+        Vn: "#d3d3d3",
+        Vab: "#A30000",
+        Vbc: "#0029A3",
+        Vca: "#007A29",
+        Ia: "#FF0000",
+        Ib: "#0066CC",
+        Ic: "#33CC33",
+        Ires: "#d3d3d3",
+        In: "#d3d3d3",
+        random: "#4287f5"
+    }
+}
+
+interface ISetting {
+    OpenSeeUrl: string
+}
+
+const plotHeight = 250;
+const legendLabelPadding = '\u00A0'.repeat(5);
+
+const EventSearchOpenSEE: EventWidget.IWidget<ISetting> = {
     Name: 'OpenSEE',
     DefaultSettings: { OpenSeeUrl: 'http://opensee.demo.gridprotectionalliance.org' },
     Settings: (props) => {
@@ -56,12 +86,15 @@ const EventSearchOpenSEE: EventWidget.IWidget<ISetting> = {
                     Field={'OpenSeeUrl'}
                     Setter={(record) => props.SetSettings(record)}
                     Valid={() => true}
-                    Label={'OpenSEE URL'} />
+                    Label={'openSEE URL'}
+                />
             </div>
         </div>
     },
     Widget: (props: EventWidget.IWidgetProps<ISetting>) => {
-        const divref = React.useRef(null);
+        const plotRef = React.useRef<HTMLDivElement | null>(null);
+        const { width } = useGetContainerPosition(plotRef);
+        const legendWidth = useGetLegendWidth(width);
 
         const [VData, setVData] = React.useState<ISeries[]>([]);
         const [VLim, setVLim] = React.useState<[number, number]>([0, 100]);
@@ -70,11 +103,9 @@ const EventSearchOpenSEE: EventWidget.IWidget<ISetting> = {
         const [TCEData, setTCEData] = React.useState<ISeries[]>([]);
         const [TCELim, setTCELim] = React.useState<[number, number]>([0, 100]);
 
-        const [Width, SetWidth] = React.useState<number>(0);
-        const [openSeeSettings, setOpenSeeSettings] = React.useState<IPartialOpenseeSettings>(null);
+        const [openSeeSettings, setOpenSeeSettings] = React.useState<IPartialOpenseeSettings | null>(null);
 
         React.useEffect(() => { setOpenSeeSettings(loadSettings()) }, [])
-        React.useLayoutEffect(() => { SetWidth(divref?.current?.offsetWidth ?? 0) });
 
         React.useEffect(() => {
             const Vhandle = GetData('Voltage', setVData);
@@ -91,6 +122,7 @@ const EventSearchOpenSEE: EventWidget.IWidget<ISetting> = {
             }
         }, [props.EventID]);
 
+        //These three effects below are deriving lims from data we already own, these per react docs should be turned into memo values
         React.useEffect(() => {
             let min = 0;
             let max = 100;
@@ -100,7 +132,6 @@ const EventSearchOpenSEE: EventWidget.IWidget<ISetting> = {
             }
             setVLim([min, max])
         }, [VData]);
-
 
         React.useEffect(() => {
             let min = 0;
@@ -139,25 +170,6 @@ const EventSearchOpenSEE: EventWidget.IWidget<ISetting> = {
         }
 
         function loadSettings(): IPartialOpenseeSettings {
-
-            // ToDO: Move Default OpenSee settigns to gpa-gemstone and use from there.
-            const defaultSettings: IPartialOpenseeSettings = {
-                Colors: {
-                    Va: "#A30000",
-                    Vb: "#0029A3",
-                    Vc: "#007A29",
-                    Vn: "#d3d3d3",
-                    Vab: "#A30000",
-                    Vbc: "#0029A3",
-                    Vca: "#007A29",
-                    Ia: "#FF0000",
-                    Ib: "#0066CC",
-                    Ic: "#33CC33",
-                    Ires: "#d3d3d3",
-                    In: "#d3d3d3",
-                    random: "#4287f5"
-                }
-            }
             try {
                 const serializedState = localStorage.getItem('openSee.Settings');
                 if (serializedState === null)
@@ -178,57 +190,133 @@ const EventSearchOpenSEE: EventWidget.IWidget<ISetting> = {
             }
         }
 
-        function getColor(label) {
+        function getColor(label: string) {
 
-            if (label.indexOf('VA') >= 0) return openSeeSettings.Colors.Va;
-            if (label.indexOf('VB') >= 0) return openSeeSettings.Colors.Vb;
-            if (label.indexOf('VC') >= 0) return openSeeSettings.Colors.Vc;
-            if (label.indexOf('VN') >= 0) return openSeeSettings.Colors.Vn;
-            if (label.indexOf('IA') >= 0) return openSeeSettings.Colors.Ia;
-            if (label.indexOf('IB') >= 0) return openSeeSettings.Colors.Ib;
-            if (label.indexOf('IC') >= 0) return openSeeSettings.Colors.Ic;
-            if (label.indexOf('IR') >= 0) return openSeeSettings.Colors.Ires;
+            const settings = openSeeSettings ?? defaultSettings;
 
-            return openSeeSettings.Colors.random;
+            if (label.indexOf('VA') >= 0) return settings.Colors.Va;
+            if (label.indexOf('VB') >= 0) return settings.Colors.Vb;
+            if (label.indexOf('VC') >= 0) return settings.Colors.Vc;
+            if (label.indexOf('VN') >= 0) return settings.Colors.Vn;
+            if (label.indexOf('IA') >= 0) return settings.Colors.Ia;
+            if (label.indexOf('IB') >= 0) return settings.Colors.Ib;
+            if (label.indexOf('IC') >= 0) return settings.Colors.Ic;
+            if (label.indexOf('IR') >= 0) return settings.Colors.Ires;
+
+            return settings.Colors.random;
         }
 
         return (
             <div className="card">
                 <div className="card-header fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>
-                    <a href={props.Settings.OpenSeeUrl + '?eventid=' + props.EventID} target="_blank">View in OpenSEE</a>
+                    <a href={props.Settings.OpenSeeUrl + '?eventid=' + props.EventID} target="_blank">
+                        View in openSEE
+                    </a>
                 </div>
-                <div className="card-body" ref={divref}>
-                    {VData.length > 0 ? < Plot height={250} width={Width} showBorder={false}
-                        yDomain={'AutoValue'}
-                        legendWidth={150}
-                        defaultTdomain={VLim}
-                        legend={'right'}
-                        Tlabel={'Time'}
-                        Ylabel={'Voltage (V)'} showMouse={false} zoom={false} pan={false} useMetricFactors={false}>
-                        {VData.map((s, i) => <Line highlightHover={false} showPoints={false} lineStyle={'-'} color={getColor(s.label)} data={s.data} legend={s.label} key={i} />)}
-                    </Plot> : null}
-                    {IData.length > 0 ? < Plot height={250} width={Width} showBorder={false}
-                        defaultTdomain={ILim}
-                        yDomain={'AutoValue'}
-                        legendWidth={150}
-                        legend={'right'}
-                        Tlabel={'Time'}
-                        Ylabel={'Current (A)'} showMouse={false} zoom={false} pan={false} useMetricFactors={false}>
-                        {IData.map((s, i) => <Line highlightHover={false} showPoints={false} lineStyle={'-'} color={getColor(s.label)} data={s.data} legend={s.label} key={i} />)}
-                    </Plot> : null}
-                    {TCEData.length > 0 ? < Plot height={250} width={Width} showBorder={false}
-                        defaultTdomain={TCELim}
-                        legendWidth={150}
-                        yDomain={'AutoValue'}
-                        legend={'right'}
-                        Tlabel={'Time'}
-                        Ylabel={'Trip Coil Current (A)'} showMouse={false} zoom={false} pan={false} useMetricFactors={false}>
-                        {TCEData.map((s, i) => <Line highlightHover={false} showPoints={false} lineStyle={'-'} color={getColor(s.label)} data={s.data} legend={s.label} key={i} />)}
-                    </Plot> : null}
+                <div className="card-body p-0">
+                    <div className="row m-0">
+                        <div className="col-12 p-0" ref={plotRef}>
+                            {VData.length > 0 ?
+                                <Plot
+                                    height={plotHeight}
+                                    width={width}
+                                    showBorder={false}
+                                    yDomain={'AutoValue'}
+                                    legendWidth={legendWidth}
+                                    defaultTdomain={VLim}
+                                    legend={'right'}
+                                    Tlabel={'Time'}
+                                    Ylabel={'Voltage (V)'}
+                                    showMouse={false}
+                                    zoom={false}
+                                    pan={false}
+                                    useMetricFactors={false}
+                                >
+                                    {VData.map((s, i) =>
+                                        <Line
+                                            highlightHover={false}
+                                            showPoints={false}
+                                            lineStyle={'-'}
+                                            color={getColor(s.label)}
+                                            data={s.data}
+                                            legend={s.label + legendLabelPadding}
+                                            key={i}
+                                        />
+                                    )}
+                                </Plot> : null}
+                            {IData.length > 0 ?
+                                <Plot
+                                    height={plotHeight}
+                                    width={width}
+                                    showBorder={false}
+                                    defaultTdomain={ILim}
+                                    yDomain={'AutoValue'}
+                                    legendWidth={legendWidth}
+                                    legend={'right'}
+                                    Tlabel={'Time'}
+                                    Ylabel={'Current (A)'}
+                                    showMouse={false}
+                                    zoom={false}
+                                    pan={false}
+                                    useMetricFactors={false}
+                                >
+                                    {IData.map((s, i) =>
+                                        <Line
+                                            highlightHover={false}
+                                            showPoints={false}
+                                            lineStyle={'-'}
+                                            color={getColor(s.label)}
+                                            data={s.data}
+                                            legend={s.label + legendLabelPadding}
+                                            key={i}
+                                        />
+                                    )}
+                                </Plot> : null}
+                            {TCEData.length > 0 ?
+                                <Plot
+                                    height={plotHeight}
+                                    width={width}
+                                    showBorder={false}
+                                    defaultTdomain={TCELim}
+                                    legendWidth={legendWidth}
+                                    yDomain={'AutoValue'}
+                                    legend={'right'}
+                                    Tlabel={'Time'}
+                                    Ylabel={'Trip Coil Current (A)'}
+                                    showMouse={false}
+                                    zoom={false}
+                                    pan={false}
+                                    useMetricFactors={false}
+                                >
+                                    {TCEData.map((s, i) =>
+                                        <Line
+                                            highlightHover={false}
+                                            showPoints={false}
+                                            lineStyle={'-'}
+                                            color={getColor(s.label)}
+                                            data={s.data}
+                                            legend={s.label + legendLabelPadding}
+                                            key={i}
+                                        />
+                                    )}
+                                </Plot> : null}
+                        </div>
+                    </div>
                 </div>
             </div>
         )
     }
+}
+
+const useGetLegendWidth = (plotWidth: number, percent = .15) => {
+    const legendWidth = React.useMemo(() => {
+        const newLegendWidth = plotWidth * (percent ?? .15);
+        if (newLegendWidth < 100) return 100
+
+        return Math.ceil(newLegendWidth)
+    }, [plotWidth, percent])
+
+    return legendWidth;
 }
 
 export default EventSearchOpenSEE;

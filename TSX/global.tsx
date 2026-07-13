@@ -35,7 +35,7 @@ export namespace EventWidget {
     export interface IWidgetProps<T> {
         Settings: T,
         EventID: number,
-        MaxHeight?: number,
+        MaxHeight: number,
         DisturbanceID?: number,
         FaultID?: number,
         HomePath: string,

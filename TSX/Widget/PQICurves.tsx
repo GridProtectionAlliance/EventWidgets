@@ -24,10 +24,11 @@
 import React from 'react';
 import { EventWidget } from '../global';
 import { Plot, Line } from '@gpa-gemstone/react-graph';
+import { useGetContainerPosition } from "@gpa-gemstone/helper-functions";
 
 interface ICurve {
     Name: string,
-    Data: number[][]   
+    Data: number[][]
 }
 
 const baseColors = ["#A30000", "#0029A3", "#007A29", "#d3d3d3", "#edc240",
@@ -36,17 +37,17 @@ const baseColors = ["#A30000", "#0029A3", "#007A29", "#d3d3d3", "#edc240",
     "#737373"]
 
 const PQICurves: EventWidget.IWidget<{}> = {
-    Name: 'PQICurves', 
+    Name: 'PQICurves',
     DefaultSettings: {},
     Settings: () => {
         return <></>
     },
     Widget: (props: EventWidget.IWidgetProps<{}>) => {
-        const card = React.useRef(null);
+        const containerRef = React.useRef<HTMLDivElement | null>(null);
+        const { width, height } = useGetContainerPosition(containerRef);
+
         const [curves, setCurves] = React.useState<ICurve[]>([]);
-        const [w, setW] = React.useState<number>(0);
         const [maxV, setMaxV] = React.useState<number>(1);
-        React.useLayoutEffect(() => { setW(card?.current?.offsetWidth ?? 0)  });
 
         React.useEffect(() => {
             const handle = $.ajax({
@@ -72,7 +73,7 @@ const PQICurves: EventWidget.IWidget<{}> = {
 
         React.useEffect(() => {
             if (curves.length > 0)
-                setMaxV(1.1*Math.max(...curves.map(c => Math.max(...c.Data.map(p => p[1])))))
+                setMaxV(1.1 * Math.max(...curves.map(c => Math.max(...c.Data.map(p => p[1])))))
         }, [curves]);
 
         return (
@@ -80,33 +81,45 @@ const PQICurves: EventWidget.IWidget<{}> = {
                 <div className="card-header fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>
                     PQI Impacted Curves:
                 </div>
-                <div className="card-body" ref={card} >
-                    <Plot height={props.MaxHeight - 100} width={w} showBorder={false}
-                        defaultTdomain={[0.00001, 1000]}
-                        defaultYdomain={[0, maxV]}
-                        Tmax={1000}
-                        Tmin={0.00001}
-                        Ymax={9999}
-                        Ymin={0}
-                        legend={'right'}
-                        Tlabel={'Duration (s)'}
-                        Ylabel={'Magnitude (pu)'}
-                        showMouse={false}
-                        showGrid={true}
-                        yDomain={'Manual'}
-                        zoom={true} pan={true}
-                        useMetricFactors={false}
-                        XAxisType={'log'}
-                        onSelect={() => { }}>
-                        {curves.map((c, i) => <Line highlightHover={false}
-                            showPoints={false}
-                            lineStyle={'-'}
-                            color={baseColors[i % baseColors.length]}
-                            data={c.Data as [number, number][]}
-                            legend={c.Name} key={i}
-                            width={3}
-                        />)}
-                    </Plot> 
+                <div className="card-body">
+                    <div className="row m-0">
+                        <div className="col-12 p-0" ref={containerRef} style={{ height: props.MaxHeight - 100 }}>
+                            <Plot
+                                height={props.MaxHeight - 100}
+                                width={width}
+                                showBorder={false}
+                                defaultTdomain={[0.00001, 1000]}
+                                defaultYdomain={[0, maxV]}
+                                Tmax={1000}
+                                Tmin={0.00001}
+                                Ymax={9999}
+                                Ymin={0}
+                                legend={'right'}
+                                Tlabel={'Duration (s)'}
+                                Ylabel={'Magnitude (pu)'}
+                                showMouse={false}
+                                showGrid={true}
+                                yDomain={'Manual'}
+                                zoom={true} pan={true}
+                                useMetricFactors={false}
+                                XAxisType={'log'}
+                                onSelect={() => { }}
+                            >
+                                {curves.map((c, i) =>
+                                    <Line
+                                        highlightHover={false}
+                                        showPoints={false}
+                                        lineStyle={'-'}
+                                        color={baseColors[i % baseColors.length]}
+                                        data={c.Data as [number, number][]}
+                                        legend={c.Name}
+                                         key={i}
+                                        width={3}
+                                    />
+                                )}
+                            </Plot>
+                        </div>
+                    </div>
                 </div>
             </div>
         );

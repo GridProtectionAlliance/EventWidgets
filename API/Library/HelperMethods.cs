@@ -47,6 +47,15 @@ namespace Widgets.API.Library
             endPoint = controller.Request.Path.Value;
             #else
             endPoint = controller.Request.RequestUri.AbsolutePath;
+            string virtualPathRoot = controller.RequestContext?.VirtualPathRoot;
+
+            if (!string.IsNullOrEmpty(virtualPathRoot) && virtualPathRoot != "/")
+            {
+                virtualPathRoot = virtualPathRoot.TrimEnd('/');
+
+                if (endPoint.StartsWith(virtualPathRoot, System.StringComparison.OrdinalIgnoreCase))
+                    endPoint = endPoint.Substring(virtualPathRoot.Length);
+            }
             #endif
 
             return endPoint.Substring(baseRoute.Length + 1);
