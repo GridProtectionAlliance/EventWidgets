@@ -24,19 +24,23 @@
 import React from 'react';
 import { EventWidget } from '../global';
 import { Input, MultiCheckBoxSelect, Select } from '@gpa-gemstone/react-forms';
-import { Table, Column }  from '@gpa-gemstone/react-table';
+import { Table, Column } from '@gpa-gemstone/react-table';
 import cloneDeep from 'lodash/cloneDeep';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
+import { Application } from '@gpa-gemstone/application-typings';
 import _ from 'lodash';
+import { Alert } from '@gpa-gemstone/react-interactive';
 
 interface IValue {
     Value: string | number
 }
+
 interface SOEInfo {
     Time: string,
     Alarm: string,
     Status: string
 }
+
 interface ISetting {
     FilterOut: string[],
     TimeWindow: number[],
@@ -125,40 +129,35 @@ const SOE: EventWidget.IWidget<ISetting> = {
         const [soeInfo, setSOEInfo] = React.useState<SOEInfo[]>([]);
         const [statusFilter, setStatusFilter] = React.useState<string[]>([])
         const [timeWindow, setTimeWindow] = React.useState<number>(2);
-        const [filterOptions, setFilterOptions] = React.useState<{ Value: number, Label: string, Selected: boolean}[]>([])
+        const [filterOptions, setFilterOptions] = React.useState<{ Value: number, Label: string, Selected: boolean }[]>([])
+        const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
 
         const timeWindowOptions = React.useMemo(() => props.Settings.TimeWindow.map((t) => ({ Value: t.toString(), Label: t.toString() })), [props.Settings.TimeWindow]);
-
 
         React.useEffect(() => {
             setFilterOptions(props.Settings.FilterOut.map((f, i) => ({ Value: i, Label: f.toLowerCase(), Selected: false })))
         }, [props.Settings.FilterOut]);
 
+        //Effect update selected value based on statusFilter
         React.useEffect(() => {
             setFilterOptions((d) => d.map(f => ({ ...f, Selected: statusFilter.includes(f.Label) })));
         }, [statusFilter])
+
         React.useEffect(() => {
-            return GetData();
-        }, [props.EventID, timeWindow, statusFilter]);
+            setStatus('loading');
+            const handle = getSOEData(props.HomePath, props.EventID, timeWindow);
 
-        function GetData() {
-            const handle = $.ajax({
-                type: "GET",
-                url: `${props.HomePath}api/SOE/${props.EventID}/${timeWindow}`,
-                contentType: "application/json; charset=utf-8",
-                dataType: 'json',
-                cache: false,
-                async: true
-            });
-
-            handle.done(data => {
+            handle.done((data) => {
                 setSOEInfo(data.filter(si => !statusFilter.includes(si.Status.toLowerCase())));
-            });
+                setStatus('idle');
+            }).fail(() => setStatus('error'));
 
-            return function () {
-                if (handle.abort != undefined) handle.abort();
-            }
-        }
+            return () => {
+                if (handle?.abort != null) {
+                    handle.abort();
+                }
+            };
+        }, [props.EventID, props.HomePath, timeWindow, statusFilter]);
 
         return (
             <div className="card">
@@ -188,47 +187,72 @@ const SOE: EventWidget.IWidget<ISetting> = {
 
                     </div>
                     <div style={{ maxHeight: 200, overflowY: 'auto' }}>
-                        <Table<SOEInfo>
-                            Data={soeInfo}
-                            OnSort={() => { /*Do Nothing*/ }}
-                            SortKey={''}
-                            Ascending={true}
-                            TableClass="table"
-                            KeySelector={data => { return data.Time; /* Todo: Time might not be unique and generate errors, ensure it is or try to use something else */ }}
-                            TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', height: 50 }}
-                            TbodyStyle={{ display: 'block', overflowY: 'scroll', width: '100%', maxHeight: props.MaxHeight ?? 500 }}
-                            RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        >
-                            <Column<SOEInfo>
-                                Key={'Time'}
-                                AllowSort={false}
-                                Field={'Time'}
-                                HeaderStyle={{ width: 'auto' }}
-                                RowStyle={{ width: 'auto' }}
-                            > Time
-                            </Column>
-                            <Column<SOEInfo>
-                                Key={'Alarm'}
-                                AllowSort={false}
-                                Field={'Alarm'}
-                                HeaderStyle={{ width: 'auto' }}
-                                RowStyle={{ width: 'auto' }}
-                            > Alarm
-                            </Column>
-                            <Column<SOEInfo>
-                                Key={'Status'}
-                                AllowSort={false}
-                                Field={'Status'}
-                                HeaderStyle={{ width: 'auto' }}
-                                RowStyle={{ width: 'auto' }}
-                            > Status
-                            </Column>
-                        </Table>
+                        {status === 'error' ?
+                            <Alert Class='alert-danger'>
+                                An error occurred while fetching SOE data. Please check System Center for more details.
+                            </Alert>
+                        : null}
+                        {status === 'loading' ?
+                            <div className='d-flex align-items-center justify-content-center' style={{ height: 250 }}>
+                                <ReactIcons.SpiningIcon Size={'50%'} />
+                            </div>
+                            :
+                            <Table<SOEInfo>
+                                Data={soeInfo}
+                                OnSort={() => { /*Do Nothing*/ }}
+                                SortKey={''}
+                                Ascending={true}
+                                TableClass="table"
+                                KeySelector={data => { return data.Time; /* Todo: Time might not be unique and generate errors, ensure it is or try to use something else */ }}
+                                TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', height: 50 }}
+                                TbodyStyle={{ display: 'block', overflowY: 'auto', width: '100%', maxHeight: props.MaxHeight ?? 500 }}
+                                RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                            >
+                                <Column<SOEInfo>
+                                    Key={'Time'}
+                                    AllowSort={false}
+                                    Field={'Time'}
+                                    HeaderStyle={{ width: 'auto' }}
+                                    RowStyle={{ width: 'auto' }}
+                                >
+                                    Time
+                                </Column>
+                                <Column<SOEInfo>
+                                    Key={'Alarm'}
+                                    AllowSort={false}
+                                    Field={'Alarm'}
+                                    HeaderStyle={{ width: 'auto' }}
+                                    RowStyle={{ width: 'auto' }}
+                                >
+                                    Alarm
+                                </Column>
+                                <Column<SOEInfo>
+                                    Key={'Status'}
+                                    AllowSort={false}
+                                    Field={'Status'}
+                                    HeaderStyle={{ width: 'auto' }}
+                                    RowStyle={{ width: 'auto' }}
+                                >
+                                    Status
+                                </Column>
+                            </Table>
+                        }
                     </div>
                 </div>
             </div>
         );
     }
 }
+
+const getSOEData = (homePath: string, eventID: number, timeWindow: number) => {
+    return $.ajax({
+        type: "GET",
+        url: `${homePath}api/EventWidgets/SOE/${eventID}/${timeWindow}`,
+        contentType: "application/json; charset=utf-8",
+        dataType: 'json',
+        cache: false,
+        async: true
+    });
+};
 
 export default SOE;

@@ -48,7 +48,7 @@ interface ICircleProps {
     onClick: () => void
 }
 
-const MagDurChart: EventWidget.ICollectionWidget<ISettings> = {
+const MagDurChart: EventWidget.ICollectionWidget<ISettings, OpenXDA.Types.EventSearch[]> = {
     Name: 'MagDurChart',
     DefaultSettings: { Aggregate: true, ChartLimit: 100 },
     Settings: (props: EventWidget.IWidgetSettingsProps<ISettings>) => {
@@ -72,7 +72,7 @@ const MagDurChart: EventWidget.ICollectionWidget<ISettings> = {
                 </div>
             </div>);
     },
-    Widget: (props: EventWidget.ICollectionWidgetProps<ISettings>) => {
+    Widget: (props: EventWidget.ICollectionWidgetProps<ISettings, OpenXDA.Types.EventSearch[]>) => {
         const chart = React.useRef<HTMLDivElement | undefined>(undefined);
         const empty = React.useCallback(() => {/*Do Nothing*/ }, []);
         const [dims, setDims] = React.useState<{ Width: number, Height: number }>({Width: 100, Height: 100});
@@ -170,6 +170,23 @@ const MagDurChart: EventWidget.ICollectionWidget<ISettings> = {
 
         React.useEffect(() => {
             setStatus('loading');
+
+            if (props.GetEventData != null) {
+                const handle = props.GetEventData();
+
+                handle.then((result) => {
+                    setEvents(result.slice(0, props.Settings.ChartLimit));
+                    setStatus('idle');
+                }, () => {
+                    setStatus('error');
+                });
+
+                return () => {
+                    if (handle != null && handle?.abort != null)
+                        handle.abort();
+                }
+            }
+
             const handle: JQuery.jqXHR = EventController
                 .DBSearch(TransformFilter(props.CurrentFilter))
                 .done((result) => {
@@ -184,7 +201,7 @@ const MagDurChart: EventWidget.ICollectionWidget<ISettings> = {
                 if (handle != null && handle?.abort != null)
                     handle.abort();
             }
-        }, [props.Settings.ChartLimit, props.CurrentFilter]);
+        }, [props.Settings.ChartLimit, props.CurrentFilter, props.GetEventData]);
 
         return (
             <div className="card h-100 w-100" style={{ display: 'flex', flexDirection: "column" }}>

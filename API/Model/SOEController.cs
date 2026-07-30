@@ -1,5 +1,5 @@
 ﻿//******************************************************************************************************
-//  SIDAQueryController.cs - Gbtc
+//  SOEController.cs - Gbtc
 //
 //  Copyright © 2020, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -21,43 +21,39 @@
 //
 //******************************************************************************************************
 
-using GSF.Data;
-using System;
-using System.Data;
-using System.Web.Http;
+using System.Threading;
+using Newtonsoft.Json.Linq;
+using openXDA.APIAuthentication;
+using Widgets.API.Library;
 
-namespace Widget.Controllers
+#if IS_GEMSTONE
+using Microsoft.AspNetCore.Mvc;
+using RoutePrefix = Microsoft.AspNetCore.Mvc.RouteAttribute;
+using ServerResponse = System.Threading.Tasks.Task;
+#else
+using System.Web.Http;
+using ServerResponse = System.Threading.Tasks.Task<System.Net.Http.HttpResponseMessage>;
+#endif
+
+namespace Widgets.API.Model
 {
-    [RoutePrefix("api/SOE")]
-    public class SOEController : ApiController
+    /// <summary>
+    /// Controller that redirects sequence-of-events (SOE) requests to XDA.
+    /// </summary>
+    [XDARedirect("api/Widgets/SOE")]
+    [RoutePrefix("api/EventWidgets/SOE")]
+    public class SOEController : RedirectionController
     {
-        const string SOECategory = "dbSOE";
-        const string SettingsCategory = "systemSettings";
+#if IS_GEMSTONE
+        /// <summary>
+        /// Dependency injection constructor for use in .NETCore Applications.
+        /// </summary>
+        /// <param name="retriever">An <see cref="IAPICredentialRetriever"/> that is responsible for retriving credentials used to make API calls to XDA.</param>
+        public SOEController(IAPICredentialRetriever retriever) : base(retriever) { }
+#endif
 
         [Route("{eventID:int}/{timeWindow:int}"), HttpGet]
-        public IHttpActionResult Get(int eventID, int timeWindow)
-        {
-            DateTime eventTime;
-            using (AdoDataConnection connection = new(SettingsCategory))
-            {
-                eventTime = connection.ExecuteScalar<DateTime>("SELECT StartTime FROM Event WHERE ID = {0}", eventID);
-            }
-
-            using (AdoDataConnection connection = new(SOECategory))
-            {
-
-                DataTable table = connection.RetrieveData(@"
-                    SELECT  
-                        alarmdatetime as Time,
-                        stationname + ' ' + alarmpoint as Alarm,
-                        alarmstatus as Status 
-                    FROM soealarmdetails 
-                    WHERE alarmdatetime between {0} and {1}
-                ", eventTime.AddSeconds(-1 * timeWindow), eventTime.AddSeconds(timeWindow));
-                return Ok(table);
-            }
-           
-        }
-
+        public async ServerResponse Get(int eventID, int timeWindow, CancellationToken token) =>
+            await ForwardRequest(token).ConfigureAwait(false);
     }
 }

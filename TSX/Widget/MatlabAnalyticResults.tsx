@@ -24,7 +24,9 @@
 import React from 'react';
 import { EventWidget } from '../global';
 import { Table, Column } from '@gpa-gemstone/react-table';
-
+import { Application } from '@gpa-gemstone/application-typings';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
+import { Alert } from '@gpa-gemstone/react-interactive';
 
 interface IMatlabAnalytics {
     TagName: string,
@@ -43,17 +45,18 @@ const MatlabAnalyticResults: EventWidget.IWidget<{}> = {
     },
     Widget: (props: EventWidget.IWidgetProps<{}>) => {
         const [data, setData] = React.useState<IMatlabAnalytics[]>([]);
+        const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
 
         React.useEffect(() => {
+            setStatus('loading');
             const handle = getMatlabAnalytcis();
             return () => { if (handle != null && handle.abort != null) handle.abort(); }
         }, [props.EventID])
 
-
         function getMatlabAnalytcis(): JQuery.jqXHR<IMatlabAnalytics[]> {
             const handle = $.ajax({
                 type: "GET",
-                url: `${props.HomePath}api/MatlabAnalytics/${props.EventID}`,
+                url: `${props.HomePath}api/EventWidgets/MatlabAnalytics/${props.EventID}`,
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
                 cache: true,
@@ -61,34 +64,52 @@ const MatlabAnalyticResults: EventWidget.IWidget<{}> = {
             });
             handle.done((data: IMatlabAnalytics[]) => {
                 setData(data);
-            });
+                setStatus('idle');
+            }).fail(() => setStatus('error'));
             return handle;
         }
 
         return (
             <div className="card">
-                <div className="card-header fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>Matlab Analytic Results</div>
+                <div className="card-header fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>
+                    MATLAB Analytic Results
+                </div>
                 <div className="card-body">
-                    <Table<IMatlabAnalytics>
-                        Data={data}
-                        KeySelector={item => item.EventTagID}
-                        OnSort={() => {/*Do Nothing*/ }}
-                        SortKey={''}
-                        Ascending={true}
-                        TableClass="table"
-                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', height: 50 }}
-                        TbodyStyle={{ display: 'block', overflowY: 'scroll', width: '100%', maxHeight: props.MaxHeight ?? 500 }}
-                        RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    >
-                        <Column<IMatlabAnalytics>
-                            Key={'TagName'}
-                            AllowSort={false}
-                            Field={'TagName'}
-                            HeaderStyle={{ width: 'auto' }}
-                            RowStyle={{ width: 'auto' }}
-                        > Tag Name
-                        </Column>
-                    </Table>
+                    {status === 'error' ?
+                        <Alert Class='alert-danger'>
+                            An error occurred while fetching Matlab analytic result data.
+                        </Alert>
+                    : null}
+                    {status === 'loading' ?
+                        <div className='d-flex align-items-center justify-content-center' style={{ height: 250 }}>
+                            <ReactIcons.SpiningIcon Size={'50%'} />
+                        </div>
+                        : data.length === 0 ?
+                            <Alert Class='alert-info'>
+                                No Matlab analytic result data.
+                            </Alert>
+                            :
+                            <Table<IMatlabAnalytics>
+                                Data={data}
+                                KeySelector={item => item.EventTagID}
+                                OnSort={() => {/*Do Nothing*/ }}
+                                SortKey={''}
+                                Ascending={true}
+                                TableClass="table"
+                                TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', height: 50 }}
+                                TbodyStyle={{ display: 'block', overflowY: 'auto', width: '100%', maxHeight: props.MaxHeight ?? 500 }}
+                                RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                            >
+                                <Column<IMatlabAnalytics>
+                                    Key={'TagName'}
+                                    AllowSort={false}
+                                    Field={'TagName'}
+                                    HeaderStyle={{ width: 'auto' }}
+                                    RowStyle={{ width: 'auto' }}
+                                > Tag Name
+                                </Column>
+                            </Table>
+                    }
                 </div>
             </div>
         );

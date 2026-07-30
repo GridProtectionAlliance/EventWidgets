@@ -21,17 +21,15 @@
 //
 //******************************************************************************************************
 
-
-import { Pencil } from '@gpa-gemstone/gpa-symbols';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { Select, DatePicker } from '@gpa-gemstone/react-forms';
-import { LoadingIcon, Modal } from '@gpa-gemstone/react-interactive';
+import { Alert, Modal } from '@gpa-gemstone/react-interactive';
 import * as React from 'react';
 import { EventWidget } from '../global';
 import moment from 'moment';
 import _ from 'lodash';
 import { Table, Column } from '@gpa-gemstone/react-table';
-import { useDispatch, useSelector } from 'react-redux';
-import { Dispatch } from '@reduxjs/toolkit';
+import { Application } from '@gpa-gemstone/application-typings';
 
 interface IEventInfo {
     EventID: number;
@@ -56,68 +54,57 @@ const momentTimeFormat = "HH:mm:ss.SSS";
 const EventInfo: EventWidget.IWidget<{}> = {
     Name: 'EventInfo',
     DefaultSettings: {},
-    Settings: () => {
-        return <></>
-    },
-
+    Settings: () => <></>,
     Widget: (props: EventWidget.IWidgetProps<{}>) => {
-
         const [statsData, setStatsData] = React.useState<IEventInfo | undefined>(undefined);
         const [showModal, setShowModal] = React.useState<boolean>(false);
-        const [loading, setLoading] = React.useState<boolean>(false);
+        const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
         const [forceUpdate, setForceUpdate] = React.useState<boolean>(false);
 
-        const eventTypeStatus = useSelector(props.Store.EventTypeSlice.Status);
-        const eventType = useSelector(props.Store.EventTypeSlice.Data);
-
-        const dispatch = useDispatch<Dispatch<any>>();
-
         React.useEffect(() => {
-            if (eventTypeStatus === 'uninitiated' || eventTypeStatus == 'changed')
-                dispatch(props.Store.EventTypeSlice.Fetch());
-        }, [eventTypeStatus]);
-
-        React.useEffect(() => {
-            setLoading(true);
+            setStatus('loading')
             const h = $.ajax({
                 type: 'GET',
-                url: `${props.HomePath}api/EventInfo/${props.EventID}`,
+                url: `${props.HomePath}api/EventWidgets/EventInfo/${props.EventID}`,
                 contentType: 'application/json; charset=utf-8',
                 dataType: 'json',
                 cache: true,
                 async: true,
             });
+
             h.done((data) => {
                 setStatsData(data[0]);
-                setLoading(false);
-            });
+                setStatus('idle');
+            })
+
+            h.fail(() => setStatus('error'));
 
             return () => {
-                if (h != null && h.abort != null) {
+                if (h?.abort != null) {
                     h.abort();
-                    setLoading(false);
                 }
             }
         }, [props.EventID, forceUpdate]);
 
         const rows = React.useMemo(() => {
-            if (statsData === undefined)
+            if (statsData == null)
                 return [];
 
-            const rows = [];
+            const rows: IStat[] = [];
+
             rows.push({ Stat: 'Meter', Value: statsData.MeterName, IsTime: false });
             rows.push({ Stat: 'Asset', Value: statsData.AssetName, IsTime: false });
             rows.push({ Stat: 'Event Type', Value: statsData.EventType, IsTime: false });
             rows.push({ Stat: 'Start Time', Value: statsData.StartTime, IsTime: true });
             rows.push({ Stat: 'End Time', Value: statsData.EndTime, IsTime: true });
-            rows.push({ Stat: 'Last Updated By', Value: statsData.LastUpdatedBy, IsTime: false });
+            rows.push({ Stat: 'Last Updated By', Value: statsData.LastUpdatedBy ?? 'n/a', IsTime: false });
 
             return rows;
         }, [statsData]);
 
         function saveChange() {
             $.ajax({
-                url: `${homePath}api/EventInfo/save/${props.EventID}`,
+                url: `${homePath}api/EventWidgets/EventInfo/save/${props.EventID}`,
                 type: 'POST',
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
@@ -125,126 +112,141 @@ const EventInfo: EventWidget.IWidget<{}> = {
 
             }).then(() => { setForceUpdate(x => !x) })
         }
-        
 
         return (
             <div className="card">
-                <div className="card-header">Event Info: 
-                    <div className='pull-right'>
-                        <div className="form-inline">
+                <div className="card-header">
+                    <div className='row'>
+                        <div className='col-6'>
+                            Event Info:
+                        </div>
+                        <div className="col-6 justify-content-end d-flex">
+                            {props.WidgetAuthorization.EventInfo.Update ?
                             <button className="btn btn-sm"
                                 onClick={() => {
-                                    setShowModal(true);     
+                                    setShowModal(true);
                                 }}
                             >
-                                <span>{Pencil}</span>
+                                <ReactIcons.Pencil />
                             </button>
+                            : null}
                         </div>
                     </div>
                 </div>
-              
                 <div className="card-body">
-                        <LoadingIcon Show={loading} />
-                    {loading ? null : <Table<IStat>
-                        TableClass="table table-hover"
-                        Data={rows}
-                        SortKey={''}
-                        Ascending={false}
-                        TableStyle={{
-                            padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
-                            tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
-                        }}
-                        TheadStyle={{ fontSize: 'smaller', tableLayout: 'fixed', display: 'table', width: '100%' }}
-                        TbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
-                        RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        Selected={() => false}
-                        KeySelector={(item) => item.Stat}
-                        OnSort={() => { /* Nothing */ } }
-                    >
-                        <Column<IStat>
-                            Key={'Stat'}
-                            AllowSort={false}
-                            Field={'Stat'}
-                            HeaderStyle={{ width: 'auto', textAlign: 'left' }}
-                            RowStyle={{ width: 'auto', textAlign: 'left' }}
-                        >
-                            Property
-                        </Column>
-                        <Column<IStat>
-                            Key={'Value'}
-                            AllowSort={false}
-                            Field={'Value'}
-                            HeaderStyle={{ width: 'auto', textAlign: 'right' }}
-                            RowStyle={{ width: 'auto', textAlign: 'right' }}
-                            Content={(d) => d.item.IsTime ? moment(d.item.Value).format(momentDateFormat + ' ' + momentTimeFormat) : d.item.Value}
-                        >
-                            Value
-                        </Column>
-                    </Table>}                       
+                    {status === 'error' ?
+                        <Alert Class='alert-danger'>
+                            An error occurred while fetching event info data.
+                        </Alert>
+                    : null}
+                    {status === 'loading' ?
+                        <div className='d-flex align-items-center justify-content-center flex-column' style={{ height: 250 }}>
+                            <ReactIcons.SpiningIcon Size={'50%'} />
+                        </div>
+                        : rows.length === 0 ?
+                            <Alert Class='alert-info'>
+                                No event info data.
+                            </Alert>
+                            :
+                            <Table<IStat>
+                                TableClass="table table-hover"
+                                Data={rows}
+                                SortKey={''}
+                                Ascending={false}
+                                TableStyle={{
+                                    padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
+                                    tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
+                                }}
+                                TheadStyle={{ fontSize: 'smaller', tableLayout: 'fixed', display: 'table', width: '100%' }}
+                                TbodyStyle={{ display: 'block', overflowY: 'auto', flex: 1 }}
+                                RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
+                                Selected={() => false}
+                                KeySelector={(item) => item.Stat}
+                                OnSort={() => { }}
+                            >
+                                <Column<IStat>
+                                    Key={'Stat'}
+                                    AllowSort={false}
+                                    Field={'Stat'}
+                                    HeaderStyle={{ width: 'auto', textAlign: 'left' }}
+                                    RowStyle={{ width: 'auto', textAlign: 'left' }}
+                                >
+                                    Property
+                                </Column>
+                                <Column<IStat>
+                                    Key={'Value'}
+                                    AllowSort={false}
+                                    Field={'Value'}
+                                    HeaderStyle={{ width: 'auto', textAlign: 'right' }}
+                                    RowStyle={{ width: 'auto', textAlign: 'right' }}
+                                    Content={(d) => d.item.IsTime ? moment(d.item.Value).format(momentDateFormat + ' ' + momentTimeFormat) : d.item.Value}
+                                >
+                                    Value
+                                </Column>
+                            </Table>}
                 </div>
 
-                <Modal
-                    Title={'Edit Event Info:'}
-                    ShowX={true}
-                    Show={showModal}
-                    Size={'lg'}
-                    ShowCancel={false}
-                    CallBack={(c, b) => {
-                        if (c) 
-                            saveChange();
-                        setStatsData(undefined);
-                        if (!c)
-                            setForceUpdate(x => !x)
-                        setShowModal(false);
-                    }}
-                >
-
-                    <div className="row">
-                        <div className="col-12">
-                            <Select<IEventInfo>
-                                Record={statsData}
-                                Field='EventTypeID'
-                                Options={
-                                    eventType.map((type) => { return { Value: type.ID.toString(), Label: type.Name } })
-                                }
-                                Setter={(r) => {
-                                    const updatedStatsData = { ...statsData, EventTypeID: r.EventTypeID };
-                                    setStatsData(updatedStatsData);
-                                }}
-                                Label="Event Type"
-                            />
+                {statsData == null ? null :
+                    <Modal
+                        Title={'Edit Event Info:'}
+                        ShowX={true}
+                        Show={showModal}
+                        Size={'lg'}
+                        ShowCancel={false}
+                        CallBack={(c, b) => {
+                            if (c)
+                                saveChange();
+                            setStatsData(undefined);
+                            if (!c)
+                                setForceUpdate(x => !x)
+                            setShowModal(false);
+                        }}
+                    >
+                        <div className="row">
+                            <div className="col-12">
+                                <Select<IEventInfo>
+                                    Record={statsData}
+                                    Field='EventTypeID'
+                                    Options={
+                                        props.EventTypes.map((type) => { return { Value: type.ID.toString(), Label: type.Name } })
+                                    }
+                                    Setter={(r) => {
+                                        const updatedStatsData = { ...statsData, EventTypeID: r.EventTypeID };
+                                        setStatsData(updatedStatsData);
+                                    }}
+                                    Label="Event Type"
+                                />
+                            </div>
+                            <div className="col-12">
+                                <DatePicker<IEventInfo>
+                                    Record={statsData}
+                                    Field={'StartTime'}
+                                    Setter={(r) => {
+                                        const diff = moment(statsData.EndTime).diff(moment(statsData.StartTime));
+                                        const updatedStatsData = { ...statsData, StartTime: r.StartTime, EndTime: moment(r.StartTime).add(diff).toISOString() };
+                                        setStatsData(updatedStatsData);
+                                    }}
+                                    Type='datetime-local'
+                                    Valid={() => (true)}
+                                />
+                            </div>
+                            <div className="col-12">
+                                <DatePicker<IEventInfo>
+                                    Record={statsData}
+                                    Field={'EndTime'}
+                                    Setter={(r) => {
+                                        const diff = moment(statsData.EndTime).diff(moment(statsData.StartTime));
+                                        const updatedStatsData = { ...statsData, EndTime: r.EndTime, StartTime: moment(r.EndTime).subtract(diff).toISOString() };
+                                        setStatsData(updatedStatsData);
+                                    }}
+                                    Type='datetime-local'
+                                    Valid={() => (true)}
+                                />
+                            </div>
                         </div>
-                        <div className="col-12">
-                            <DatePicker<IEventInfo>
-                                Record={statsData}
-                                Field={'StartTime'}
-                                Setter={(r) => {
-                                    const diff = moment(statsData.EndTime).diff(moment(statsData.StartTime));
-                                    const updatedStatsData = { ...statsData, StartTime: r.StartTime, EndTime: moment(r.StartTime).add(diff).toISOString() };
-                                    setStatsData(updatedStatsData);
-                                }}
-                                Type='datetime-local'
-                                Valid={() => (true)}                                    
-                            />
-                        </div>
-                        <div className="col-12">
-                            <DatePicker<IEventInfo>
-                                Record={statsData}
-                                Field={'EndTime'}
-                                Setter={(r) => {
-                                    const diff = moment(statsData.EndTime).diff(moment(statsData.StartTime));
-                                    const updatedStatsData = { ...statsData, EndTime: r.EndTime, StartTime: moment(r.EndTime).subtract(diff).toISOString() };
-                                    setStatsData(updatedStatsData);
-                                }}
-                                Type='datetime-local'
-                                Valid={() => (true)}
-                            />
-                        </div>
-                    </div>
 
-                </Modal>
-                
-
+                    </Modal>
+                }
             </div>
 
         );

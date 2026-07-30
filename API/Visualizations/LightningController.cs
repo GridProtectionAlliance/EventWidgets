@@ -1,5 +1,5 @@
 ﻿//******************************************************************************************************
-//  LineParameters.cs - Gbtc
+//  LightningController.cs - Gbtc
 //
 //  Copyright © 2023, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -16,46 +16,44 @@
 //
 //  Code Modification History:
 //  ----------------------------------------------------------------------------------------------------
-//  08/08/2023 - Preston Crawford
+//  08/22/2023 - Preston Crawford
 //       Generated original version of source code.
 //
 //******************************************************************************************************
 
-using GSF.Data;
-using System.Data;
-using System.Web.Http;
+using System.Threading;
+using Newtonsoft.Json.Linq;
+using openXDA.APIAuthentication;
+using Widgets.API.Library;
 
-namespace Widgets.Controllers
+#if IS_GEMSTONE
+using Microsoft.AspNetCore.Mvc;
+using RoutePrefix = Microsoft.AspNetCore.Mvc.RouteAttribute;
+using ServerResponse = System.Threading.Tasks.Task;
+#else
+using System.Web.Http;
+using ServerResponse = System.Threading.Tasks.Task<System.Net.Http.HttpResponseMessage>;
+#endif
+
+namespace Widgets.API.Visualizations
 {
-    [RoutePrefix("api/MatlabAnalytics")]
-    public class MatlabAnalyticsController : ApiController
+    /// <summary>
+    /// Controller that redirects lightning strike requests to XDA.
+    /// </summary>
+    [XDARedirect("api/Widgets/Lightning")]
+    [RoutePrefix("api/EventWidgets/Lightning")]
+    public class LightningController : RedirectionController
     {
-        protected string SettingsCategory => "systemSettings";
+#if IS_GEMSTONE
+        /// <summary>
+        /// Dependency injection constructor for use in .NETCore Applications.
+        /// </summary>
+        /// <param name="retriever">An <see cref="IAPICredentialRetriever"/> that is responsible for retriving credentials used to make API calls to XDA.</param>
+        public LightningController(IAPICredentialRetriever retriever) : base(retriever) { }
+#endif
 
         [Route("{eventID:int}"), HttpGet]
-        public IHttpActionResult GetMatlabAnalytics(int eventID)
-        {
-            using (AdoDataConnection connection = new(SettingsCategory))
-            {
-
-                const string SQL = @"
-                    SELECT 
-	                    Name as TagName,
-	                    Description as TagDescription,
-	                    EventID,
-	                    TagData,
-	                    EventTagID,
-	                    ShowInFilter
-                    FROM EventTag 
-                    INNER JOIN EventEventTag 
-                      ON EventTag.ID = EventEventTag.EventTagID
-                    WHERE EventEventTag.EventID = {0};
-                ";
-
-                DataTable dataTable = connection.RetrieveData(SQL, eventID);
-                return Ok(dataTable);
-
-            }
-        }
+        public async ServerResponse Get(int eventID, CancellationToken token) =>
+            await ForwardRequest(token).ConfigureAwait(false);
     }
 }

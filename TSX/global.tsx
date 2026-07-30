@@ -21,8 +21,7 @@
 //
 //******************************************************************************************************
 import React from 'react';
-import { IWigetStore } from './Store';
-import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
+import { Gemstone, OpenXDA } from '@gpa-gemstone/application-typings';
 
 export namespace EventWidget {
     export interface IWidgetView {
@@ -32,6 +31,17 @@ export namespace EventWidget {
         Setting: string
     }
 
+    export interface IMutationAuthorization {
+        Create: boolean,
+        Update: boolean,
+        Delete: boolean
+    }
+
+    export interface IWidgetAuthorization {
+        Notes: IMutationAuthorization,
+        EventInfo: IMutationAuthorization
+    }
+
     export interface IWidgetProps<T> {
         Settings: T,
         EventID: number,
@@ -39,10 +49,10 @@ export namespace EventWidget {
         DisturbanceID?: number,
         FaultID?: number,
         HomePath: string,
-        Roles: string[],
+        WidgetAuthorization: IWidgetAuthorization,
         Name: string,
-        Store: IWigetStore,
-        WidgetID: number
+        WidgetID: number,
+        EventTypes: OpenXDA.Types.EventType[]
     }
 
     // External filters into the search
@@ -55,18 +65,20 @@ export namespace EventWidget {
         TypeFilter?: OpenXDA.Types.EventType[]
     }
 
-    export interface ICollectionWidgetProps<T> {
+    export interface ICollectionWidgetProps<T, TEventData = unknown, TQuery = void> {
         // Widget Props
         Settings: T,
         // Control Props
         CurrentFilter: ICollectionFilter,
+        GetEventData?: (query: TQuery) => Gemstone.TSX.Interfaces.AbortablePromise<TEventData>,
         EventID?: number,
         DisturbanceID?: number,
         FaultID?: number,
         Callback?: (eventID: number, disturbanceID?: number, faultID?: number) => void,
+        OnDataLoaded?: (count: number) => void,
         // Other Props
         HomePath: string,
-        Roles: string[],
+        WidgetAuthorization: IWidgetAuthorization,
         Name: string,
         WidgetID: number,
         Title?: string
@@ -86,8 +98,8 @@ export namespace EventWidget {
         Name: string,
     }
 
-    export interface ICollectionWidget<T> {
-        Widget: React.FC<ICollectionWidgetProps<T>>,
+    export interface ICollectionWidget<T, TEventData = unknown, TQuery = void> {
+        Widget: React.FC<ICollectionWidgetProps<T, TEventData, TQuery>>,
         Settings: React.FC<IWidgetSettingsProps<T>>,
         DefaultSettings: T,
         Name: string

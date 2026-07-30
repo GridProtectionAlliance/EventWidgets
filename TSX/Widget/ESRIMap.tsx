@@ -1,7 +1,7 @@
 //******************************************************************************************************
 //  ESRIMap.tsx - Gbtc
 //
-//  Copyright © 2020, Grid Protection Alliance.  All Rights Reserved.
+//  Copyright Â© 2020, Grid Protection Alliance.  All Rights Reserved.
 //
 //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
 //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
@@ -33,6 +33,7 @@ import { Select } from '@gpa-gemstone/react-forms';
 import { Input } from '@gpa-gemstone/react-forms';
 import { Alert } from '@gpa-gemstone/react-interactive';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
+
 
 require("leaflet_css");
 

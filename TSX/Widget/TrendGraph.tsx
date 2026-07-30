@@ -22,10 +22,11 @@
 //******************************************************************************************************
 
 import { Application, HIDS, OpenXDA } from '@gpa-gemstone/application-typings';
-import { SpacedColor } from '@gpa-gemstone/helper-functions';
+import { SpacedColor, useGetContainerPosition } from '@gpa-gemstone/helper-functions';
 import { Input } from '@gpa-gemstone/react-forms';
 import { Line, Plot, VerticalMarker } from '@gpa-gemstone/react-graph';
-import { LoadingIcon, Alert } from '@gpa-gemstone/react-interactive';
+import { Alert } from '@gpa-gemstone/react-interactive';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import _ from 'lodash';
 import moment from 'moment';
 import React from 'react';
@@ -48,7 +49,7 @@ interface IInnerDataStructure {
     [key: string]: [number, number][]
 }
 
-function getColor(label) {
+function getColor(label: string) {
     if (label.indexOf('VA') >= 0) return '#A30000';
     if (label.indexOf('VB') >= 0) return '#0029A3';
     if (label.indexOf('VC') >= 0) return '#007A29';
@@ -100,33 +101,11 @@ const TrendGraph: EventWidget.IWidget<ISetting> = {
             </div>);
     },
     Widget: (props: EventWidget.IWidgetProps<ISetting>) => {
-        const containerRef = React.useRef<HTMLTableSectionElement | undefined>(undefined);
+        const containerRef = React.useRef<HTMLDivElement | null>(null);
+        const { width } = useGetContainerPosition(containerRef);
         const [data, setData] = React.useState<IDataStructure | undefined>(undefined);
-        const [dimensions, setDimensions] = React.useState<{ Width: number }>(null);
         const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
 
-        React.useEffect(() => {
-            let resizeObserver: ResizeObserver;
-            const intervalHandle = setInterval(() => {
-                if (containerRef?.current == null) return;
-                resizeObserver = new ResizeObserver(
-                    _.debounce(() => {
-                        if (containerRef.current == null) return;
-
-                        // gets dims of div without rounding
-                        const dims = containerRef.current?.getBoundingClientRect();
-                        setDimensions({ Width: dims.width ?? 100 });
-                    }, 100)
-                );
-                resizeObserver.observe(containerRef.current);
-                clearInterval(intervalHandle);
-            }, 10);
-
-            return () => {
-                clearInterval(intervalHandle);
-                if (resizeObserver != null && resizeObserver.disconnect != null) resizeObserver.disconnect();
-            };
-        }, []);
 
         React.useEffect(() => {
             setStatus('loading');
@@ -229,16 +208,20 @@ const TrendGraph: EventWidget.IWidget<ISetting> = {
                 <div className="card-header fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>
                     Trending Data
                 </div>
-                <LoadingIcon Show={status === 'loading' || status === 'uninitiated'} />
-                {status === 'error' ?
-                    <div className="card-body p-0">
-                        <Alert Class='alert-danger'>Error retrieving trending data.</Alert>
-                    </div> : <></>
-                }
-                {status === 'idle' ?
-                    <div className="card-body p-0">
+                <div className="card-body p-0">
+                    {status === 'error' ?
+                        <Alert Class='alert-danger'>
+                            An error occurred while fetching trending data.
+                        </Alert>
+                    : null}
+                    {status === 'loading' || status === 'uninitiated' ?
+                        <div className='d-flex align-items-center justify-content-center' style={{ height: 250 }}>
+                            <ReactIcons.SpiningIcon Size={'50%'} />
+                        </div>
+                    : status === 'idle' ?
+                    <>
                         {Object.keys(data.Voltage).length > 0 ?
-                            <Plot height={250} width={dimensions.Width} showBorder={false}
+                            <Plot height={250} width={width} showBorder={false}
                                 yDomain={'AutoValue'}
                                 legendWidth={150}
                                 defaultTdomain={data.TimeLimits}
@@ -250,7 +233,7 @@ const TrendGraph: EventWidget.IWidget<ISetting> = {
                                 )}
                             </Plot> : null}
                         {Object.keys(data.Current).length > 0 ?
-                            <Plot height={250} width={dimensions.Width} showBorder={false}
+                            <Plot height={250} width={width} showBorder={false}
                                 yDomain={'AutoValue'}
                                 legendWidth={150}
                                 defaultTdomain={data.TimeLimits}
@@ -262,7 +245,7 @@ const TrendGraph: EventWidget.IWidget<ISetting> = {
                                 )}
                             </Plot> : null}
                         {Object.keys(data.TripCoilCurrent).length > 0 ?
-                            <Plot height={250} width={dimensions.Width} showBorder={false}
+                            <Plot height={250} width={width} showBorder={false}
                                 yDomain={'AutoValue'}
                                 legendWidth={150}
                                 defaultTdomain={data.TimeLimits}
@@ -273,8 +256,9 @@ const TrendGraph: EventWidget.IWidget<ISetting> = {
                                     <Line highlightHover={false} showPoints={false} lineStyle={'-'} color={getColor(s)} data={data.TripCoilCurrent[s]} legend={s} key={s} />
                                 )}
                             </Plot> : null}
-                    </div> : <></>
-                }
+                    </> : null
+                    }
+                </div>
             </div>
         );
     }

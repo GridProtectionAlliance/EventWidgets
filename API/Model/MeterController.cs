@@ -28,6 +28,7 @@ using System.Linq;
 using System.Security.Claims;
 
 #if IS_GEMSTONE
+using Gemstone.Security.AccessControl;
 using Microsoft.AspNetCore.Mvc;
 using RoutePrefix = Microsoft.AspNetCore.Mvc.RouteAttribute;
 using ServerResponse = System.Threading.Tasks.Task;
@@ -46,6 +47,10 @@ namespace Widgets.API.Model
     /// </summary>
     [XDARedirect("api/Widgets/DetailedMeter")]
     [RoutePrefix("api/EventWidgets/Meter")]
+#if IS_GEMSTONE
+    // All endpoints proxy read-style requests to XDA; Gemstone maps POST -> Create by verb.
+    [ResourceAccess(ResourceAccessType.Read)]
+#endif
     public class MeterController : RedirectionController
     {
         #if IS_GEMSTONE

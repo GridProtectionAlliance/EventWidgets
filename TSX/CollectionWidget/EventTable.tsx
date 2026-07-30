@@ -23,6 +23,7 @@
 
 import React from 'react';
 import moment from 'moment';
+import _ from 'lodash';
 import { EventWidget } from '../global';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { Column, Paging, Table } from '@gpa-gemstone/react-table';
@@ -40,13 +41,13 @@ interface ISearchState {
     Page: number
 }
 
-const EventTable: EventWidget.ICollectionWidget<{}> = {
+const EventTable: EventWidget.ICollectionWidget<{}, OpenXDA.Types.EventSearch[]> = {
     Name: 'EventTable',
     DefaultSettings: {},
     Settings: () => {
         return <></>
     },
-    Widget: (props: EventWidget.ICollectionWidgetProps<{}>) => {
+    Widget: (props: EventWidget.ICollectionWidgetProps<{}, OpenXDA.Types.EventSearch[]>) => {
         const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
         const [pageInfo, setPageInfo] = React.useState<IPageInfo>({ RecordsPerPage: 0, NumberOfPages: 0, TotalRecords: 0 });
         const [searchState, setSearchState] = React.useState<ISearchState>({ SortKey: 'StartTime', Ascending: true, Page: 0 });
@@ -59,6 +60,29 @@ const EventTable: EventWidget.ICollectionWidget<{}> = {
 
         React.useEffect(() => {
             setStatus('loading');
+
+            if (props.GetEventData != null) {
+                const handle = props.GetEventData();
+
+                handle.then((result) => {
+                    const sorted = _.orderBy(result, [searchState.SortKey], [searchState.Ascending ? 'asc' : 'desc']);
+                    setEvents(sorted);
+                    setPageInfo({
+                        RecordsPerPage: sorted.length,
+                        NumberOfPages: 1,
+                        TotalRecords: sorted.length
+                    });
+                    setStatus('idle');
+                }, () => {
+                    setStatus('error');
+                });
+
+                return () => {
+                    if (handle != null && handle?.abort != null)
+                        handle.abort();
+                }
+            }
+
             const handle: JQuery.jqXHR = EventController
                 .PagedSearch(TransformFilter(props.CurrentFilter), searchState.SortKey, searchState.Ascending, searchState.Page)
                 .done((result) => {
@@ -77,7 +101,7 @@ const EventTable: EventWidget.ICollectionWidget<{}> = {
                 if (handle != null && handle?.abort != null)
                     handle.abort();
             }
-        }, [searchState, props.CurrentFilter]);
+        }, [searchState, props.CurrentFilter, props.GetEventData]);
 
         return (
             <div className="card h-100" style={{ display: 'flex', flexDirection: "column" }}>

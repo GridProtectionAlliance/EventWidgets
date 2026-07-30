@@ -28,6 +28,7 @@ using openXDA.APIAuthentication;
 using Widgets.API.Library;
 
 #if IS_GEMSTONE
+using Gemstone.Security.AccessControl;
 using Microsoft.AspNetCore.Mvc;
 using RoutePrefix = Microsoft.AspNetCore.Mvc.RouteAttribute;
 using ServerResponse = System.Threading.Tasks.Task;
@@ -43,6 +44,10 @@ namespace Widgets.API.Visualizations
     /// </summary>
     [RoutePrefix("api/EventWidgets/PQI")]
     [XDARedirect("api/Widgets/PQI")]
+#if IS_GEMSTONE
+    // All endpoints proxy read-style requests to XDA; Gemstone maps POST -> Create by verb.
+    [ResourceAccess(ResourceAccessType.Read)]
+#endif
     public class PQIController : RedirectionController
     {
         #if IS_GEMSTONE
@@ -59,6 +64,7 @@ namespace Widgets.API.Visualizations
         /// <param name="postData">Contains the <see cref="EventPost"/> post data related to this request.</param>
         [Route("GetEquipment")]
         [Route("GetCurves")]
+        [Route("HasPQIData")]
         [HttpPost]
         public async ServerResponse ForwardPQIRequest([FromBody] EventPost postData, CancellationToken token) =>
             await ForwardAndConstrainRequest(postData, token).ConfigureAwait(false);

@@ -25,6 +25,9 @@ import React from 'react';
 import { Table, Column } from '@gpa-gemstone/react-table';
 import { Input } from '@gpa-gemstone/react-forms';
 import { EventWidget } from '../global';
+import { Application } from '@gpa-gemstone/application-typings';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
+import { Alert } from '@gpa-gemstone/react-interactive';
 
 interface ILineParameters {
     ID: number,
@@ -51,9 +54,10 @@ interface ISetting {
 }
 
 const LineParameters: EventWidget.IWidget<ISetting> = {
-
     Name: 'LineParameters',
-    DefaultSettings: { SystemCenterURL: 'http://localhost:8989' },
+    DefaultSettings: {
+        SystemCenterURL: 'http://localhost:8989'
+    },
     Settings: (props) => {
         return <div className="row">
             <div className="col">
@@ -68,15 +72,15 @@ const LineParameters: EventWidget.IWidget<ISetting> = {
         </div>
     },
     Widget: (props: EventWidget.IWidgetProps<ISetting>) => {
-        const [hidden, setHidden] = React.useState<boolean>(true);
-        const [lineParameters, setLineParameters] = React.useState<ILineParameters>(null);
+        const [lineParameters, setLineParameters] = React.useState<ILineParameters | null>(null);
         const [loopParameters, setLoopParemeters] = React.useState<ILoopImpedance[]>([]);
-
+        const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
 
         React.useEffect(() => {
+            setStatus('loading');
             const handle = $.ajax({
                 type: "GET",
-                url: `${props.HomePath}LineParameter/${props.EventID}`,
+                url: `${props.HomePath}api/EventWidgets/LineParameter/${props.EventID}`,
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
                 cache: true,
@@ -84,11 +88,9 @@ const LineParameters: EventWidget.IWidget<ISetting> = {
             });
 
             handle.done(data => {
-                if (data.length > 0) {
-                    setHidden(false);
-                }
-                setLineParameters(data[0]);
-            });
+                setLineParameters(data[0] ?? null);
+                setStatus('idle');
+            }).fail(() => setStatus('error'));
 
             return () => { if (handle.abort != undefined) handle.abort(); }
 
@@ -116,22 +118,43 @@ const LineParameters: EventWidget.IWidget<ISetting> = {
                 PerMileZS: zsm.toFixed(3),
                 PerMileRS: rsm.toFixed(4),
                 PerMileXS: xsm.toFixed(4)
-            }])    
+            }])
 
         }, [lineParameters])
 
-        if (lineParameters == null || hidden) return null;
-
         return (
             <div className="card">
-                <div className="card-header fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>Line Parameters:
-                    <a className="pull-right" target="_blank"
-                        href={`${props.Settings.SystemCenterURL}?name=Asset&AssetID=${lineParameters.ID}`}
-                    >Line Configuration Via System Center</a>
+                <div className="card-header fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>
+                    <div className="row">
+                        <div className="col-6 d-flex align-items-center">
+                            Line Parameters:
+                        </div>
+                        <div className="col-6 d-flex justify-content-end">
+                            {lineParameters == null ? null :
+                                <a target="_blank"
+                                    href={`${props.Settings.SystemCenterURL}?name=Asset&AssetID=${lineParameters.ID}`}
+                                >Line Configuration Via System Center</a>
+                            }
+                        </div>
+                    </div>
                 </div>
                 <div className="card-body">
-                    <Table<ILoopImpedance>
-                        KeySelector={(item) => item.ID }
+                    {status === 'error' ?
+                        <Alert Class='alert-danger'>
+                            An error occurred while fetching line parameter data.
+                        </Alert>
+                    : null}
+                    {status === 'loading' ?
+                        <div className='d-flex align-items-center justify-content-center' style={{ height: 250 }}>
+                            <ReactIcons.SpiningIcon Size={'50%'} />
+                        </div>
+                        : lineParameters == null || loopParameters.length === 0 ?
+                            <Alert Class='alert-info'>
+                                No line parameter data.
+                            </Alert>
+                        :
+                        <Table<ILoopImpedance>
+                        KeySelector={(item) => item.ID}
                         Data={loopParameters}
                         OnClick={() => { /* Do Nothing */ }}
                         OnSort={() => { /* Do Nothing */ }}
@@ -139,7 +162,7 @@ const LineParameters: EventWidget.IWidget<ISetting> = {
                         Ascending={true}
                         TableClass="table"
                         TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', height: 50 }}
-                        TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: props.MaxHeight - 60, width: '100%' }}
+                        TbodyStyle={{ display: 'block', overflowY: 'auto', maxHeight: props.MaxHeight - 60, width: '100%' }}
                         RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                     >
                         <Column<ILoopImpedance>
@@ -148,7 +171,8 @@ const LineParameters: EventWidget.IWidget<ISetting> = {
                             Field={'Length'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
-                        > Length (mi)
+                        >
+                            Length (mi)
                         </Column>
                         <Column<ILoopImpedance>
                             Key={'ZS'}
@@ -156,7 +180,8 @@ const LineParameters: EventWidget.IWidget<ISetting> = {
                             Field={'ZS'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
-                        > ZS (Ohm)
+                        >
+                            ZS (Ohm)
                         </Column>
                         <Column<ILoopImpedance>
                             Key={'Ang'}
@@ -164,7 +189,8 @@ const LineParameters: EventWidget.IWidget<ISetting> = {
                             Field={'Ang'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
-                        > Ang (Deg)
+                        >
+                            Ang (Deg)
                         </Column>
                         <Column<ILoopImpedance>
                             Key={'RS'}
@@ -172,7 +198,8 @@ const LineParameters: EventWidget.IWidget<ISetting> = {
                             Field={'RS'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
-                        > RS (Ohm)
+                        >
+                            RS (Ohm)
                         </Column>
                         <Column<ILoopImpedance>
                             Key={'XS'}
@@ -180,7 +207,8 @@ const LineParameters: EventWidget.IWidget<ISetting> = {
                             Field={'XS'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
-                        > XS (Ohm)
+                        >
+                            XS (Ohm)
                         </Column>
                         <Column<ILoopImpedance>
                             Key={'PerMileZS'}
@@ -188,7 +216,8 @@ const LineParameters: EventWidget.IWidget<ISetting> = {
                             Field={'PerMileZS'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
-                        > Per Mile ZS
+                        >
+                            Per Mile ZS
                         </Column>
                         <Column<ILoopImpedance>
                             Key={'PerMileRS'}
@@ -196,7 +225,8 @@ const LineParameters: EventWidget.IWidget<ISetting> = {
                             Field={'PerMileRS'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
-                        > Per Mile RS
+                        >
+                            Per Mile RS
                         </Column>
                         <Column<ILoopImpedance>
                             Key={'PerMileXS'}
@@ -204,9 +234,10 @@ const LineParameters: EventWidget.IWidget<ISetting> = {
                             Field={'PerMileXS'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
-                        > Per Mile XS
+                        >
+                            Per Mile XS
                         </Column>
-                    </Table>
+                    </Table>}
                 </div>
             </div>
         );

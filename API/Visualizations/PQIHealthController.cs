@@ -31,6 +31,7 @@ using Widgets.API.Library;
 using Newtonsoft.Json.Linq;
 
 #if IS_GEMSTONE
+using Gemstone.Security.AccessControl;
 using Gemstone.Web;
 using Microsoft.AspNetCore.Mvc;
 using RoutePrefix = Microsoft.AspNetCore.Mvc.RouteAttribute;
@@ -47,6 +48,10 @@ namespace Widgets.API.Visualizations
     /// Controller that handles fetching HIDS trending data from XDA.
     /// </summary>
     [RoutePrefix("api/EventWidgets/PQIHealth")]
+#if IS_GEMSTONE
+    // All endpoints proxy read-style requests to PQI; Gemstone maps POST -> Create by verb.
+    [ResourceAccess(ResourceAccessType.Read)]
+#endif
     public class PQIHealthController : Controller
     {
         private static HttpClient HttpClient { get; } = new HttpClient();

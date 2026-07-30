@@ -24,13 +24,15 @@
 import React from 'react';
 import { EventWidget } from '../global';
 import { Input, MultiCheckBoxSelect, Select, TextArea } from '@gpa-gemstone/react-forms';
-import { Table, Column }  from '@gpa-gemstone/react-table';
+import { Table, Column } from '@gpa-gemstone/react-table';
 import cloneDeep from 'lodash/cloneDeep';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
+import { Application } from '@gpa-gemstone/application-typings';
 import _ from 'lodash';
+import { Alert } from '@gpa-gemstone/react-interactive';
 
 interface IValue {
-    Value: string|number
+    Value: string | number
 }
 interface ItoaInfo {
     StartTime: string,
@@ -49,7 +51,7 @@ const ITOA: EventWidget.IWidget<ISetting> = {
     Name: 'ITOA',
     DefaultSettings: {
         Filter: [],
-        TimeWindow: [2,10,60,120],
+        TimeWindow: [2, 10, 60, 120],
         SQLCommand: ''
     },
     Settings: (props) => {
@@ -144,7 +146,8 @@ const ITOA: EventWidget.IWidget<ISetting> = {
         const [data, setData] = React.useState<ItoaInfo[]>([]);
         const [causeFilter, setCauseFilter] = React.useState<string[]>([])
         const [timeWindow, setTimeWindow] = React.useState<number>(2);
-        const [filterOptions, setFilterOptions] = React.useState<{ Value: number, Label: string, Selected: boolean}[]>([])
+        const [filterOptions, setFilterOptions] = React.useState<{ Value: number, Label: string, Selected: boolean }[]>([])
+        const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
 
         const timeWindowOptions = React.useMemo(() => props.Settings.TimeWindow.map((t) => ({ Value: t.toString(), Label: t.toString() })), [props.Settings.TimeWindow]);
 
@@ -158,30 +161,20 @@ const ITOA: EventWidget.IWidget<ISetting> = {
         }, [causeFilter])
 
         React.useEffect(() => {
-            return GetData();
-        }, [props.EventID, timeWindow, causeFilter]);
+            setStatus('loading');
+            const handle = getITOAData(props.HomePath, props.EventID, timeWindow, props.WidgetID);
 
-        function GetData() {
-            const handle = $.ajax({
-                type: "GET",
-                url: `${props.HomePath}api/ITOA/${props.EventID}/${timeWindow}/${props.WidgetID}`,
-                contentType: "application/json; charset=utf-8",
-                dataType: 'json',
-                cache: false,
-                async: true
-            }) as JQuery.jqXHR<ItoaInfo[]>;
+            handle.done((data) => {
+                setData(data.filter(si => causeFilter.includes(si.Cause.toLowerCase())));
+                setStatus('idle');
+            }).fail(() => setStatus('error'));
 
-            handle.done(d => { 
-                if (causeFilter.length == 0)
-                    setData(d);
-                else
-                    setData(d.filter(si => causeFilter.includes(si.Cause.toLowerCase())));
-            });
-
-            return function () {
-                if (handle.abort != undefined) handle.abort();
-            }
-        }
+            return () => {
+                if (handle?.abort != null) {
+                    handle.abort();
+                }
+            };
+        }, [props.EventID, props.HomePath, props.WidgetID, timeWindow, causeFilter]);
 
         return (
             <div className="card">
@@ -208,60 +201,83 @@ const ITOA: EventWidget.IWidget<ISetting> = {
                                     setCauseFilter(filters.filter(t => !remove.includes(t)).concat(add as string[]))
                                 }} />
                         </div>
-
                     </div>
-
-
                     <div style={{ maxHeight: 200, overflowY: 'auto' }}>
-                        <Table<ItoaInfo>
-                            Data={data}
-                            OnSort={() => { /*Do Nothing*/ }}
-                            SortKey={''}
-                            Ascending={true}
-                            TableClass="table"
-                            KeySelector={data => data.ID}
-                            TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', height: 50 }}
-                            TbodyStyle={{ display: 'block', overflowY: 'scroll', width: '100%', maxHeight: props.MaxHeight ?? 500 }}
-                            RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        >
-                            <Column<ItoaInfo>
-                                Key={'Time'}
-                                AllowSort={false}
-                                Field={'StartTime'}
-                                HeaderStyle={{ width: 'auto' }}
-                                RowStyle={{ width: 'auto' }}
-                            > Time
-                            </Column>
-                            <Column<ItoaInfo>
-                                Key={'Cause'}
-                                AllowSort={false}
-                                Field={'Cause'}
-                                HeaderStyle={{ width: 'auto' }}
-                                RowStyle={{ width: 'auto' }}
-                            > Alarm
-                            </Column>
-                            <Column<ItoaInfo>
-                                Key={'Station'}
-                                AllowSort={false}
-                                Field={'Station'}
-                                HeaderStyle={{ width: 'auto' }}
-                                RowStyle={{ width: 'auto' }}
-                            > Description
-                            </Column>
-                            <Column<ItoaInfo>
-                                Key={'Voltage'}
-                                AllowSort={false}
-                                Field={'Voltage'}
-                                HeaderStyle={{ width: 'auto' }}
-                                RowStyle={{ width: 'auto' }}
-                            > Voltages
-                            </Column>
-                        </Table>
+                        {status === 'error' ?
+                            <Alert Class='alert-danger'>
+                                An error occurred while fetching ITOA data. Please check System Center for more details.
+                            </Alert>
+                        : null}
+                        {status === 'loading' ?
+                            <div className='d-flex align-items-center justify-content-center' style={{ height: 250 }}>
+                                <ReactIcons.SpiningIcon Size={'50%'} />
+                            </div>
+                            :
+                            <Table<ItoaInfo>
+                                Data={data}
+                                OnSort={() => { /*Do Nothing*/ }}
+                                SortKey={''}
+                                Ascending={true}
+                                TableClass="table"
+                                KeySelector={data => data.ID}
+                                TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', height: 50 }}
+                                TbodyStyle={{ display: 'block', overflowY: 'auto', width: '100%', maxHeight: props.MaxHeight ?? 500 }}
+                                RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                            >
+                                <Column<ItoaInfo>
+                                    Key={'Time'}
+                                    AllowSort={false}
+                                    Field={'StartTime'}
+                                    HeaderStyle={{ width: 'auto' }}
+                                    RowStyle={{ width: 'auto' }}
+                                >
+                                    Time
+                                </Column>
+                                <Column<ItoaInfo>
+                                    Key={'Cause'}
+                                    AllowSort={false}
+                                    Field={'Cause'}
+                                    HeaderStyle={{ width: 'auto' }}
+                                    RowStyle={{ width: 'auto' }}
+                                >
+                                    Alarm
+                                </Column>
+                                <Column<ItoaInfo>
+                                    Key={'Station'}
+                                    AllowSort={false}
+                                    Field={'Station'}
+                                    HeaderStyle={{ width: 'auto' }}
+                                    RowStyle={{ width: 'auto' }}
+                                >
+                                    Description
+                                </Column>
+                                <Column<ItoaInfo>
+                                    Key={'Voltage'}
+                                    AllowSort={false}
+                                    Field={'Voltage'}
+                                    HeaderStyle={{ width: 'auto' }}
+                                    RowStyle={{ width: 'auto' }}
+                                >
+                                    Voltages
+                                </Column>
+                            </Table>
+                        }
                     </div>
                 </div>
             </div>
         );
     }
 }
+
+const getITOAData = (homePath: string, eventID: number, timeWindow: number, widgetID: number) => {
+    return $.ajax({
+        type: "GET",
+        url: `${homePath}api/EventWidgets/ITOA/${eventID}/${timeWindow}/${widgetID}`,
+        contentType: "application/json; charset=utf-8",
+        dataType: 'json',
+        cache: false,
+        async: true
+    }) as JQuery.jqXHR<ItoaInfo[]>;
+};
 
 export default ITOA;

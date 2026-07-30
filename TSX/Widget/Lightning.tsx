@@ -26,6 +26,9 @@ import { scaleLinear, line, extent, select, axisLeft } from 'd3';
 import moment from 'moment';
 import { EventWidget } from '../global';
 import { Table, Column } from '@gpa-gemstone/react-table';
+import { useGetContainerPosition } from '@gpa-gemstone/helper-functions';
+import { Application } from '@gpa-gemstone/application-typings';
+import { Alert } from '@gpa-gemstone/react-interactive';
 
 const TVALightningChart: EventWidget.IWidget<{}> = {
     Name: 'Lightning',
@@ -34,21 +37,23 @@ const TVALightningChart: EventWidget.IWidget<{}> = {
         return <></>
     },
     Widget: (props: EventWidget.IWidgetProps<{}>) => {
-        const divref = React.useRef(null);
+        const divref = React.useRef<HTMLDivElement | null>(null);
+        const { offsetWidth } = useGetContainerPosition(divref);
 
         const svgWidth = (window.innerWidth - 300) / 2 - 17 - 40;
         const svgHeight = 200;
         const margin = { top: 0, right: 0, bottom: 20, left: 40 };
+
         //const width = svgWidth - margin.left - margin.right;
         const height = svgHeight - margin.top - margin.bottom;
-        const [width, setWidth] = React.useState<number>(0);
 
         const [paths, setPaths] = React.useState<Array<JSX.Element>>([]);
         const [hidden, setHidden] = React.useState<boolean>(true);
         const [tooltipX, setTooltipX] = React.useState<number>(svgWidth + 2);
         const [tableData, setTableData] = React.useState<{ Day: { Data: Array<number> } }>({ Day: { Data: [] } });
-        const [xcoord, setXcoord] = React.useState<number>(null);
+        const [xcoord, setXcoord] = React.useState<number | null>(null);
         const [xaxis, setXaxis] = React.useState<Array<number>>([]);
+        const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
 
         React.useEffect(() => {
             setHidden(true);
@@ -56,17 +61,18 @@ const TVALightningChart: EventWidget.IWidget<{}> = {
             return GetData();
         }, [props.EventID]);
 
-        React.useLayoutEffect(() => { setWidth(divref?.current?.offsetWidth ?? 0) });
-
         function GetData() {
             const handle = $.ajax({
                 type: "GET",
-                url: `${props.HomePath}api/Lightning/${props.EventID}`,
+                url: `${props.HomePath}api/EventWidgets/Lightning/${props.EventID}`,
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
                 cache: true,
                 async: true
-            }).done(data => MakeDict(data));
+            }).done(data => {
+                setStatus('idle');
+                MakeDict(data);
+            }).fail(() => setStatus('error'));
 
 
             return function () {
@@ -91,16 +97,16 @@ const TVALightningChart: EventWidget.IWidget<{}> = {
         }
 
         function DrawChart(dict: { Day: { Data: Array<number> } }) {
-            const x = scaleLinear().rangeRound([0, width]);
+            const x = scaleLinear().rangeRound([0, offsetWidth]);
             const y = scaleLinear().rangeRound([height, 0]);
 
             setHidden(Object.keys(dict).length == 0);
 
-            let yextent = null;
+            let yextent: number[] | null = null;
             Object.keys(dict).forEach((key) => {
                 if (key == 'Day' || !dict[key].Show) return;
 
-                const newExtent = extent(dict[key].Data);
+                const newExtent = extent<number>(dict[key].Data) as [number, number];
 
                 if (yextent == null) {
                     yextent = newExtent;
@@ -111,7 +117,7 @@ const TVALightningChart: EventWidget.IWidget<{}> = {
                 if (yextent[1] < newExtent[1]) yextent[1] = newExtent[1]
             });
 
-            yextent = [0.90 * yextent[0], 1.10 * yextent[1]]
+            yextent = [0.90 * (yextent?.[0] ?? 1), 1.10 * (yextent?.[1] ?? 1)]
             const xextent = extent(dict.Day.Data);
 
             y.domain(yextent);
@@ -128,7 +134,7 @@ const TVALightningChart: EventWidget.IWidget<{}> = {
 
             const linefunc = line().x(d => x(d[0])).y(d => y(d[1]));
 
-            const newPaths = [];
+            const newPaths: JSX.Element[] = [];
             $.each(Object.keys(dict).filter(x => x != 'Day'), (index, key) => {
                 if (!dict[key].Show) return;
                 const d = dict[key].Data.map((a, i) => [dict["Day"].Data[i], a]);
@@ -136,9 +142,9 @@ const TVALightningChart: EventWidget.IWidget<{}> = {
             });
             setPaths(newPaths);
 
-        //select('#xaxis').call(axisBottom(x).ticks(15).tickFormat((domainValue: number, index: number) => {
-        //    return moment.unix(domainValue).format('MM/DD');
-        //})).call(g => g.select(".domain").remove());
+            //select('#xaxis').call(axisBottom(x).ticks(15).tickFormat((domainValue: number, index: number) => {
+            //    return moment.unix(domainValue).format('MM/DD');
+            //})).call(g => g.select(".domain").remove());
             select('#yaxis').call(axisLeft(y).ticks(5) as any).call(g => g.select(".domain").remove());
 
         }
@@ -165,7 +171,7 @@ const TVALightningChart: EventWidget.IWidget<{}> = {
                 setXcoord(null);
             }
             else {
-                const x = scaleLinear().rangeRound([0, width]).domain(extent(tableData.Day.Data));
+                const x = scaleLinear().rangeRound([0, offsetWidth]).domain(extent(tableData.Day.Data));
 
                 const newIndex = tableData.Day.Data.map((a, i) => [Math.abs(a - x.invert(evt.nativeEvent.offsetX)), i]).sort(function (a, b) {
                     return a[0] - b[0];
@@ -186,9 +192,14 @@ const TVALightningChart: EventWidget.IWidget<{}> = {
         }
 
         return (
-            <div className="card" hidden={hidden} ref={divref}>
+            <div className="card" hidden={hidden && status !== 'error'} ref={divref}>
                 <div className="card-header fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>30 Day Lightning History:</div>
                 <div className="card-body">
+                    {status === 'error' ?
+                        <Alert Class='alert-danger'>
+                            An error occurred while fetching lightning data. Please check System Center for more details.
+                        </Alert>
+                    : null}
                     <svg width={svgWidth} height={svgHeight} onMouseOver={handleMouseOver} onMouseMove={handleMouseOver} onMouseOut={() => setTooltipX(svgWidth + 1)}>
                         <path stroke='red' d={`M0,0V0,${height}`} transform={`translate(${tooltipX},0)`}></path>
 
@@ -199,43 +210,48 @@ const TVALightningChart: EventWidget.IWidget<{}> = {
                             {paths}
                         </g>
                         <g id='xaxis' transform={`translate(${margin.left},${height})`}>
-                            <path stroke='#000' d={`M 0 0 h 0 ${width} v -${height} 0 h 0 -${width}`} fill='none'></path>
-                            {
-                                xaxis.map((a, i) => {
-                                    const x = scaleLinear().rangeRound([0, width]).domain(extent(tableData.Day.Data));
+                            <path stroke='#000' d={`M 0 0 h 0 ${offsetWidth} v -${height} 0 h 0 -${offsetWidth}`} fill='none'></path>
+                            {xaxis.map((a, i) => {
+                                const x = scaleLinear().rangeRound([0, offsetWidth]).domain(extent(tableData.Day.Data));
 
-                                    return (
-                                        <g key={i} className='tick' opacity='1' transform={`translate(${x(a)},0)`}>
-                                            <line stroke="#000" y2="6"></line>
-                                            <text fill="#000" y="9" dy="0.71em" fontFamily='sans-serif' fontSize='10'>{moment.unix(a).format('MM/DD')}</text>
-                                        </g>
-                                    )
-                                })
+                                return (
+                                    <g key={i} className='tick' opacity='1' transform={`translate(${x(a)},0)`}>
+                                        <line stroke="#000" y2="6"></line>
+                                        <text fill="#000" y="9" dy="0.71em" fontFamily='sans-serif' fontSize='10'>{moment.unix(a).format('MM/DD')}</text>
+                                    </g>
+                                )
+                            })
                             }
                         </g>
-
                     </svg>
                     <Table
                         Data={Object.keys(tableData).filter(key => key != 'Day').map((key) => {
                             return {
                                 key: key,
-                                service: <><span onClick={(evt) => {
-                                    tableData[key].Show = !tableData[key].Show
-                                    setTableData(tableData);
-                                    DrawChart(tableData);
-                                }} style={{ display: 'inline-block', marginRight: 10, height: 20, width: 20, backgroundColor: (tableData[key].Show ? getColor(key) : 'darkgray') }}></span>{key}</>,
+                                service: (
+                                    <>
+                                        <span onClick={(evt) => {
+                                            tableData[key].Show = !tableData[key].Show
+                                            setTableData(tableData);
+                                            DrawChart(tableData);
+                                        }} style={{ display: 'inline-block', marginRight: 10, height: 20, width: 20, backgroundColor: (tableData[key].Show ? getColor(key) : 'darkgray') }}
+                                        >
+                                        </span>
+                                        {key}
+                                    </>
+                                ),
                                 date: getValue(key),
                                 totals: tableData[key].Data.reduce((a, b) => a + b)
                             };
                         })}
-                        KeySelector={(item) => item.key }
+                        KeySelector={(item) => item.key}
                         OnClick={() => { /* Do Nothing */ }}
                         OnSort={() => { /* Do Nothing */ }}
                         SortKey={''}
                         Ascending={true}
                         TableClass="table"
                         TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', height: 50 }}
-                        TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: props.MaxHeight ?? 500, width: '100%' }}
+                        TbodyStyle={{ display: 'block', overflowY: 'auto', maxHeight: props.MaxHeight ?? 500, width: '100%' }}
                         RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                     >
                         <Column
@@ -252,7 +268,8 @@ const TVALightningChart: EventWidget.IWidget<{}> = {
                             Field={'date'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
-                        > {moment.unix(xcoord).format('MM/DD')}
+                        >
+                            {moment.unix(xcoord ?? 0).format('MM/DD')}
                         </Column>
                         <Column
                             Key={'totals'}
@@ -260,7 +277,8 @@ const TVALightningChart: EventWidget.IWidget<{}> = {
                             Field={'totals'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
-                        > Totals
+                        >
+                            Totals
                         </Column>
                     </Table>
                 </div>

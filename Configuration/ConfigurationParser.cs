@@ -21,7 +21,6 @@
 //
 //******************************************************************************************************
 
-using GSF;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Linq;
 using System;

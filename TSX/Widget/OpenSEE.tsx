@@ -25,6 +25,9 @@ import React from 'react';
 import { EventWidget } from '../global';
 import { Input } from '@gpa-gemstone/react-forms';
 import { useGetContainerPosition } from "@gpa-gemstone/helper-functions";
+import { Application } from '@gpa-gemstone/application-typings';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
+import { Alert } from '@gpa-gemstone/react-interactive';
 
 interface ISeries {
     label: string,
@@ -97,20 +100,50 @@ const EventSearchOpenSEE: EventWidget.IWidget<ISetting> = {
         const legendWidth = useGetLegendWidth(width);
 
         const [VData, setVData] = React.useState<ISeries[]>([]);
+        const [vDataStatus, setVDataStatus] = React.useState<Application.Types.Status>('uninitiated');
         const [VLim, setVLim] = React.useState<[number, number]>([0, 100]);
         const [IData, setIData] = React.useState<ISeries[]>([]);
+        const [iDataStatus, setIDataStatus] = React.useState<Application.Types.Status>('uninitiated');
         const [ILim, setILim] = React.useState<[number, number]>([0, 100]);
         const [TCEData, setTCEData] = React.useState<ISeries[]>([]);
+        const [tceDataStatus, setTCEDataStatus] = React.useState<Application.Types.Status>('uninitiated');
         const [TCELim, setTCELim] = React.useState<[number, number]>([0, 100]);
 
         const [openSeeSettings, setOpenSeeSettings] = React.useState<IPartialOpenseeSettings | null>(null);
 
         React.useEffect(() => { setOpenSeeSettings(loadSettings()) }, [])
 
+        //Effect to get openSEE data
         React.useEffect(() => {
-            const Vhandle = GetData('Voltage', setVData);
-            const Ihandle = GetData('Current', setIData);
-            const TCEhandle = GetData('TripCoilCurrent', setTCEData)
+            setVDataStatus('loading');
+            const Vhandle = GetData('Voltage', props.HomePath, props.EventID.toString());
+
+            Vhandle.done((d) => {
+                setVData(toSeries(d));
+                setVDataStatus('idle');
+            }).fail(() => {
+                setVDataStatus('error');
+            });
+
+            setIDataStatus('loading');
+            const Ihandle = GetData('Current', props.HomePath, props.EventID.toString());
+
+            Ihandle.done((d) => {
+                setIData(toSeries(d));
+                setIDataStatus('idle');
+            }).fail(() => {
+                setIDataStatus('error');
+            });
+
+            setTCEDataStatus('loading');
+            const TCEhandle = GetData('TripCoilCurrent', props.HomePath, props.EventID.toString());
+
+            TCEhandle.done((d) => {
+                setTCEData(toSeries(d));
+                setTCEDataStatus('idle');
+            }).fail(() => {
+                setTCEDataStatus('error');
+            });
 
             return () => {
                 if (Vhandle != null && Vhandle.abort != null)
@@ -120,7 +153,7 @@ const EventSearchOpenSEE: EventWidget.IWidget<ISetting> = {
                 if (TCEhandle != null && TCEhandle.abort != null)
                     TCEhandle.abort();
             }
-        }, [props.EventID]);
+        }, [props.EventID, props.HomePath]);
 
         //These three effects below are deriving lims from data we already own, these per react docs should be turned into memo values
         React.useEffect(() => {
@@ -153,58 +186,8 @@ const EventSearchOpenSEE: EventWidget.IWidget<ISetting> = {
             setTCELim([min, max])
         }, [TCEData])
 
-        function GetData(type: ('Voltage' | 'Current' | 'TripCoilCurrent'), datasetter: (d: ISeries[]) => void) {
-            return $.ajax({
-                type: "POST",
-                url: `${props.HomePath}api/EventWidgets/OpenSEE/GetData/${type}`,
-                contentType: "application/json; charset=utf-8",
-                data: JSON.stringify({
-                    EventID: props.EventID,
-                }),
-                dataType: 'json',
-                cache: true,
-                async: true
-            }).done(data => {
-                datasetter(Object.keys(data).map((key) => ({ label: key, data: data[key], color: '#ff0000' } as ISeries)))
-            })
-        }
-
-        function loadSettings(): IPartialOpenseeSettings {
-            try {
-                const serializedState = localStorage.getItem('openSee.Settings');
-                if (serializedState === null)
-                    return defaultSettings;
-
-
-                // overwrite options if new options are available
-                const state: IPartialOpenseeSettings = JSON.parse(serializedState);
-
-                Object.keys(defaultSettings.Colors).forEach((key) => {
-                    if (state.Colors[key] == undefined)
-                        state.Colors[key] = defaultSettings.Colors[key];
-                });
-
-                return state;
-            } catch (err) {
-                return defaultSettings;
-            }
-        }
-
-        function getColor(label: string) {
-
-            const settings = openSeeSettings ?? defaultSettings;
-
-            if (label.indexOf('VA') >= 0) return settings.Colors.Va;
-            if (label.indexOf('VB') >= 0) return settings.Colors.Vb;
-            if (label.indexOf('VC') >= 0) return settings.Colors.Vc;
-            if (label.indexOf('VN') >= 0) return settings.Colors.Vn;
-            if (label.indexOf('IA') >= 0) return settings.Colors.Ia;
-            if (label.indexOf('IB') >= 0) return settings.Colors.Ib;
-            if (label.indexOf('IC') >= 0) return settings.Colors.Ic;
-            if (label.indexOf('IR') >= 0) return settings.Colors.Ires;
-
-            return settings.Colors.random;
-        }
+        const isLoading = vDataStatus === 'loading' || iDataStatus === 'loading' || tceDataStatus === 'loading';
+        const hasData = VData.length > 0 || IData.length > 0 || TCEData.length > 0;
 
         return (
             <div className="card">
@@ -214,97 +197,150 @@ const EventSearchOpenSEE: EventWidget.IWidget<ISetting> = {
                     </a>
                 </div>
                 <div className="card-body p-0">
-                    <div className="row m-0">
-                        <div className="col-12 p-0" ref={plotRef}>
-                            {VData.length > 0 ?
-                                <Plot
-                                    height={plotHeight}
-                                    width={width}
-                                    showBorder={false}
-                                    yDomain={'AutoValue'}
-                                    legendWidth={legendWidth}
-                                    defaultTdomain={VLim}
-                                    legend={'right'}
-                                    Tlabel={'Time'}
-                                    Ylabel={'Voltage (V)'}
-                                    showMouse={false}
-                                    zoom={false}
-                                    pan={false}
-                                    useMetricFactors={false}
-                                >
-                                    {VData.map((s, i) =>
-                                        <Line
-                                            highlightHover={false}
-                                            showPoints={false}
-                                            lineStyle={'-'}
-                                            color={getColor(s.label)}
-                                            data={s.data}
-                                            legend={s.label + legendLabelPadding}
-                                            key={i}
-                                        />
-                                    )}
-                                </Plot> : null}
-                            {IData.length > 0 ?
-                                <Plot
-                                    height={plotHeight}
-                                    width={width}
-                                    showBorder={false}
-                                    defaultTdomain={ILim}
-                                    yDomain={'AutoValue'}
-                                    legendWidth={legendWidth}
-                                    legend={'right'}
-                                    Tlabel={'Time'}
-                                    Ylabel={'Current (A)'}
-                                    showMouse={false}
-                                    zoom={false}
-                                    pan={false}
-                                    useMetricFactors={false}
-                                >
-                                    {IData.map((s, i) =>
-                                        <Line
-                                            highlightHover={false}
-                                            showPoints={false}
-                                            lineStyle={'-'}
-                                            color={getColor(s.label)}
-                                            data={s.data}
-                                            legend={s.label + legendLabelPadding}
-                                            key={i}
-                                        />
-                                    )}
-                                </Plot> : null}
-                            {TCEData.length > 0 ?
-                                <Plot
-                                    height={plotHeight}
-                                    width={width}
-                                    showBorder={false}
-                                    defaultTdomain={TCELim}
-                                    legendWidth={legendWidth}
-                                    yDomain={'AutoValue'}
-                                    legend={'right'}
-                                    Tlabel={'Time'}
-                                    Ylabel={'Trip Coil Current (A)'}
-                                    showMouse={false}
-                                    zoom={false}
-                                    pan={false}
-                                    useMetricFactors={false}
-                                >
-                                    {TCEData.map((s, i) =>
-                                        <Line
-                                            highlightHover={false}
-                                            showPoints={false}
-                                            lineStyle={'-'}
-                                            color={getColor(s.label)}
-                                            data={s.data}
-                                            legend={s.label + legendLabelPadding}
-                                            key={i}
-                                        />
-                                    )}
-                                </Plot> : null}
+                    {vDataStatus === 'error' || iDataStatus === 'error' || tceDataStatus === 'error' ?
+                        <Alert Class='alert-danger'>
+                            An error occurred while fetching openSEE data.
+                        </Alert>
+                    : null}
+                    {isLoading ?
+                        <div className="d-flex justify-content-center align-items-center" style={{ height: 250 }}>
+                            <ReactIcons.SpiningIcon Size={'50%'} />
                         </div>
-                    </div>
+                        : !hasData ?
+                            <Alert Class='alert-info'>
+                                No openSEE data.
+                            </Alert>
+                        :
+                        <div className="row m-0">
+                            <div className="col-12 p-0" ref={plotRef}>
+                                {VData.length > 0 ?
+                                    <Plot
+                                        height={plotHeight}
+                                        width={width}
+                                        showBorder={false}
+                                        yDomain={'AutoValue'}
+                                        legendWidth={legendWidth}
+                                        defaultTdomain={VLim}
+                                        legend={'right'}
+                                        Tlabel={'Time'}
+                                        Ylabel={'Voltage (V)'}
+                                        showMouse={false}
+                                        zoom={false}
+                                        pan={false}
+                                        useMetricFactors={false}
+                                    >
+                                        {VData.map((s, i) =>
+                                            <Line
+                                                highlightHover={false}
+                                                showPoints={false}
+                                                lineStyle={'-'}
+                                                color={getColor(s.label, openSeeSettings)}
+                                                data={s.data}
+                                                legend={s.label + legendLabelPadding}
+                                                key={i}
+                                            />
+                                        )}
+                                    </Plot> : null}
+                                {IData.length > 0 ?
+                                    <Plot
+                                        height={plotHeight}
+                                        width={width}
+                                        showBorder={false}
+                                        defaultTdomain={ILim}
+                                        yDomain={'AutoValue'}
+                                        legendWidth={legendWidth}
+                                        legend={'right'}
+                                        Tlabel={'Time'}
+                                        Ylabel={'Current (A)'}
+                                        showMouse={false}
+                                        zoom={false}
+                                        pan={false}
+                                        useMetricFactors={false}
+                                    >
+                                        {IData.map((s, i) =>
+                                            <Line
+                                                highlightHover={false}
+                                                showPoints={false}
+                                                lineStyle={'-'}
+                                                color={getColor(s.label, openSeeSettings)}
+                                                data={s.data}
+                                                legend={s.label + legendLabelPadding}
+                                                key={i}
+                                            />
+                                        )}
+                                    </Plot> : null}
+                                {TCEData.length > 0 ?
+                                    <Plot
+                                        height={plotHeight}
+                                        width={width}
+                                        showBorder={false}
+                                        defaultTdomain={TCELim}
+                                        legendWidth={legendWidth}
+                                        yDomain={'AutoValue'}
+                                        legend={'right'}
+                                        Tlabel={'Time'}
+                                        Ylabel={'Trip Coil Current (A)'}
+                                        showMouse={false}
+                                        zoom={false}
+                                        pan={false}
+                                        useMetricFactors={false}
+                                    >
+                                        {TCEData.map((s, i) =>
+                                            <Line
+                                                highlightHover={false}
+                                                showPoints={false}
+                                                lineStyle={'-'}
+                                                color={getColor(s.label, openSeeSettings)}
+                                                data={s.data}
+                                                legend={s.label + legendLabelPadding}
+                                                key={i}
+                                            />
+                                        )}
+                                    </Plot> : null}
+                            </div>
+                        </div>
+                    }
                 </div>
             </div>
         )
+    }
+}
+
+const toSeries = (data: Record<string, [number, number][]>): ISeries[] =>
+    Object.keys(data).map((label) => ({ label, data: data[label], color: '#ff0000' }));
+
+const getColor = (label: string, openSeeSettings: IPartialOpenseeSettings | null) => {
+    const settings = openSeeSettings ?? defaultSettings;
+
+    if (label.indexOf('VA') >= 0) return settings.Colors.Va;
+    if (label.indexOf('VB') >= 0) return settings.Colors.Vb;
+    if (label.indexOf('VC') >= 0) return settings.Colors.Vc;
+    if (label.indexOf('VN') >= 0) return settings.Colors.Vn;
+    if (label.indexOf('IA') >= 0) return settings.Colors.Ia;
+    if (label.indexOf('IB') >= 0) return settings.Colors.Ib;
+    if (label.indexOf('IC') >= 0) return settings.Colors.Ic;
+    if (label.indexOf('IR') >= 0) return settings.Colors.Ires;
+
+    return settings.Colors.random;
+}
+
+const loadSettings = (): IPartialOpenseeSettings => {
+    try {
+        const serializedState = localStorage.getItem('openSee.Settings');
+        if (serializedState === null)
+            return defaultSettings;
+
+        // overwrite options if new options are available
+        const state: IPartialOpenseeSettings = JSON.parse(serializedState);
+
+        Object.keys(defaultSettings.Colors).forEach((key) => {
+            if (state.Colors[key] == undefined)
+                state.Colors[key] = defaultSettings.Colors[key];
+        });
+
+        return state;
+    } catch (err) {
+        return defaultSettings;
     }
 }
 
@@ -317,6 +353,19 @@ const useGetLegendWidth = (plotWidth: number, percent = .15) => {
     }, [plotWidth, percent])
 
     return legendWidth;
+}
+
+const GetData = (type: ('Voltage' | 'Current' | 'TripCoilCurrent'), homePath: string, EventID: string) => {
+    return $.ajax({
+        type: "POST",
+        url: `${homePath}api/EventWidgets/OpenSEE/GetData/${type}`,
+        contentType: "application/json; charset=utf-8",
+        data: JSON.stringify({
+            EventID: EventID,
+        }),
+        cache: false,
+        async: true
+    })
 }
 
 export default EventSearchOpenSEE;
