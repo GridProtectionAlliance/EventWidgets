@@ -106,7 +106,7 @@ const TVALightningChart: EventWidget.IWidget<{}> = {
             Object.keys(dict).forEach((key) => {
                 if (key == 'Day' || !dict[key].Show) return;
 
-                const newExtent = extent(dict[key].Data);
+                const newExtent = extent<number>(dict[key].Data) as [number, number];
 
                 if (yextent == null) {
                     yextent = newExtent;
