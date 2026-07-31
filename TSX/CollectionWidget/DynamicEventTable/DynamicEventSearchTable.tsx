@@ -140,14 +140,10 @@ export function DynamicEventSearchList(props: IDynamicEventSearchListProps) {
                 {cols.length > 0 ?
                     <ConfigurableTable<any>
                         LocalStorageKey={props.LocalStorageKey ?? "SEbrowser.EventSearch.TableCols"}
-                        TableClass="table table-hover"
+                        TableClass="table table-hover h-100"
                         Data={props.Data}
                         SortKey={props.SortField}
                         Ascending={props.Ascending}
-                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', height: 60 }}
-                        TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: props.Height - 60 }}
-                        RowStyle={{ display: 'table', tableLayout: 'fixed', width: 'calc(100%)' }}
-                        TableStyle={{ marginBottom: 0 }}
                         Selected={(item) => {
                             if (item.EventID == props.Eventid) return true;
                             else return false;
