@@ -25,7 +25,7 @@ import React from 'react';
 import moment from 'moment';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
-import { Modal } from '@gpa-gemstone/react-interactive';
+import { Modal, Warning } from '@gpa-gemstone/react-interactive';
 import { ToolTip } from '@gpa-gemstone/react-forms';
 import { Column, Table } from '@gpa-gemstone/react-table';
 import NoteOptions from './NoteOptions';
@@ -38,17 +38,21 @@ interface IProps {
     Ascending: boolean,
     AllowCreate: boolean,
     AllowUpdate: boolean,
+    AllowDelete: boolean,
     NewNote: OpenXDA.Types.Note,
     SetNewNote: (note: OpenXDA.Types.Note) => void,
     EditNote: OpenXDA.Types.Note,
     SetEditNote: (note: OpenXDA.Types.Note) => void,
     ShowEdit: boolean,
+    DeleteNote: OpenXDA.Types.Note | null,
     Hover: 'none' | 'add' | 'clear',
     SetHover: (hover: 'none' | 'add' | 'clear') => void,
     OnSort: (data: { colField?: keyof OpenXDA.Types.Note }) => void,
     OnAdd: (note: OpenXDA.Types.Note) => void,
     OnEdit: (note: OpenXDA.Types.Note) => void,
-    OnSaveEdit: (confirm: boolean) => void
+    OnSaveEdit: (confirm: boolean) => void,
+    OnDelete: (note: OpenXDA.Types.Note) => void,
+    OnConfirmDelete: (confirm: boolean) => void
 }
 
 const NoteTable = (props: IProps) => {
@@ -166,16 +170,23 @@ const NoteTable = (props: IProps) => {
                         :
                         <></>
                     }
-                    {props.AllowUpdate ?
+                    {props.AllowUpdate || props.AllowDelete ?
                         <Column<OpenXDA.Types.Note>
                             Key='buttons'
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
-                            Content={(row) =>
-                                <button className='btn btn-sm' onClick={() => props.OnEdit(row.item)}>
-                                    <ReactIcons.Pencil />
-                                </button>
-                            }
+                            Content={(row) => <>
+                                {props.AllowUpdate ?
+                                    <button className='btn btn-sm' onClick={() => props.OnEdit(row.item)}>
+                                        <ReactIcons.Pencil />
+                                    </button>
+                                    : null}
+                                {props.AllowDelete ?
+                                    <button className='btn btn-sm' onClick={() => props.OnDelete(row.item)}>
+                                        <ReactIcons.TrashCan Color='var(--danger)' />
+                                    </button>
+                                    : null}
+                            </>}
                         >
                             &nbsp;
                         </Column>
@@ -200,6 +211,13 @@ const NoteTable = (props: IProps) => {
                         NoteApplications={props.NoteApplications}
                     />
                 </Modal>
+                <Warning
+                    Show={props.DeleteNote != null}
+                    Title='Delete Note'
+                    ShowCancel={true}
+                    CallBack={props.OnConfirmDelete}
+                    Message='Are you sure you want to delete this note?'
+                />
             </div>
         </div>
     );
