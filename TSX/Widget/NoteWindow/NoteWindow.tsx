@@ -202,6 +202,7 @@ const NoteWidget: EventWidget.IWidget<ISetting> = {
         React.useEffect(() => {
             if (metadataLoading || metadataError) {
                 setPageCount(0);
+                setPageInfoStatus('idle');
                 return;
             }
 
@@ -226,6 +227,7 @@ const NoteWidget: EventWidget.IWidget<ISetting> = {
         React.useEffect(() => {
             if (metadataLoading || metadataError) {
                 setNotes([]);
+                setNoteStatus('idle');
                 return;
             }
 
