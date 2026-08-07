@@ -52,8 +52,8 @@ namespace Widgets.API.Model
         public SOEController(IAPICredentialRetriever retriever) : base(retriever) { }
 #endif
 
-        [Route("{eventID:int}/{timeWindow:int}"), HttpGet]
-        public async ServerResponse Get(int eventID, int timeWindow, CancellationToken token) =>
+        [Route("{eventID:int}/{timeWindow:int}/{widgetID:int}"), HttpGet]
+        public async ServerResponse Get(int eventID, int timeWindow, int widgetID, CancellationToken token) =>
             await ForwardRequest(token).ConfigureAwait(false);
     }
 }

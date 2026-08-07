@@ -24,20 +24,13 @@
 import React from 'react';
 import { EventWidget } from '../global';
 import { Input, Select, TextArea } from '@gpa-gemstone/react-forms';
-import { Table, Column } from '@gpa-gemstone/react-table';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { Application } from '@gpa-gemstone/application-typings';
 import { Alert } from '@gpa-gemstone/react-interactive';
+import DynamicSQLResultsTable, { DynamicSQLRow } from './DynamicSQLResultsTable';
 
 interface IValue {
     Value: string | number
-}
-interface ItoaInfo {
-    StartTime: string,
-    Cause: string,
-    Voltage: string
-    ID: number,
-    Station: string
 }
 interface ISetting {
     SQLCommand: string,
@@ -110,12 +103,14 @@ const ITOA: EventWidget.IWidget<ISetting> = {
         );
     },
     Widget: (props: EventWidget.IWidgetProps<ISetting>) => {
-        const [data, setData] = React.useState<ItoaInfo[]>([]);
+        const [data, setData] = React.useState<DynamicSQLRow[]>([]);
         const [timeWindow, setTimeWindow] = React.useState<number>(2);
         const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
 
         const timeWindowOptions = React.useMemo(() => props.Settings.TimeWindow.map((t) => ({ Value: t.toString(), Label: t.toString() })), [props.Settings.TimeWindow]);
+        const resultsMaxHeight = Math.min(props.MaxHeight, 200);
 
+        //Effect to get ITOA data
         React.useEffect(() => {
             setStatus('loading');
             const handle = getITOAData(props.HomePath, props.EventID, timeWindow, props.WidgetID);
@@ -147,7 +142,7 @@ const ITOA: EventWidget.IWidget<ISetting> = {
                             />
                         </div>
                     </div>
-                    <div style={{ maxHeight: 200, overflowY: 'auto' }}>
+                    <div style={{ maxHeight: resultsMaxHeight, overflowY: 'hidden'  }}>
                         {status === 'error' ?
                             <Alert Class='alert-danger'>
                                 An error occurred while fetching ITOA data. Please check System Center for more details.
@@ -158,54 +153,10 @@ const ITOA: EventWidget.IWidget<ISetting> = {
                                 <ReactIcons.SpiningIcon Size={'50%'} />
                             </div>
                             :
-                            <Table<ItoaInfo>
+                            <DynamicSQLResultsTable
                                 Data={data}
-                                OnSort={() => { /*Do Nothing*/ }}
-                                SortKey={''}
-                                Ascending={true}
-                                TableClass="table"
-                                KeySelector={data => data.ID}
-                                TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', height: 50 }}
-                                TbodyStyle={{ display: 'block', overflowY: 'auto', width: '100%', maxHeight: props.MaxHeight ?? 500 }}
-                                RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                            >
-                                <Column<ItoaInfo>
-                                    Key={'Time'}
-                                    AllowSort={false}
-                                    Field={'StartTime'}
-                                    HeaderStyle={{ width: 'auto' }}
-                                    RowStyle={{ width: 'auto' }}
-                                >
-                                    Time
-                                </Column>
-                                <Column<ItoaInfo>
-                                    Key={'Cause'}
-                                    AllowSort={false}
-                                    Field={'Cause'}
-                                    HeaderStyle={{ width: 'auto' }}
-                                    RowStyle={{ width: 'auto' }}
-                                >
-                                    Alarm
-                                </Column>
-                                <Column<ItoaInfo>
-                                    Key={'Station'}
-                                    AllowSort={false}
-                                    Field={'Station'}
-                                    HeaderStyle={{ width: 'auto' }}
-                                    RowStyle={{ width: 'auto' }}
-                                >
-                                    Description
-                                </Column>
-                                <Column<ItoaInfo>
-                                    Key={'Voltage'}
-                                    AllowSort={false}
-                                    Field={'Voltage'}
-                                    HeaderStyle={{ width: 'auto' }}
-                                    RowStyle={{ width: 'auto' }}
-                                >
-                                    Voltages
-                                </Column>
-                            </Table>
+                                MaxHeight={resultsMaxHeight}
+                            />
                         }
                     </div>
                 </div>
@@ -222,7 +173,7 @@ const getITOAData = (homePath: string, eventID: number, timeWindow: number, widg
         dataType: 'json',
         cache: false,
         async: true
-    }) as JQuery.jqXHR<ItoaInfo[]>;
+    }) as JQuery.jqXHR<DynamicSQLRow[]>;
 };
 
 export default ITOA;
