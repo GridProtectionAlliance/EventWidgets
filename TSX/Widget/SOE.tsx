@@ -146,6 +146,7 @@ const SOE: EventWidget.IWidget<ISetting> = {
         const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
 
         const timeWindowOptions = React.useMemo(() => props.Settings.TimeWindow.map((t) => ({ Value: t.toString(), Label: t.toString() })), [props.Settings.TimeWindow]);
+        const resultsMaxHeight = Math.min(props.MaxHeight, 200);
 
         const filterOptions = React.useMemo(() => props.Settings.FilterOut.map((filter, index) => {
             const normalizedFilter = filter.toLowerCase();
@@ -204,7 +205,7 @@ const SOE: EventWidget.IWidget<ISetting> = {
                             />
                         </div>
                     </div>
-                    <div style={{ maxHeight: 200, overflowY: 'auto' }}>
+                    <div style={{ maxHeight: resultsMaxHeight, overflowY: 'hidden' }}>
                         {status === 'error' ?
                             <Alert Class='alert-danger'>
                                 An error occurred while fetching SOE data. Please check System Center for more details.
@@ -217,7 +218,7 @@ const SOE: EventWidget.IWidget<ISetting> = {
                             :
                             <DynamicSQLResultsTable
                                 Data={filteredData}
-                                MaxHeight={props.MaxHeight}
+                                MaxHeight={resultsMaxHeight}
                             />
                         }
                     </div>

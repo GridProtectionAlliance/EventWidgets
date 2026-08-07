@@ -108,7 +108,9 @@ const ITOA: EventWidget.IWidget<ISetting> = {
         const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
 
         const timeWindowOptions = React.useMemo(() => props.Settings.TimeWindow.map((t) => ({ Value: t.toString(), Label: t.toString() })), [props.Settings.TimeWindow]);
+        const resultsMaxHeight = Math.min(props.MaxHeight, 200);
 
+        //Effect to get ITOA data
         React.useEffect(() => {
             setStatus('loading');
             const handle = getITOAData(props.HomePath, props.EventID, timeWindow, props.WidgetID);
@@ -140,7 +142,7 @@ const ITOA: EventWidget.IWidget<ISetting> = {
                             />
                         </div>
                     </div>
-                    <div style={{ maxHeight: 200, overflowY: 'auto' }}>
+                    <div style={{ maxHeight: resultsMaxHeight, overflowY: 'hidden'  }}>
                         {status === 'error' ?
                             <Alert Class='alert-danger'>
                                 An error occurred while fetching ITOA data. Please check System Center for more details.
@@ -153,7 +155,7 @@ const ITOA: EventWidget.IWidget<ISetting> = {
                             :
                             <DynamicSQLResultsTable
                                 Data={data}
-                                MaxHeight={props.MaxHeight}
+                                MaxHeight={resultsMaxHeight}
                             />
                         }
                     </div>

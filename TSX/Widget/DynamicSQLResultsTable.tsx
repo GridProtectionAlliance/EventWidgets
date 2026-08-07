@@ -41,8 +41,8 @@ const DynamicSQLResultsTable = (props: IProps) => {
             SortKey={''}
             Ascending={true}
             TableClass="table"
+            TableStyle={{ maxHeight: props.MaxHeight ?? 500 }}
             KeySelector={(_data, index = 0) => index}
-            TbodyStyle={{ display: 'block', overflowY: 'auto', width: '100%', maxHeight: props.MaxHeight ?? 500, flex: 1 }}
         >
             {fields.map(field =>
                 <Column<DynamicSQLRow>
