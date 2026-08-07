@@ -25,9 +25,10 @@ import React from 'react';
 import moment from 'moment';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
-import { ReadWriteControllerFunctions_Gemstone } from '@gpa-gemstone/common-pages';
+import { Gemstone, ReadWriteControllerFunctions_Gemstone } from '@gpa-gemstone/common-pages';
 import { Alert } from '@gpa-gemstone/react-interactive';
 import { MultiCheckBoxSelect, Select } from '@gpa-gemstone/react-forms';
+import { Paging } from '@gpa-gemstone/react-table';
 import { EventWidget } from '../../global';
 import NoteTable from './NoteTable';
 
@@ -76,14 +77,19 @@ const NoteWidget: EventWidget.IWidget<ISetting> = {
         const [noteStatus, setNoteStatus] = React.useState<Application.Types.Status>('uninitiated');
         const [sortField, setSortField] = React.useState<keyof OpenXDA.Types.Note>('Timestamp');
         const [ascending, setAscending] = React.useState<boolean>(true);
+        const [activePage, setActivePage] = React.useState<number>(0);
+        const [pageCount, setPageCount] = React.useState<number>(0);
+        const [pageInfoStatus, setPageInfoStatus] = React.useState<Application.Types.Status>('uninitiated');
         const [refreshToken, setRefreshToken] = React.useState<number>(0);
         const [newNote, setNewNote] = React.useState<OpenXDA.Types.Note>(createBlankNote(defaultNoteType, defaultNoteApp, -1, []));
         const [editNote, setEditNote] = React.useState<OpenXDA.Types.Note>(createBlankNote(defaultNoteType, defaultNoteApp, -1, []));
         const [showEdit, setShowEdit] = React.useState<boolean>(false);
+        const [deleteNote, setDeleteNote] = React.useState<OpenXDA.Types.Note | null>(null);
         const [hover, setHover] = React.useState<'none' | 'add' | 'clear'>('none');
 
         const canCreate = props.WidgetAuthorization.Notes.Create;
         const canUpdate = props.WidgetAuthorization.Notes.Update;
+        const canDelete = props.WidgetAuthorization.Notes.Delete;
 
         const controllers = React.useMemo(() => ({
             Event: new ReadWriteControllerFunctions_Gemstone<OpenXDA.Types.Note>(`${props.HomePath}api/OpenXDA/Note/Event`),
@@ -95,9 +101,11 @@ const NoteWidget: EventWidget.IWidget<ISetting> = {
         const activeRecordName = noteType.Name as NoteRecordName;
         const activeReferenceID = getReferenceID(activeRecordName, ids);
         const activeTags = React.useMemo(() => noteTags.filter((tag) => selectedTags.indexOf(tag.ID) >= 0), [noteTags, selectedTags]);
-        const filteredNotes = React.useMemo(() =>
-            selectedTags.length === 0 ? [] : notes.filter((note) => selectedTags.indexOf(note.NoteTagID) >= 0),
-            [notes, selectedTags]);
+        const noteFilters = React.useMemo<Gemstone.Types.ISearchFilter<OpenXDA.Types.Note>[]>(() => selectedTags.length === 0 ? [] : [{
+            FieldName: 'NoteTagID',
+            SearchParameter: selectedTags.map((tagID) => tagID),
+            Operator: 'IN'
+        }], [selectedTags]);
         const metadataLoading = statusIsLoading(idStatus, noteTypeStatus, noteTagStatus, noteAppStatus);
         const metadataError = statusIsError(idStatus, noteTypeStatus, noteTagStatus, noteAppStatus);
 
@@ -188,19 +196,49 @@ const NoteWidget: EventWidget.IWidget<ISetting> = {
         }, [noteType, noteApp, activeReferenceID, activeTags]);
 
         React.useEffect(() => {
+            setActivePage(0);
+        }, [activeRecordName, activeReferenceID]);
+
+        React.useEffect(() => {
             if (metadataLoading || metadataError) {
-                setNotes([]);
+                setPageCount(0);
+                setPageInfoStatus('idle');
                 return;
             }
 
-            if (!isSupportedNoteType(noteType.Name) || activeReferenceID <= 0) {
+            if (!isSupportedNoteType(noteType.Name) || activeReferenceID <= 0 || selectedTags.length === 0) {
+                setPageCount(0);
+                setPageInfoStatus('idle');
+                return;
+            }
+
+            setPageInfoStatus('loading');
+            const handle = controllers[activeRecordName].GetPageInfo(noteFilters, activeReferenceID);
+
+            handle.done((data) => {
+                setPageCount(data.PageCount);
+                setActivePage((current) => data.PageCount === 0 ? 0 : Math.min(current, data.PageCount - 1));
+                setPageInfoStatus('idle');
+            }).fail(() => setPageInfoStatus('error'));
+
+            return () => { if (handle?.abort != null) handle.abort(); };
+        }, [activeRecordName, activeReferenceID, controllers, metadataError, metadataLoading, noteFilters, noteType.Name, refreshToken, selectedTags.length]);
+
+        React.useEffect(() => {
+            if (metadataLoading || metadataError) {
+                setNotes([]);
+                setNoteStatus('idle');
+                return;
+            }
+
+            if (!isSupportedNoteType(noteType.Name) || activeReferenceID <= 0 || selectedTags.length === 0) {
                 setNotes([]);
                 setNoteStatus('idle');
                 return;
             }
 
             setNoteStatus('loading');
-            const handle = getNotes(controllers[activeRecordName], sortField, ascending, activeReferenceID);
+            const handle = getNotes(controllers[activeRecordName], activePage, sortField, ascending, noteFilters, activeReferenceID);
 
             handle.done((data) => {
                 setNotes(data);
@@ -208,9 +246,10 @@ const NoteWidget: EventWidget.IWidget<ISetting> = {
             }).fail(() => setNoteStatus('error'));
 
             return () => { if (handle?.abort != null) handle.abort(); };
-        }, [activeRecordName, activeReferenceID, ascending, controllers, metadataError, metadataLoading, noteType.Name, props.EventID, refreshToken, sortField]);
+        }, [activePage, activeRecordName, activeReferenceID, ascending, controllers, metadataError, metadataLoading, noteFilters, noteType.Name, props.EventID, refreshToken, selectedTags.length, sortField]);
 
         const handleTagChange = (_: any, changed: { Value: number | string, Label: string | JSX.Element, Selected: boolean }[]): void => {
+            setActivePage(0);
             setSelectedTags((current) => {
                 const updated = current.filter((id) => changed.findIndex((option) => parseInt(option.Value.toString(), 10) === id) < 0);
                 updated.push(...changed
@@ -269,6 +308,26 @@ const NoteWidget: EventWidget.IWidget<ISetting> = {
             }).fail(() => setNoteStatus('error'));
         };
 
+        const handleDelete = (record: OpenXDA.Types.Note): void => {
+            if (!canDelete)
+                return;
+
+            setDeleteNote(record);
+        };
+
+        const handleConfirmDelete = (confirm: boolean): void => {
+            const record = deleteNote;
+            setDeleteNote(null);
+
+            if (!confirm || !canDelete || record == null)
+                return;
+
+            setNoteStatus('loading');
+            removeNote(controllers[activeRecordName], record).done(() => {
+                setRefreshToken((token) => token + 1);
+            }).fail(() => setNoteStatus('error'));
+        };
+
         const createActionNote = (record: OpenXDA.Types.Note): OpenXDA.Types.Note => {
             return {
                 ...record,
@@ -308,40 +367,52 @@ const NoteWidget: EventWidget.IWidget<ISetting> = {
                             />
                         </div>
                     </div>
-                    {metadataError || noteStatus === 'error' ?
+                    {metadataError || noteStatus === 'error' || pageInfoStatus === 'error' ?
                         <Alert Class='alert-danger'>
                             An error occurred while fetching note data.
                         </Alert>
-                    : null}
-                    {metadataLoading || noteStatus === 'loading' ?
+                        : null}
+                    {metadataLoading || noteStatus === 'loading' || pageInfoStatus === 'loading' ?
                         <div className='d-flex align-items-center justify-content-center' style={{ height: 250 }}>
                             <ReactIcons.SpiningIcon Size={'50%'} />
                         </div>
                         : selectedTags.length === 0 ?
-                                <div className={'alert alert-warning'}>
-                                    <p>At least 1 Type needs to be selected.</p>
-                                </div>
-                                :
+                            <div className={'alert alert-warning'}>
+                                <p>At least 1 Type needs to be selected.</p>
+                            </div>
+                            :
+                            <>
                                 <NoteTable
-                                    Notes={filteredNotes}
+                                    Notes={notes}
                                     NoteTags={activeTags}
                                     NoteApplications={[noteApp]}
                                     SortField={sortField}
                                     Ascending={ascending}
                                     AllowCreate={canCreate}
                                     AllowUpdate={canUpdate}
+                                    AllowDelete={canDelete}
                                     NewNote={newNote}
                                     SetNewNote={setNewNote}
                                     EditNote={editNote}
                                     SetEditNote={setEditNote}
                                     ShowEdit={showEdit}
+                                    DeleteNote={deleteNote}
                                     Hover={hover}
                                     SetHover={setHover}
                                     OnSort={handleSort}
                                     OnAdd={handleAdd}
                                     OnEdit={handleEdit}
                                     OnSaveEdit={handleSaveEdit}
+                                    OnDelete={handleDelete}
+                                    OnConfirmDelete={handleConfirmDelete}
                                 />
+                                <div className='row justify-content-center'>
+                                    <div className='col-12'>
+                                        <Paging Current={activePage + 1} Total={pageCount} SetPage={(page) => setActivePage(page - 1)} />
+
+                                    </div>
+                                </div>
+                            </>
                     }
                 </div>
             </div>
@@ -382,8 +453,8 @@ const getReferenceID = (noteType: NoteRecordName, ids: INoteIDs): number => {
     return ids.LocationID;
 };
 
-const getNotes = (controller: NoteController, sortField: keyof OpenXDA.Types.Note, ascending: boolean, referenceTableID: number): JQuery.jqXHR<OpenXDA.Types.Note[]> => {
-    return controller.GetAll(sortField, ascending, [], referenceTableID);
+const getNotes = (controller: NoteController, page: number, sortField: keyof OpenXDA.Types.Note, ascending: boolean, filters: Gemstone.Types.ISearchFilter<OpenXDA.Types.Note>[], referenceTableID: number): JQuery.jqXHR<OpenXDA.Types.Note[]> => {
+    return controller.SearchPage(page, sortField, ascending, filters, referenceTableID);
 };
 
 const addNote = (controller: NoteController, record: OpenXDA.Types.Note): JQuery.jqXHR<OpenXDA.Types.Note> => {
@@ -392,6 +463,10 @@ const addNote = (controller: NoteController, record: OpenXDA.Types.Note): JQuery
 
 const updateNote = (controller: NoteController, record: OpenXDA.Types.Note): JQuery.jqXHR<OpenXDA.Types.Note> => {
     return controller.Update(record);
+};
+
+const removeNote = (controller: NoteController, record: OpenXDA.Types.Note): JQuery.jqXHR<OpenXDA.Types.Note> => {
+    return controller.Delete(record);
 };
 
 const getNoteTypes = (homePath: string): JQuery.jqXHR<OpenXDA.Types.NoteType[]> => {
