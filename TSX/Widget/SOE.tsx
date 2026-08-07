@@ -23,33 +23,27 @@
 
 import React from 'react';
 import { EventWidget } from '../global';
-import { Input, MultiCheckBoxSelect, Select } from '@gpa-gemstone/react-forms';
-import { Table, Column } from '@gpa-gemstone/react-table';
-import cloneDeep from 'lodash/cloneDeep';
+import { Input, MultiCheckBoxSelect, Select, TextArea } from '@gpa-gemstone/react-forms';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { Application } from '@gpa-gemstone/application-typings';
-import _ from 'lodash';
 import { Alert } from '@gpa-gemstone/react-interactive';
+import DynamicSQLResultsTable, { DynamicSQLRow } from './DynamicSQLResultsTable';
 
 interface IValue {
     Value: string | number
 }
 
-interface SOEInfo {
-    Time: string,
-    Alarm: string,
-    Status: string
-}
-
 interface ISetting {
     FilterOut: string[],
-    TimeWindow: number[],
+    SQLCommand: string,
+    TimeWindow: number[]
 }
 
 const SOE: EventWidget.IWidget<ISetting> = {
     Name: 'SOE',
     DefaultSettings: {
         FilterOut: ['abnormal', 'close', 'no', 'normal', 'received', 'start', 'trip', 'yes'],
+        SQLCommand: '',
         TimeWindow: [2, 10, 60]
     },
     Settings: (props) => {
@@ -63,29 +57,33 @@ const SOE: EventWidget.IWidget<ISetting> = {
                                     Record={{ Value: item }}
                                     Field={'Value'}
                                     Setter={(record) => {
-                                        const u = _.cloneDeep(props.Settings.FilterOut);
-                                        u[i] = record.Value as string;
-                                        props.SetSettings({ ...props.Settings, FilterOut: u });
+                                        const filterOut = [...props.Settings.FilterOut];
+                                        filterOut[i] = record.Value as string;
+                                        props.SetSettings({ ...props.Settings, FilterOut: filterOut });
                                     }}
                                     Valid={() => true}
-                                    Label={'Filter ' + i} />
+                                    Label={'Filter ' + i}
+                                    Help={'These filters are applied only when the SQL query returns a Status column. Otherwise, they are ignored.'}
+                                />
                             </div>
                             <div className="col-6">
                                 <button className="btn btn-small btn-danger" onClick={() => {
-                                    const u = _.cloneDeep(props.Settings.FilterOut);
-                                    u.splice(i, 1);
-                                    props.SetSettings({ ...props.Settings, FilterOut: u });
-                                }}><ReactIcons.TrashCan /></button>
+                                    const filterOut = [...props.Settings.FilterOut];
+                                    filterOut.splice(i, 1);
+                                    props.SetSettings({ ...props.Settings, FilterOut: filterOut });
+                                }}>
+                                    <ReactIcons.TrashCan />
+                                </button>
                             </div>
                         </div>
                     )}
                     <div className="row">
                         <div className="col">
                             <button className="btn btn-primary" onClick={() => {
-                                const u = _.cloneDeep(props.Settings.FilterOut);
-                                u.push('');
-                                props.SetSettings({ ...props.Settings, FilterOut: u });
-                            }}>Add Exclusion Filter</button>
+                                props.SetSettings({ ...props.Settings, FilterOut: [...props.Settings.FilterOut, ''] });
+                            }}>
+                                Add Exclusion Filter
+                            </button>
                         </div>
                     </div>
                     {props.Settings.TimeWindow?.map((item, i) =>
@@ -95,9 +93,9 @@ const SOE: EventWidget.IWidget<ISetting> = {
                                     Record={{ Value: item }}
                                     Field={'Value'}
                                     Setter={(record) => {
-                                        const u = _.cloneDeep(props.Settings.TimeWindow);
-                                        u[i] = record.Value as number;
-                                        props.SetSettings({ ...props.Settings, TimeWindow: u });
+                                        const timeWindow = [...props.Settings.TimeWindow];
+                                        timeWindow[i] = record.Value as number;
+                                        props.SetSettings({ ...props.Settings, TimeWindow: timeWindow })
                                     }}
                                     Valid={() => true}
                                     Type={'number'}
@@ -105,20 +103,36 @@ const SOE: EventWidget.IWidget<ISetting> = {
                             </div>
                             <div className="col-6 m-auto">
                                 <button className="btn btn-small btn-danger" onClick={() => {
-                                    const u = _.cloneDeep(props.Settings.TimeWindow);
-                                    u.splice(i, 1);
-                                    props.SetSettings({ ...props.Settings, TimeWindow: u });
-                                }}><ReactIcons.TrashCan /></button>
+                                    const timeWindow = [...props.Settings.TimeWindow];
+                                    timeWindow.splice(i, 1);
+                                    props.SetSettings({ ...props.Settings, TimeWindow: timeWindow })
+                                }}>
+                                    <ReactIcons.TrashCan />
+                                </button>
                             </div>
                         </div>
                     )}
                     <div className="row">
                         <div className="col">
                             <button className="btn btn-primary" onClick={() => {
-                                const u = _.cloneDeep(props.Settings.TimeWindow);
-                                u.push(0);
-                                props.SetSettings({ ...props.Settings, TimeWindow: u });
-                            }}>Add Time Window</button>
+                                const newSettings = { ...props.Settings };
+                                newSettings.TimeWindow = [...newSettings.TimeWindow, 0];
+                                props.SetSettings(newSettings);
+                            }}>
+                                Add Time Window
+                            </button>
+                        </div>
+                    </div>
+                    <div className="row">
+                        <div className="col">
+                            <TextArea<ISetting>
+                                Rows={4}
+                                Record={props.Settings}
+                                Field="SQLCommand"
+                                Label="SQL Command"
+                                Valid={() => true}
+                                Setter={props.SetSettings}
+                            />
                         </div>
                     </div>
                 </div>
@@ -126,29 +140,34 @@ const SOE: EventWidget.IWidget<ISetting> = {
         );
     },
     Widget: (props: EventWidget.IWidgetProps<ISetting>) => {
-        const [soeInfo, setSOEInfo] = React.useState<SOEInfo[]>([]);
-        const [statusFilter, setStatusFilter] = React.useState<string[]>([])
+        const [data, setData] = React.useState<DynamicSQLRow[]>([]);
+        const [statusFilter, setStatusFilter] = React.useState<string[]>([]);
         const [timeWindow, setTimeWindow] = React.useState<number>(2);
-        const [filterOptions, setFilterOptions] = React.useState<{ Value: number, Label: string, Selected: boolean }[]>([])
         const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
 
         const timeWindowOptions = React.useMemo(() => props.Settings.TimeWindow.map((t) => ({ Value: t.toString(), Label: t.toString() })), [props.Settings.TimeWindow]);
 
-        React.useEffect(() => {
-            setFilterOptions(props.Settings.FilterOut.map((f, i) => ({ Value: i, Label: f.toLowerCase(), Selected: false })))
-        }, [props.Settings.FilterOut]);
+        const filterOptions = React.useMemo(() => props.Settings.FilterOut.map((filter, index) => {
+            const normalizedFilter = filter.toLowerCase();
+            return { Value: index, Label: normalizedFilter, Selected: statusFilter.includes(normalizedFilter) };
+        }), [props.Settings.FilterOut, statusFilter]);
 
-        //Effect update selected value based on statusFilter
-        React.useEffect(() => {
-            setFilterOptions((d) => d.map(f => ({ ...f, Selected: statusFilter.includes(f.Label) })));
-        }, [statusFilter])
+        const filteredData = React.useMemo(() => data.filter(row => {
+            const status = row.Status;
 
+            if (typeof status !== 'string')
+                return true;
+
+            return !statusFilter.includes(status.toLowerCase());
+        }), [data, statusFilter]);
+
+        //Effect to get soe data
         React.useEffect(() => {
             setStatus('loading');
-            const handle = getSOEData(props.HomePath, props.EventID, timeWindow);
+            const handle = getSOEData(props.HomePath, props.EventID, timeWindow, props.WidgetID);
 
             handle.done((data) => {
-                setSOEInfo(data.filter(si => !statusFilter.includes(si.Status.toLowerCase())));
+                setData(data);
                 setStatus('idle');
             }).fail(() => setStatus('error'));
 
@@ -157,7 +176,7 @@ const SOE: EventWidget.IWidget<ISetting> = {
                     handle.abort();
                 }
             };
-        }, [props.EventID, props.HomePath, timeWindow, statusFilter]);
+        }, [props.EventID, props.HomePath, props.WidgetID, timeWindow]);
 
         return (
             <div className="card">
@@ -177,65 +196,29 @@ const SOE: EventWidget.IWidget<ISetting> = {
                             <MultiCheckBoxSelect
                                 Options={filterOptions}
                                 Label={'Filter Out: '}
-                                OnChange={(evt, options) => {
-                                    const filters = cloneDeep(statusFilter)
-                                    const remove = options.filter(o => o.Selected).map(o => o.Label)
-                                    const add = options.filter(o => !o.Selected).map(o => o.Label);
-                                    setStatusFilter(filters.filter(t => !remove.includes(t)).concat(add as string[]))
-                                }} />
+                                OnChange={(_evt, options) => {
+                                    const remove = options.filter(option => option.Selected).map(option => option.Label as string);
+                                    const add = options.filter(option => !option.Selected).map(option => option.Label as string);
+                                    setStatusFilter(filters => filters.filter(filter => !remove.includes(filter)).concat(add));
+                                }}
+                            />
                         </div>
-
                     </div>
                     <div style={{ maxHeight: 200, overflowY: 'auto' }}>
                         {status === 'error' ?
                             <Alert Class='alert-danger'>
                                 An error occurred while fetching SOE data. Please check System Center for more details.
                             </Alert>
-                        : null}
+                            : null}
                         {status === 'loading' ?
                             <div className='d-flex align-items-center justify-content-center' style={{ height: 250 }}>
                                 <ReactIcons.SpiningIcon Size={'50%'} />
                             </div>
                             :
-                            <Table<SOEInfo>
-                                Data={soeInfo}
-                                OnSort={() => { /*Do Nothing*/ }}
-                                SortKey={''}
-                                Ascending={true}
-                                TableClass="table"
-                                KeySelector={data => { return data.Time; /* Todo: Time might not be unique and generate errors, ensure it is or try to use something else */ }}
-                                TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', height: 50 }}
-                                TbodyStyle={{ display: 'block', overflowY: 'auto', width: '100%', maxHeight: props.MaxHeight ?? 500 }}
-                                RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                            >
-                                <Column<SOEInfo>
-                                    Key={'Time'}
-                                    AllowSort={false}
-                                    Field={'Time'}
-                                    HeaderStyle={{ width: 'auto' }}
-                                    RowStyle={{ width: 'auto' }}
-                                >
-                                    Time
-                                </Column>
-                                <Column<SOEInfo>
-                                    Key={'Alarm'}
-                                    AllowSort={false}
-                                    Field={'Alarm'}
-                                    HeaderStyle={{ width: 'auto' }}
-                                    RowStyle={{ width: 'auto' }}
-                                >
-                                    Alarm
-                                </Column>
-                                <Column<SOEInfo>
-                                    Key={'Status'}
-                                    AllowSort={false}
-                                    Field={'Status'}
-                                    HeaderStyle={{ width: 'auto' }}
-                                    RowStyle={{ width: 'auto' }}
-                                >
-                                    Status
-                                </Column>
-                            </Table>
+                            <DynamicSQLResultsTable
+                                Data={filteredData}
+                                MaxHeight={props.MaxHeight}
+                            />
                         }
                     </div>
                 </div>
@@ -244,15 +227,15 @@ const SOE: EventWidget.IWidget<ISetting> = {
     }
 }
 
-const getSOEData = (homePath: string, eventID: number, timeWindow: number) => {
+const getSOEData = (homePath: string, eventID: number, timeWindow: number, widgetID: number) => {
     return $.ajax({
         type: "GET",
-        url: `${homePath}api/EventWidgets/SOE/${eventID}/${timeWindow}`,
+        url: `${homePath}api/EventWidgets/SOE/${eventID}/${timeWindow}/${widgetID}`,
         contentType: "application/json; charset=utf-8",
         dataType: 'json',
         cache: false,
         async: true
-    });
+    }) as JQuery.jqXHR<DynamicSQLRow[]>;
 };
 
 export default SOE;
