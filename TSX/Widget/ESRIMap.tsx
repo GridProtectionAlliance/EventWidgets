@@ -65,7 +65,7 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
         Zoom: 7,
         radarLayerURL: `https://mesonet.agron.iastate.edu/cgi-bin/wms/nexrad/n0r-t.cgi`,
         bufferLayerURL: `http://pq/arcgisproxynew/proxy.ashx?https://gis.tva.gov/arcgis/rest/services/Utilities/Geometry/GeometryServer/buffer`,
-        transmissionLayerURL: `http://pq/arcgisproxynew/proxy.ashx?https://gis.tva.gov/arcgis/rest/services/EGIS_Transmission/Transmission_Grid_Restricted_2/MapServer/`,
+        transmissionLayerURL: `http://pq/arcgisproxynew/proxy.ashx?https://gis.tva.gov/arcgis/rest/services/EGIS_Transmission/Transmission_Grid_Restricted_2/MapServer/6`,
         safetyLayerURL: `http://pq/arcgisproxynew/proxy.ashx?https://gis.tva.gov/arcgis/rest/services/EGIS_Edit/safetyHazards/MapServer/`,
         lscLayerURL: `http://pq/arcgisproxynew/proxy.ashx?https://gis.tva.gov/arcgis/rest/services/EGIS_Transmission/Transmission_Station_Assets/MapServer/`
     },
@@ -256,7 +256,7 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
                 format: 'image/png',
                 transparent: true,
                 opacity: 0.5,
-                attribution: "Weather data Â© 2016 IEM Nexrad",
+                attribution: "Weather data (c) 2016 IEM Nexrad",
             });
 
             map.current.addLayer(radar_current);
@@ -291,7 +291,7 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
         React.useEffect(() => {
             const handle = $.ajax({
                 type: 'GET',
-                url: `${props.Settings.transmissionLayerURL}/6/query?` + encodeURI(`f=json&where=UPPER(LINENAME) like '%${faultInfo[0]?.AssetName.toUpperCase()}%'&returnGeometry=true&outfiels=LINENAME`),
+                url: `${props.Settings.transmissionLayerURL}/query?` + encodeURI(`f=json&where=UPPER(LINENAME) like '%${faultInfo[0]?.AssetName.toUpperCase()}%'&returnGeometry=true&outfiels=LINENAME`),
                 contentType: "application/json; charset=utf-8",
                 cache: false,
                 async: true
