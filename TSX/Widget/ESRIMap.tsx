@@ -159,6 +159,7 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
                             Valid={() => props.Settings.Zoom >= 0 && props.Settings.Zoom <= 6}
                             Label={'Default Zoom'}
                             Type={'number'}
+                            Feedback={'Zoom must be between 0 and 6'}
                         />
                     </div>
                 </div>
@@ -177,7 +178,7 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
                             </div>
                         )}
                         <div className="row">
-                            <div className="col">
+                            <div className="col" style={{margin: 'auto'}}>
                                 <button className="btn btn-primary" onClick={() => {
                                     props.SetSettings({ ...props.Settings, Layers: [...props.Settings.Layers, {
                                         url: `https://mesonet.agron.iastate.edu/cgi-bin/wms/nexrad/n0r-t.cgi?time={time}`,
@@ -602,7 +603,7 @@ const LayerSettings = (props: {Layer: ILayerSetting, SetLayer: (layer: ILayerSet
                 Help={'The URL of the map server where this layer is served.'}
             />
         </div>
-        <div className="col-4">
+        <div className="col-4" style={{margin: 'auto'}}>
             <button className="btn btn-small btn-danger" onClick={() => props.SetLayer(undefined)}>
                 <ReactIcons.TrashCan />
             </button>
@@ -626,6 +627,7 @@ const LayerSettings = (props: {Layer: ILayerSetting, SetLayer: (layer: ILayerSet
                 Label={'Layer ' + props.Index + ' Opacity'}
                 Type={'number'}
                 Help={'The opacity of this layer between 0 and 1.'}
+                Feedback={'Opacity must be between 0 and 1'}
             />
         </div>
         <div className="col-4">
@@ -643,7 +645,7 @@ const LayerSettings = (props: {Layer: ILayerSetting, SetLayer: (layer: ILayerSet
 
             />
         </div>
-
+        <hr/>
         </>
 
 }
