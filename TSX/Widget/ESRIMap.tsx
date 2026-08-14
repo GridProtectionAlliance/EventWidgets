@@ -283,7 +283,8 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
             const info = new OAuthInfo({
                 appId: props.Settings.ClientID,
                 portalUrl: props.Settings.PortalURL,
-                popup: true
+                popup: true,
+                popupCallbackUrl: props.HomePath + 'api/EventWidgets/ESRIMap/AuthCallback'
             });
 
             identityManager.registerOAuthInfos([info]);
