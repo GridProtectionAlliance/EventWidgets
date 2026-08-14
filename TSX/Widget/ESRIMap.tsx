@@ -29,11 +29,13 @@ import moment from 'moment';
 import { EventWidget } from '../global';
 import { Application } from '@gpa-gemstone/application-typings';
 import { Table, Column } from '@gpa-gemstone/react-table';
-import { Select } from '@gpa-gemstone/react-forms';
+import { Select, ToggleSwitch } from '@gpa-gemstone/react-forms';
 import { Input } from '@gpa-gemstone/react-forms';
 import { Alert } from '@gpa-gemstone/react-interactive';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { buffer } from '@turf/turf';
+import OAuthInfo from '@arcgis/core/identity/OAuthInfo';
+import identityManager from '@arcgis/core/identity/IdentityManager';
 
 require("leaflet_css");
 
@@ -68,13 +70,17 @@ interface ISettings {
     Zoom: number,
     Layers: ILayerSetting[],
     TransmissionLineLayer: string,
+    ClientID: string,
+    PortalURL: string,
     TransmissionLineQuery: string,
-
+    UserAuthentication: boolean
 }
 
 const ESRIMap: EventWidget.IWidget<ISettings> = {
     Name: 'ESRIMap',
     DefaultSettings: {
+        PortalURL: 'https://<host>:<port>/<webadaptor>',
+        ClientID: '',
         CenterLong: 35,
         CenterLat: -85,
         Zoom: 6,
@@ -106,13 +112,43 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
         ],
 
         TransmissionLineLayer: `http://pq/arcgisproxynew/proxy.ashx?https://gis.tva.gov/arcgis/rest/services/EGIS_Transmission/Transmission_Grid_Restricted_2/MapServer/6`,
-        TransmissionLineQuery: `UPPER(LINENAME) like '%{line}%'`
+        TransmissionLineQuery: `UPPER(LINENAME) like '%{line}%'`,
+        UserAuthentication: false
 
-        //bufferLayerURL: `http://pq/arcgisproxynew/proxy.ashx?https://gis.tva.gov/arcgis/rest/services/Utilities/Geometry/GeometryServer/buffer`,
     },
     Settings: (props) => {
         return (
             <>
+            <div className="row">
+                    <div className={"col" + (props.Settings.UserAuthentication ? '-4' : '')}>
+                        <ToggleSwitch<ISettings>
+                            Record={props.Settings}
+                            Field={'UserAuthentication'}
+                            Help={'Enable or disable user authentication for ESRI requests.'}
+                            Setter={(record) => props.SetSettings(record)}
+                            Label={'User Authentication'}
+                        />
+                    </div>
+                    {props.Settings.UserAuthentication? <><div className="col-8">
+                        <Input<ISettings>
+                            Record={props.Settings}
+                            Field={'ClientID'}
+                            Help={'The App ID for ESRI user authentication. Note the callback URL must be set to the same domain as this application followed by /api/EventWidgets/ESRIMap/AuthCallback.'}
+                            Setter={(record) => props.SetSettings(record)}
+                            Valid={() => true}
+                            Label={'ESRI App ID'}
+                        />
+                    </div> <div className="col-8">
+                        <Input<ISettings>
+                            Record={props.Settings}
+                            Field={'PortalURL'}
+                            Help={'The portal URL for ESRI user authentication.'}
+                            Setter={(record) => props.SetSettings(record)}
+                            Valid={() => true}
+                            Label={'ESRI Portal URL'}
+                        />
+                    </div> </>: null}
+                </div>
                 <div className="row">
                     <div className="col">
                         <Input<ISettings>
@@ -201,7 +237,6 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
                                 </button>
                             </div>
                         </div>
-
                     </div>
                 </div>
             </>
@@ -215,6 +250,7 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
         const [faultInfo, setFaultInfo] = React.useState<IFaultInfo[]>([]);
         const [window, setWindow] = React.useState<number>(2);
         const [layerErrors, setLayerErrors] = React.useState<string[]>([]);
+        const [authToken, setAuthToken] = React.useState<string>("");
 
         /* Get Lightning Info */
         React.useEffect(() => {
@@ -238,6 +274,27 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
                     handle.abort();
             }
         }, [window, props.EventID])
+
+        /* Handle ESRI Authentication */
+        React.useEffect(() => {
+            setAuthToken("");
+            if (!props.Settings.UserAuthentication || props.Settings.ClientID.length === 0) return;
+
+            const info = new OAuthInfo({
+                appId: props.Settings.ClientID,
+                portalUrl: props.Settings.PortalURL,
+                popup: true
+            });
+
+            identityManager.registerOAuthInfos([info]);
+            identityManager.checkSignInStatus(props.Settings.PortalURL + "/sharing").then((credential) => { setAuthToken(credential.token);})
+            .catch(() => {
+                identityManager.getCredential(info.portalUrl + "/sharing", {
+                    oAuthPopupConfirmation: false,
+                }).then(() => { identityManager.checkSignInStatus(props.Settings.PortalURL + "/sharing").then((credential) => { setAuthToken(credential.token);})})
+            });
+
+        }, [props.Settings.UserAuthentication, props.Settings.ClientID, props.Settings.PortalURL]);
 
         /* Get Fault Info */
         React.useEffect(() => {
@@ -299,12 +356,16 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
                 }
                 else if (layerOptions.layertype === 'esri') {
                     try {
-                        const layer = dynamicMapLayer({
+                        const options = {
                             url: url,
                             layers: [layerOptions.layer],
                             opacity: layerOptions.opacity,
                             f: 'image'
-                        });
+                        }
+                        if (authToken.length > 0)
+                            options['token'] = authToken;
+
+                        const layer = dynamicMapLayer(options);
                         mapLayers.push(layer);
                         map.current.addLayer(layer);
                     }
@@ -317,7 +378,7 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
             setLayerErrors(errors);
 
             return (() => { mapLayers.forEach(layer => map.current?.removeLayer(layer)) });
-        }, [faultInfo])
+        }, [faultInfo,authToken, props.Settings.Layers]);
 
         /* Adds fault marker  */
         React.useEffect(() => {
@@ -356,6 +417,8 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
             let bufferLayer = null;
 
             let q = query({url: props.Settings.TransmissionLineLayer})
+            if (authToken.length > 0)
+                q = q.token(authToken);
             if (props.Settings.TransmissionLineQuery.length > 0)
                 q = q.where(resolveVars(props.Settings.TransmissionLineQuery, faultInfo));
 
@@ -383,7 +446,7 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
                     map.current?.removeLayer(bufferLayer);
             }
                 
-        }, [faultInfo])
+        }, [faultInfo, authToken, props.Settings.TransmissionLineLayer, props.Settings.TransmissionLineQuery]);
         
         return (
             <div className="card" style={{ maxHeight: props.MaxHeight ?? '50vh' }}>
