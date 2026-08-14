@@ -69,6 +69,7 @@ interface ISettings {
     Layers: ILayerSetting[],
     TransmissionLineLayer: string,
     TransmissionLineQuery: string,
+
 }
 
 const ESRIMap: EventWidget.IWidget<ISettings> = {
@@ -363,7 +364,7 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
                     console.error(error);
                     return;
                 }
-                console.log(featureCollection);
+
                 var geojson = leaflet.geoJSON(featureCollection);
                 var buffered = buffer(geojson.toGeoJSON() as GeoJSON.GeoJSON<GeoJSON.Geometry, GeoJSON.GeoJsonProperties>, 0.5, 
                 { 
@@ -500,45 +501,6 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
     }
 }
 
-function poly(geometry): any {
-    const outPut = {
-        type: "FeatureCollection",
-        features: []
-    };
-    //first we check for some easy cases, like if their is only one ring
-    if (geometry.rings.length === 1) {
-        outPut.features.push({ type: 'Feature', properties: { color: 'black', opacity: 1 }, geometry: { "type": "Polygon", "coordinates": geometry.rings }, crs: { type: "name", properties: { name: "EPSG:3857" } } });
-    } else {
-        /*if it isn't that easy then we have to start checking ring direction, basically the ring goes clockwise its part of the polygon, if it goes counterclockwise it is a hole in the polygon, but geojson does it by haveing an array with the first element be the polygons and the next elements being holes in it*/
-        const ccc = splitByDirection(geometry.rings);
-        const d = ccc[0];
-        const dd = ccc[1];
-        const r = [];
-        if (dd.length === 0) {
-            /*if their are no holes we don't need to worry about this, but do need to stuck each ring inside its own array*/
-            const l2 = d.length;
-            let i3 = 0;
-            while (l2 > i3) {
-                r.push([d[i3]]);
-                i3++;
-            }
-            outPut.features.push({ type: 'Feature', properties: { color: 'black', opacity: 1 }, geometry: { "type": "MultiPolygon", "coordinates": r }, crs: { type: "name", properties: { name: "EPSG:3857" } } });
-        } else if (d.length === 1) {
-            /*if their is only one clockwise ring then we know all holes are in that 
-            */
-            dd.unshift(d[0]);
-            outPut.features.push({ type: 'Feature', properties: { color: 'black', opacity: 1 }, geometry: { "type": "Polygon", "coordinates": dd }, crs: { type: "name", properties: { name: "EPSG:3857" } } });
-
-        } else {
-            /*if their are multiple rings and holes we have no way of knowing which belong to which without looking at it specially, so just dump the coordinates and add  a hole field, this may cause errors*/
-            outPut.features.push({ type: 'Feature', properties: { color: 'black', opacity: 1 }, geometry: { "type": "MultiPolygon", "coordinates": d, "holes": dd }, crs: { type: "name", properties: { name: "EPSG:3857" } } });
-        }
-
-    }
-
-    return outPut
-}
-
 function resolveVars(str: string, faultInfo: IFaultInfo[]): string {
 
 
@@ -562,38 +524,6 @@ function resolveVars(str: string, faultInfo: IFaultInfo[]): string {
     }
     return result;
 }
-
-function splitByDirection(a) {
-    //returns an array of 2 arrays, the first being all the clockwise ones, the second counter clockwise
-    const d = [];
-    const dd = [];
-    const l = a.length;
-    let ii = 0;
-    while (l > ii) {
-        if (isClockWise(a[ii])) {
-            d.push(a[ii]);
-        } else {
-            dd.push(a[ii]);
-        }
-        ii++;
-    }
-    return [d, dd];
-}
-
-function isClockWise(a) {
-    //return true if clockwise
-    const l = a.length - 1;
-    let i = 0;
-    let o = 0;
-
-    while (l > i) {
-        o += (a[i][0] * a[i + 1][1] - a[i + 1][0] * a[i][1]);
-
-        i++;
-    }
-    return o <= 0;
-}
-
 
 const LayerSettings = (props: {Layer: ILayerSetting, SetLayer: (layer: ILayerSetting | undefined) => void, Index: number}) => {
     return <>
