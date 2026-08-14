@@ -24,7 +24,7 @@
 import React from 'react';
 import leaflet from 'leaflet';
 import 'proj4leaflet';
-import { basemapLayer, dynamicMapLayer } from 'esri-leaflet';
+import { basemapLayer, dynamicMapLayer, Geometry, query } from 'esri-leaflet';
 import moment from 'moment';
 import { EventWidget } from '../global';
 import { Application } from '@gpa-gemstone/application-typings';
@@ -33,7 +33,7 @@ import { Select } from '@gpa-gemstone/react-forms';
 import { Input } from '@gpa-gemstone/react-forms';
 import { Alert } from '@gpa-gemstone/react-interactive';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
-
+import { buffer } from '@turf/turf';
 
 require("leaflet_css");
 
@@ -53,6 +53,14 @@ interface ILayerSetting {
     layer?: string
 }
 
+interface IFaultInfo {
+    StationName: string,
+    Inception: number,
+    Latitude: number,
+    Longitude: number,
+    Distance: number,
+    AssetName: string
+}
 
 interface ISettings {
     CenterLat: number,
@@ -95,8 +103,9 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
                 layer: undefined,
             }
         ],
+
         TransmissionLineLayer: `http://pq/arcgisproxynew/proxy.ashx?https://gis.tva.gov/arcgis/rest/services/EGIS_Transmission/Transmission_Grid_Restricted_2/MapServer/6`,
-        TransmissionLineQuery: `UPPER(LINENAME) like '%{0}%'`
+        TransmissionLineQuery: `UPPER(LINENAME) like '%{line}%'`
 
         //bufferLayerURL: `http://pq/arcgisproxynew/proxy.ashx?https://gis.tva.gov/arcgis/rest/services/Utilities/Geometry/GeometryServer/buffer`,
     },
@@ -202,7 +211,7 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
         const div = React.useRef<HTMLDivElement | null>(null);
         const [status, setStatus] = React.useState<Application.Types.Status>('idle');
         const [lightningInfo, setLightningInfo] = React.useState<ILightningStrike[]>([]);
-        const [faultInfo, setFaultInfo] = React.useState<Array<{ StationName: string, Inception: number, Latitude: number, Longitude: number, Distance: number, AssetName }>>([]);
+        const [faultInfo, setFaultInfo] = React.useState<IFaultInfo[]>([]);
         const [window, setWindow] = React.useState<number>(2);
         const [layerErrors, setLayerErrors] = React.useState<string[]>([]);
 
@@ -253,7 +262,7 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
         }, [props.EventID])
 
         React.useEffect(() => {
-            map.current = leaflet.map(div.current, { center: [props.Settings.CenterLat, props.Settings.CenterLong], zoom: props.Settings.Zoom, maxZoom: 6 });
+            map.current = leaflet.map(div.current, { center: [props.Settings.CenterLat, props.Settings.CenterLong], zoom: props.Settings.Zoom });
             basemapLayer('Gray').addTo(map.current);
 
         }, []);
@@ -263,18 +272,9 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
             if (div.current == null) return;
             const mapLayers = [];
             const errors = [];
-            const vars = {
-                'time': '',
-            };
 
-            if (faultInfo.length > 0) {
-                const t = moment(faultInfo[0]?.Inception);  
-                vars["time"] = t.utc().format('YYYY-MM-DDTHH') + ':' + (t.minutes() - t.minutes() % 5).toString();  
-            }
-           
-           
             props.Settings.Layers.forEach(layerOptions => {
-                let url = resolveVars(layerOptions.url, vars);
+                let url = resolveVars(layerOptions.url, faultInfo);
 
                 if (layerOptions.layertype === 'wms') {
                     try {
@@ -313,6 +313,8 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
                 }
             });
 
+            setLayerErrors(errors);
+
             return (() => { mapLayers.forEach(layer => map.current?.removeLayer(layer)) });
         }, [faultInfo])
 
@@ -345,56 +347,43 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
             }
         }, [lightningInfo])
 
-        /* Line Geometries 
+        /* Line Geometries */
         React.useEffect(() => {
-            const handle = $.ajax({
-                type: 'GET',
-                url: `${props.Settings.transmissionLayerURL}/query?` + encodeURI(`f=json&where=UPPER(LINENAME) like '%${faultInfo[0]?.AssetName.toUpperCase()}%'&returnGeometry=true&outfiels=LINENAME`),
-                contentType: "application/json; charset=utf-8",
-                cache: false,
-                async: true
+            
+            if (map.current == null) return;
 
-            }).done(lineGeometeries => {
-                const params = {
-                    f: 'json',
-                    unionResults: true,
-                    geodesic: false,
-                    distances: 0.5,
-                    geometries: JSON.stringify({ geometryType: "esriGeometryPolyline", geometries: JSON.parse(lineGeometeries).features.map(a => a.geometry) }),
-                    inSR: 102100,
-                    unit: 9093
+            let bufferLayer = null;
+
+            let q = query({url: props.Settings.TransmissionLineLayer})
+            if (props.Settings.TransmissionLineQuery.length > 0)
+                q = q.where(resolveVars(props.Settings.TransmissionLineQuery, faultInfo));
+
+            q = q.run((error, featureCollection) => {
+                if (error) {
+                    console.error(error);
+                    return;
                 }
+                console.log(featureCollection);
+                var geojson = leaflet.geoJSON(featureCollection);
+                var buffered = buffer(geojson.toGeoJSON() as GeoJSON.GeoJSON<GeoJSON.Geometry, GeoJSON.GeoJsonProperties>, 0.5, 
+                { 
+                    units: 'miles',                    
+                 });
+                 if (buffered == null) return;
+                console.log(buffered);
+                leaflet.geoJSON(buffered).addTo(map.current);
+                bufferLayer = leaflet.geoJSON(buffered).addTo(map.current);
+                map.current.fitBounds(bufferLayer.getBounds());
 
-                $.ajax({
-                    type: 'POST',
-                    url: props.Settings.bufferLayerURL,
-                    data: params,
-                    dataType: 'application/json',
-                    cache: false,
-                    async: true
-                }).done(rsp => {
-                    try {
-                        const buffer = leaflet.Proj.geoJson(poly(JSON.parse(rsp.responseText).geometries[0]), {
-                            style: function (feature) {
-                                return { color: feature.properties.color, opacity: feature.properties.opacity };
-                            }
-                        });
+            });
 
-                        if (map.current == null) return;
-                        buffer.addTo(map.current);
-                        map.current.fitBounds(buffer.getBounds());
-                    }
-                    catch { }
-
-                });
-
-            })
             return () => {
-                if (handle != null && handle.abort != null)
-                    handle.abort();
+                if (bufferLayer != null)
+                    map.current?.removeLayer(bufferLayer);
             }
+                
         }, [faultInfo])
-        */
+        
         return (
             <div className="card" style={{ maxHeight: props.MaxHeight ?? '50vh' }}>
                 <div className="card-header fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>
@@ -550,7 +539,22 @@ function poly(geometry): any {
     return outPut
 }
 
-function resolveVars(str: string, vars: { [key: string]: string }): string {
+function resolveVars(str: string, faultInfo: IFaultInfo[]): string {
+
+
+     const vars = {
+                'time': '',
+                'station': '',
+                'line': '',
+            };
+
+        if (faultInfo.length > 0) {
+            const t = moment(faultInfo[0]?.Inception);  
+            vars["time"] = t.utc().format('YYYY-MM-DDTHH') + ':' + (t.minutes() - t.minutes() % 5).toString();  
+            vars["station"] = faultInfo[0]?.StationName.toUpperCase();
+            vars["line"] = faultInfo[0]?.AssetName.toUpperCase();
+        }
+
     let result = str;
     for (const key in vars) {
         if (str.includes(`\{${key}\}`))
