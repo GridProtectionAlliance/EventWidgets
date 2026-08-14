@@ -21,6 +21,7 @@ import { LoadingIcon } from '@gpa-gemstone/react-interactive';
 import { Column, ConfigurableTable, ConfigurableColumn } from '@gpa-gemstone/react-table';
 import { Application } from '@gpa-gemstone/application-typings';
 import { DynamicEventSearchRow } from './DynamicEventSearchData';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 
 interface IColumn {
     key: string,
@@ -44,7 +45,6 @@ export interface IDynamicEventSearchListProps {
 
 export function DynamicEventSearchList(props: IDynamicEventSearchListProps) {
     const containerRef = React.useRef<HTMLDivElement | null>(null);
-
     const cols = React.useMemo<IColumn[]>(() => {
         if (props.Data.length == 0)
             return [];
@@ -127,57 +127,65 @@ export function DynamicEventSearchList(props: IDynamicEventSearchListProps) {
             return <> <br /> {item} </>
         })
     }
-    
+
     return (
-        <>
-            <div ref={containerRef} style={{
-                width: '100%', maxHeight: props.Height, overflowY: "hidden", overflowX: "hidden", opacity: (props.Status == 'loading' ? 0.5 : undefined),
-                backgroundColor: (props.Status == 'loading' ? '#00000' : undefined)
-            }}>
-                {props.Status == 'loading' ? <div style={{ height: '40px', width: '40px', margin: 'auto' }}>
-                    <LoadingIcon Show={true} Size={40} />
-                </div> : null}
-                {cols.length > 0 ?
-                    <ConfigurableTable<any>
-                        LocalStorageKey={props.LocalStorageKey ?? "SEbrowser.EventSearch.TableCols"}
-                        TableClass="table table-hover h-100"
-                        Data={props.Data}
-                        SortKey={props.SortField}
-                        Ascending={props.Ascending}
-                        Selected={(item) => {
-                            if (item.EventID == props.Eventid) return true;
-                            else return false;
-                        }}
-                        KeySelector={(item) => (item.EventID.toString() + '-' + item.DisturbanceID)}
-                        OnSort={(d) => {
-                            props.OnSort(d.colKey);
-                        }}
-                        OnClick={(item) => props.SelectEvent(item.row.EventID, item.row)}
-                        SettingsPortal={props.SettingsPortal}
-                        OnSettingsChange={props.OnSettingsChange}
+        <div
+            ref={containerRef}
+            style={{
+                width: '100%',
+                maxHeight: props.Height,
+                overflowY: "hidden",
+                overflowX: "hidden",
+            }}
+        >
+            {props.Status === 'loading' ?
+                <div className="d-flex justify-content-center align-items-center" style={{ height: '100%' }}>
+                    <ReactIcons.SpiningIcon Size={'50%'} />
+                </div> :
+                <ConfigurableTable<any>
+                    LocalStorageKey={props.LocalStorageKey ?? "SEbrowser.EventSearch.TableCols"}
+                    TableClass="table table-hover h-100"
+                    Data={props.Data}
+                    SortKey={props.SortField}
+                    Ascending={props.Ascending}
+                    Selected={(item) => {
+                        if (item.EventID == props.Eventid) return true;
+                        else return false;
+                    }}
+                    KeySelector={(item) => (item.EventID.toString() + '-' + item.DisturbanceID)}
+                    OnSort={(d) => {
+                        props.OnSort(d.colKey);
+                    }}
+                    OnClick={(item) => props.SelectEvent(item.row.EventID, item.row)}
+                    SettingsPortal={props.SettingsPortal}
+                    OnSettingsChange={props.OnSettingsChange}
+                >
+                    <Column<any>
+                        Key={'Time'}
+                        AllowSort={true}
+                        Content={({ item, field }) => ProcessWhitespace(item[field as string])}
+                        Field={'Time'}
                     >
-                        <Column<any>
-                            Key={'Time'}
-                            AllowSort={true}
-                            Content={({ item, field }) => ProcessWhitespace(item[field as string])}
-                            Field={'Time'}
+                        Time
+                    </Column>
+                    {...cols.map(c => (
+                        <ConfigurableColumn
+                            Key={c.label}
+                            Label={c.label}
+                            Default={c.key === 'Event Type'}
                         >
-                            Time
-                        </Column>
-                        {...cols.map(c => (
-                            <ConfigurableColumn Key={c.label} Label={c.label} Default={c.key === 'Event Type'}>
-                                <Column<any>
-                                    Key={c.key}
-                                    AllowSort={true}
-                                    Field={c.label}
-                                    Content={({ item, field }) => ProcessWhitespace(item[field as string])}
-                                >
-                                    {c.label}
-                                </Column>
-                            </ConfigurableColumn>
-                        ))}
-                    </ConfigurableTable> : null}
-            </div>
-        </>
+                            <Column<any>
+                                Key={c.key}
+                                AllowSort={true}
+                                Field={c.label}
+                                Content={({ item, field }) => ProcessWhitespace(item[field as string])}
+                            >
+                                {c.label}
+                            </Column>
+                        </ConfigurableColumn>
+                    ))}
+                </ConfigurableTable>
+            }
+        </div>
     );
 }
