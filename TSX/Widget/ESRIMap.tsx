@@ -372,10 +372,10 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
                             f: 'image'
                         }
 
-                        if(layerOptions.layer != null)
+                        if (layerOptions.layer != null)
                             options['layers'] = [layerOptions.layer];
 
-                        if (authToken.length > 0)
+                        if (authToken.trim().length > 0)
                             options['token'] = authToken;
 
                         const layer = dynamicMapLayer(options);
@@ -396,7 +396,7 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
 
         /* Adds fault marker  */
         React.useEffect(() => {
-            if (faultInfo.length == 0 || map.current == null) return;
+            if (faultInfo.length === 0 || map.current == null) return;
 
             const fault_marker = leaflet.marker([faultInfo[0]?.Latitude, faultInfo[0]?.Longitude]).addTo(map.current);
 
@@ -408,7 +408,7 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
 
         /* Adds lightning markers */
         React.useEffect(() => {
-            if (lightningInfo.length == 0 || map.current == null) return;
+            if (lightningInfo.length === 0 || map.current == null) return;
 
             const lightningIcon = leaflet.icon({
                 iconUrl: props.HomePath + 'Images/lightning.png', // we should just use a lignting icon from reacticons for htis.. 
@@ -428,37 +428,39 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
 
             if (map.current == null) return;
 
-            let bufferLayer = null;
+            let bufferLayer: leaflet.GeoJSON<any> | null = null;
 
             let q = query({ url: props.Settings.TransmissionLineLayer })
-            if (authToken.length > 0)
+            if (authToken.trim().length > 0)
                 q = q.token(authToken);
+
             if (props.Settings.TransmissionLineQuery.length > 0)
                 q = q.where(resolveVars(props.Settings.TransmissionLineQuery, faultInfo));
 
+            //Ideally we add abort cleanup logic to this query
             q = q.run((error, featureCollection) => {
                 if (error) {
                     console.error(error);
                     return;
                 }
 
-                var geojson = leaflet.geoJSON(featureCollection);
-                var buffered = buffer(geojson.toGeoJSON() as GeoJSON.GeoJSON<GeoJSON.Geometry, GeoJSON.GeoJsonProperties>, 0.5,
+                const geojson = leaflet.geoJSON(featureCollection);
+                const buffered = buffer(geojson.toGeoJSON() as GeoJSON.GeoJSON<GeoJSON.Geometry, GeoJSON.GeoJsonProperties>, 0.5,
                     {
                         units: 'miles',
                     });
+
                 if (buffered == null) return;
+
                 console.log(buffered);
-                leaflet.geoJSON(buffered).addTo(map.current);
+                if (map.current == null) return;
                 bufferLayer = leaflet.geoJSON(buffered).addTo(map.current);
                 map.current.fitBounds(bufferLayer.getBounds());
-
             });
 
             return () => {
                 if (bufferLayer != null)
                     map.current?.removeLayer(bufferLayer);
-
             }
 
         }, [faultInfo, authToken, props.Settings.TransmissionLineLayer, props.Settings.TransmissionLineQuery]);
