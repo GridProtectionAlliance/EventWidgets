@@ -25,6 +25,8 @@ using System.Threading;
 using Newtonsoft.Json.Linq;
 using openXDA.APIAuthentication;
 using Widgets.API.Library;
+using Microsoft.AspNetCore.Html;
+
 
 #if IS_GEMSTONE
 using Microsoft.AspNetCore.Mvc;
@@ -63,5 +65,42 @@ namespace Widgets.API.Visualizations
         [Route("Image/{base64Encoded}"), HttpGet]
         public async ServerResponse GetImage(string base64Encoded, CancellationToken token) =>
             await ForwardRequest(token).ConfigureAwait(false);
+
+#if IS_GEMSTONE
+        [HttpGet, Route("AuthCallback")]
+        public IActionResult EsriAuthCallback(CancellationToken token)
+        {
+            string htmlString = @"
+            <!DOCTYPE html>
+            <html>
+              <head>
+                <script type=""module"" src=""https://js.arcgis.com/5.1/""></script>
+                <script>
+                  function loadHandler() {
+                    if (opener) {
+                      if (location.hash) {
+                        try {
+                          var esriId = opener.require(""esri/kernel"").id;
+                        } catch (e) {}
+                        if (esriId) {
+                          esriId.setOAuthResponseHash(location.hash);
+                        } else {
+                          opener.dispatchEvent(new CustomEvent(""arcgis:auth:hash"", { detail: location.hash }));
+                        }
+                      } else if (location.search) {
+                        opener.dispatchEvent(new CustomEvent(""arcgis:auth:location:search"", { detail: location.search }));
+                      }
+                    }
+                    close();
+                  }
+                </script>
+              </head>
+              <body onload=""loadHandler();""></body>
+            </html>";
+
+            return Content(htmlString, "text/html");
+        }
+#endif
+
     }
 }
