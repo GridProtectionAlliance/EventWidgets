@@ -337,8 +337,8 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
         /* Create map and map layers */
         React.useEffect(() => {
             if (div.current == null) return;
-            const mapLayers = [];
-            const errors = [];
+            const mapLayers: (leaflet.TileLayer.WMS | leaflet.esri.DynamicMapLayer)[] = [];
+            const errors: string[] = [];
 
             props.Settings.Layers.forEach(layerOptions => {
                 let url = resolveVars(layerOptions.url, faultInfo);
@@ -351,12 +351,13 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
                             opacity: layerOptions.opacity,
                         };
 
-                        if (layerOptions.layer != undefined)
+                        if (layerOptions.layer != null)
                             options['layers'] = [layerOptions.layer];
 
                         const layer = leaflet.tileLayer.wms(url, options);
                         mapLayers.push(layer);
-                        map.current.addLayer(layer);
+                        if (map.current != null)
+                            map.current.addLayer(layer);
                     }
                     catch {
                         errors.push(url)
@@ -367,16 +368,20 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
                     try {
                         const options = {
                             url: url,
-                            layers: [layerOptions.layer],
                             opacity: layerOptions.opacity,
                             f: 'image'
                         }
+
+                        if(layerOptions.layer != null)
+                            options['layers'] = [layerOptions.layer];
+
                         if (authToken.length > 0)
                             options['token'] = authToken;
 
                         const layer = dynamicMapLayer(options);
                         mapLayers.push(layer);
-                        map.current.addLayer(layer);
+                        if (map.current != null)
+                            map.current.addLayer(layer);
                     }
                     catch {
                         errors.push(url)
@@ -453,7 +458,7 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
             return () => {
                 if (bufferLayer != null)
                     map.current?.removeLayer(bufferLayer);
-  
+
             }
 
         }, [faultInfo, authToken, props.Settings.TransmissionLineLayer, props.Settings.TransmissionLineQuery]);
