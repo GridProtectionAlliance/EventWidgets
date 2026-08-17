@@ -119,7 +119,7 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
     Settings: (props) => {
         return (
             <>
-            <div className="row">
+                <div className="row">
                     <div className={"col" + (props.Settings.UserAuthentication ? '-4' : '')}>
                         <ToggleSwitch<ISettings>
                             Record={props.Settings}
@@ -129,7 +129,7 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
                             Label={'User Authentication'}
                         />
                     </div>
-                    {props.Settings.UserAuthentication? <><div className="col-8">
+                    {props.Settings.UserAuthentication ? <><div className="col-8">
                         <Input<ISettings>
                             Record={props.Settings}
                             Field={'ClientID'}
@@ -139,15 +139,15 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
                             Label={'ESRI App ID'}
                         />
                     </div> <div className="col-8">
-                        <Input<ISettings>
-                            Record={props.Settings}
-                            Field={'PortalURL'}
-                            Help={'The portal URL for ESRI user authentication.'}
-                            Setter={(record) => props.SetSettings(record)}
-                            Valid={() => true}
-                            Label={'ESRI Portal URL'}
-                        />
-                    </div> </>: null}
+                            <Input<ISettings>
+                                Record={props.Settings}
+                                Field={'PortalURL'}
+                                Help={'The portal URL for ESRI user authentication.'}
+                                Setter={(record) => props.SetSettings(record)}
+                                Valid={() => true}
+                                Label={'ESRI Portal URL'}
+                            />
+                        </div> </> : null}
                 </div>
                 <div className="row">
                     <div className="col">
@@ -200,19 +200,18 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
                         <Input<ISettings>
                             Record={props.Settings}
                             Field={'Zoom'}
-                            Help={'The default Zoom setting for map. This must be between 0 and 6'}
+                            Help={'The default Zoom setting for map.'}
                             Setter={(record) => props.SetSettings(record)}
-                            Valid={() => props.Settings.Zoom >= 0 && props.Settings.Zoom <= 6}
+                            Valid={() => true}
                             Label={'Default Zoom'}
                             Type={'number'}
-                            Feedback={'Zoom must be between 0 and 6'}
                         />
                     </div>
                 </div>
                 <div className="row">
                     <div className="col">
                         {props.Settings.Layers?.map((layer, i) =>
-                            <div className="row" style={{background: '#f7f7f7' }} key={`layer_${i}`}>
+                            <div className="row" style={{ background: '#f7f7f7' }} key={`layer_${i}`}>
                                 <LayerSettings Layer={layer} SetLayer={(record) => {
                                     const layers = [...props.Settings.Layers];
                                     if (record === undefined)
@@ -220,18 +219,20 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
                                     else
                                         layers[i] = record;
                                     props.SetSettings({ ...props.Settings, Layers: layers });
-                                }} Index={i}/>
+                                }} Index={i} />
                             </div>
                         )}
                         <div className="row">
-                            <div className="col" style={{margin: 'auto'}}>
+                            <div className="col" style={{ margin: 'auto' }}>
                                 <button className="btn btn-primary" onClick={() => {
-                                    props.SetSettings({ ...props.Settings, Layers: [...props.Settings.Layers, {
-                                        url: `https://mesonet.agron.iastate.edu/cgi-bin/wms/nexrad/n0r-t.cgi?time={time}`,
-                                        opacity: 0.5,
-                                        layertype: 'wms',
-                                        layer: 'nexrad-n0r-wmst',
-                                    }] });
+                                    props.SetSettings({
+                                        ...props.Settings, Layers: [...props.Settings.Layers, {
+                                            url: `https://mesonet.agron.iastate.edu/cgi-bin/wms/nexrad/n0r-t.cgi?time={time}`,
+                                            opacity: 0.5,
+                                            layertype: 'wms',
+                                            layer: 'nexrad-n0r-wmst',
+                                        }]
+                                    });
                                 }}>
                                     Add Layer
                                 </button>
@@ -288,12 +289,19 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
             });
 
             identityManager.registerOAuthInfos([info]);
-            identityManager.checkSignInStatus(props.Settings.PortalURL + "/sharing").then((credential) => { setAuthToken(credential.token);})
-            .catch(() => {
-                identityManager.getCredential(info.portalUrl + "/sharing", {
-                    oAuthPopupConfirmation: false,
-                }).then(() => { identityManager.checkSignInStatus(props.Settings.PortalURL + "/sharing").then((credential) => { setAuthToken(credential.token);})})
-            });
+            identityManager.checkSignInStatus(props.Settings.PortalURL + "/sharing").then((credential) => {
+                setAuthToken(credential.token);
+            })
+                .catch(() => {
+                    identityManager.getCredential(info.portalUrl + "/sharing", {
+                        oAuthPopupConfirmation: false,
+                    }).then(() => {
+                        identityManager.checkSignInStatus(props.Settings.PortalURL + "/sharing")
+                            .then((credential) => {
+                                setAuthToken(credential.token);
+                            })
+                    })
+                });
 
         }, [props.Settings.UserAuthentication, props.Settings.ClientID, props.Settings.PortalURL]);
 
@@ -379,7 +387,7 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
             setLayerErrors(errors);
 
             return (() => { mapLayers.forEach(layer => map.current?.removeLayer(layer)) });
-        }, [faultInfo,authToken, props.Settings.Layers]);
+        }, [faultInfo, authToken, props.Settings.Layers]);
 
         /* Adds fault marker  */
         React.useEffect(() => {
@@ -412,12 +420,12 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
 
         /* Line Geometries */
         React.useEffect(() => {
-            
+
             if (map.current == null) return;
 
             let bufferLayer = null;
 
-            let q = query({url: props.Settings.TransmissionLineLayer})
+            let q = query({ url: props.Settings.TransmissionLineLayer })
             if (authToken.length > 0)
                 q = q.token(authToken);
             if (props.Settings.TransmissionLineQuery.length > 0)
@@ -430,11 +438,11 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
                 }
 
                 var geojson = leaflet.geoJSON(featureCollection);
-                var buffered = buffer(geojson.toGeoJSON() as GeoJSON.GeoJSON<GeoJSON.Geometry, GeoJSON.GeoJsonProperties>, 0.5, 
-                { 
-                    units: 'miles',                    
-                 });
-                 if (buffered == null) return;
+                var buffered = buffer(geojson.toGeoJSON() as GeoJSON.GeoJSON<GeoJSON.Geometry, GeoJSON.GeoJsonProperties>, 0.5,
+                    {
+                        units: 'miles',
+                    });
+                if (buffered == null) return;
                 console.log(buffered);
                 leaflet.geoJSON(buffered).addTo(map.current);
                 bufferLayer = leaflet.geoJSON(buffered).addTo(map.current);
@@ -445,10 +453,11 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
             return () => {
                 if (bufferLayer != null)
                     map.current?.removeLayer(bufferLayer);
+  
             }
-                
+
         }, [faultInfo, authToken, props.Settings.TransmissionLineLayer, props.Settings.TransmissionLineQuery]);
-        
+
         return (
             <div className="card" style={{ maxHeight: props.MaxHeight ?? '50vh' }}>
                 <div className="card-header fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>
@@ -476,7 +485,7 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
                     </div>
                 </div>
                 <link rel="stylesheet" href="node_modules/leaflet/dist/leaflet.css" />
-                {layerErrors.length > 0 ? 
+                {layerErrors.length > 0 ?
                     <div className="row">
                         <div className="col">
                             <Alert Class='alert-warning'>Unable to load the {layerErrors.length} map layers.</Alert>
@@ -568,28 +577,28 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
 function resolveVars(str: string, faultInfo: IFaultInfo[]): string {
 
 
-     const vars = {
-                'time': '',
-                'station': '',
-                'line': '',
-            };
+    const vars = {
+        'time': '',
+        'station': '',
+        'line': '',
+    };
 
-        if (faultInfo.length > 0) {
-            const t = moment(faultInfo[0]?.Inception);  
-            vars["time"] = t.utc().format('YYYY-MM-DDTHH') + ':' + (t.minutes() - t.minutes() % 5).toString();  
-            vars["station"] = faultInfo[0]?.StationName.toUpperCase();
-            vars["line"] = faultInfo[0]?.AssetName.toUpperCase();
-        }
+    if (faultInfo.length > 0) {
+        const t = moment(faultInfo[0]?.Inception);
+        vars["time"] = t.utc().format('YYYY-MM-DDTHH') + ':' + (t.minutes() - t.minutes() % 5).toString();
+        vars["station"] = faultInfo[0]?.StationName.toUpperCase();
+        vars["line"] = faultInfo[0]?.AssetName.toUpperCase();
+    }
 
     let result = str;
     for (const key in vars) {
         if (str.includes(`\{${key}\}`))
-           result =  result.replace(`\{${key}\}`, vars[key]);
+            result = result.replace(`\{${key}\}`, vars[key]);
     }
     return result;
 }
 
-const LayerSettings = (props: {Layer: ILayerSetting, SetLayer: (layer: ILayerSetting | undefined) => void, Index: number}) => {
+const LayerSettings = (props: { Layer: ILayerSetting, SetLayer: (layer: ILayerSetting | undefined) => void, Index: number }) => {
     return <>
         <div className="col-8">
             <Input<ILayerSetting>
@@ -601,7 +610,7 @@ const LayerSettings = (props: {Layer: ILayerSetting, SetLayer: (layer: ILayerSet
                 Help={'The URL of the map server where this layer is served.'}
             />
         </div>
-        <div className="col-4" style={{margin: 'auto'}}>
+        <div className="col-4" style={{ margin: 'auto' }}>
             <button className="btn btn-small btn-danger" onClick={() => props.SetLayer(undefined)}>
                 <ReactIcons.TrashCan />
             </button>
@@ -629,7 +638,7 @@ const LayerSettings = (props: {Layer: ILayerSetting, SetLayer: (layer: ILayerSet
             />
         </div>
         <div className="col-4">
-           <Select
+            <Select
                 Record={props.Layer}
                 Field='layertype'
                 Options={[
@@ -643,8 +652,8 @@ const LayerSettings = (props: {Layer: ILayerSetting, SetLayer: (layer: ILayerSet
 
             />
         </div>
-        <hr/>
-        </>
+        <hr />
+    </>
 
 }
 export default ESRIMap;
