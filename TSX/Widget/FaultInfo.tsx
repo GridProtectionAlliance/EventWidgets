@@ -30,16 +30,7 @@ import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { Alert } from '@gpa-gemstone/react-interactive';
 
 interface IFaultInfo {
-    FaultTime?: string,
-    FaultDuration?: number,
-    FaultType?: string,
-    FaultDistance?: number,
-    StationID?: string,
-    StationName?: string,
-    LineName?: string,
-    LineAssetKey?: string,
-    DblDist?: number,
-    TreeFaultResistance?: number
+
     Key: string,
     Value: string
 }
