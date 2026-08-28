@@ -382,7 +382,7 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
             const line = getFaultInfoValue(faultInfo, 'LineAssetKey');
             const distance = getFaultInfoValue(faultInfo, 'FaultDistance');
 
-            if (station.length === 0 || line.length === 0 || distance.length === 0 || !props.Settings.StructureCrawlerURL)
+            if (station.length === 0 || line.length === 0 || distance.length === 0 || props.Settings.StructureCrawlerURL.trim().length === 0)
                 return;
 
             setStructureStatus('loading');
