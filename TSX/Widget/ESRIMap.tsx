@@ -56,12 +56,13 @@ interface ILayerSetting {
 }
 
 interface IFaultInfo {
-    StationName: string,
-    Inception: number,
+    Key: string,
+    Value: string | number | null
+}
+
+interface IStructureLocation {
     Latitude: number,
-    Longitude: number,
-    Distance: number,
-    AssetName: string
+    Longitude: number
 }
 
 interface ISettings {
@@ -73,6 +74,7 @@ interface ISettings {
     ClientID: string,
     PortalURL: string,
     TransmissionLineQuery: string,
+    StructureCrawlerURL: string,
     UserAuthentication: boolean
 }
 
@@ -113,6 +115,7 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
 
         TransmissionLineLayer: `http://pq/arcgisproxynew/proxy.ashx?https://gis.tva.gov/arcgis/rest/services/EGIS_Transmission/Transmission_Grid_Restricted_2/MapServer/6`,
         TransmissionLineQuery: `UPPER(LINENAME) like '%{line}%'`,
+        StructureCrawlerURL: `http://opsptpsnet.cha.tva.gov:8025/TLI/StructureCrawler/FaultFinder.asp?Station={StationID}&Line={LineAssetKey}&Mileage={FaultDistance}`,
         UserAuthentication: false
 
     },
@@ -158,6 +161,18 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
                             Setter={(record) => props.SetSettings(record)}
                             Valid={() => true}
                             Label={'Transmission Line Layer'}
+                        />
+                    </div>
+                </div>
+                <div className="row">
+                    <div className="col">
+                        <Input<ISettings>
+                            Record={props.Settings}
+                            Field={'StructureCrawlerURL'}
+                            Help={'The full structure crawler URL, including query parameters. Populate a parameter from fault information using its field name in braces, for example Station={StationID} or Mileage={FaultDistance}.'}
+                            Setter={(record) => props.SetSettings(record)}
+                            Valid={() => true}
+                            Label={'Structure Crawler URL'}
                         />
                     </div>
                 </div>
@@ -252,6 +267,8 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
         const [window, setWindow] = React.useState<number>(2);
         const [layerErrors, setLayerErrors] = React.useState<string[]>([]);
         const [authToken, setAuthToken] = React.useState<string>("");
+        const [structureLocation, setStructureLocation] = React.useState<IStructureLocation | null>(null);
+        const [structureStatus, setStructureStatus] = React.useState<Application.Types.Status>('uninitiated');
 
         /* Get Lightning Info */
         React.useEffect(() => {
@@ -328,6 +345,41 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
 
         }, [props.EventID])
 
+        /* Get the nearest structure location from the configured structure crawler. */
+        React.useEffect(() => {
+            setStructureLocation(null);
+            setStructureStatus('uninitiated');
+
+            const station = getFaultInfoValue(faultInfo, 'StationID');
+            const line = getFaultInfoValue(faultInfo, 'LineAssetKey');
+            const distance = getFaultInfoValue(faultInfo, 'FaultDistance');
+
+            if (station.length === 0 || line.length === 0 || distance.length === 0 || !props.Settings.StructureCrawlerURL)
+                return;
+
+            setStructureStatus('loading');
+            const handle = $.ajax({
+                type: 'GET',
+                url: resolveVars(props.Settings.StructureCrawlerURL, faultInfo),
+                dataType: 'text',
+                cache: true,
+                xhrFields: { withCredentials: true }
+            }).done((response) => {
+                setStructureLocation(parseStructureLocation(response));
+                setStructureStatus('idle');
+            }).fail((response, status) => {
+                if (status === 'abort') return;
+
+                setStructureStatus('error');
+                console.error('Unable to fetch structure crawler data: ' + JSON.stringify(response));
+            });
+
+            return () => {
+                if (handle?.abort != null)
+                    handle.abort();
+            };
+        }, [faultInfo, props.Settings.StructureCrawlerURL]);
+
         React.useEffect(() => {
             map.current = leaflet.map(div.current, { center: [props.Settings.CenterLat, props.Settings.CenterLong], zoom: props.Settings.Zoom });
             basemapLayer('Gray').addTo(map.current);
@@ -396,15 +448,15 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
 
         /* Adds fault marker  */
         React.useEffect(() => {
-            if (faultInfo.length === 0 || map.current == null) return;
+            if (structureLocation == null || map.current == null) return;
 
-            const fault_marker = leaflet.marker([faultInfo[0]?.Latitude, faultInfo[0]?.Longitude]).addTo(map.current);
+            const fault_marker = leaflet.marker([structureLocation.Latitude, structureLocation.Longitude]).addTo(map.current);
 
             return () => {
                 map.current?.removeLayer(fault_marker);
             }
 
-        }, [faultInfo]);
+        }, [structureLocation]);
 
         /* Adds lightning markers */
         React.useEffect(() => {
@@ -500,6 +552,14 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
                     </div> :
                     null
                 }
+                {structureStatus === 'error' ?
+                    <div className="row">
+                        <div className="col">
+                            <Alert Class='alert-warning'>Unable to load the nearest structure location.</Alert>
+                        </div>
+                    </div>
+                    : null
+                }
                 <div className="row">
                     <div className="col">
                         <div ref={div} style={{ height: 400, padding: 5, border: 'solid 1px gray' }}></div>
@@ -581,28 +641,70 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
     }
 }
 
+/** Replaces map-setting placeholders with values from fault information. */
 function resolveVars(str: string, faultInfo: IFaultInfo[]): string {
+    let result = str;
 
+    for (const info of faultInfo) {
+        if (info.Value != null)
+            result = result.split(`{${info.Key}}`).join(info.Value.toString());
+    }
 
-    const vars = {
+    const aliases = {
         'time': '',
         'station': '',
         'line': '',
+        'distance': ''
     };
 
     if (faultInfo.length > 0) {
-        const t = moment(faultInfo[0]?.Inception);
-        vars["time"] = t.utc().format('YYYY-MM-DDTHH') + ':' + (t.minutes() - t.minutes() % 5).toString();
-        vars["station"] = faultInfo[0]?.StationName.toUpperCase();
-        vars["line"] = faultInfo[0]?.AssetName.toUpperCase();
+        const t = moment(getFaultInfoValue(faultInfo, 'FaultTime'));
+        if (t.isValid())
+            aliases["time"] = t.utc().format('YYYY-MM-DDTHH') + ':' + (t.minutes() - t.minutes() % 5).toString();
+
+        aliases["station"] = getFaultInfoValue(faultInfo, 'StationID').toUpperCase();
+        aliases["line"] = getFaultInfoValue(faultInfo, 'LineAssetKey').toUpperCase();
+        aliases["distance"] = getFaultInfoValue(faultInfo, 'FaultDistance');
     }
 
-    let result = str;
-    for (const key in vars) {
-        if (str.includes(`\{${key}\}`))
-            result = result.replace(`\{${key}\}`, vars[key]);
-    }
+    for (const key in aliases)
+        result = result.split(`{${key}}`).join(aliases[key]);
+
     return result;
+}
+
+/** Returns a fault-information value as text. */
+function getFaultInfoValue(faultInfo: IFaultInfo[], key: string): string {
+    const value = faultInfo.find(info => info.Key === key)?.Value;
+    return value == null ? '' : value.toString();
+}
+
+/** Parses the first valid latitude and longitude from a structure crawler HTML/CSV response. */
+function parseStructureLocation(response: string): IStructureLocation | null {
+    const document = new DOMParser().parseFromString(response, 'text/html');
+    const csv = document.body.textContent?.trim() ?? '';
+    const lines = csv.split(/[\r\n]+/).map(line => line.trim()).filter(line => line.length > 0);
+
+    if (lines.length < 2)
+        return null;
+
+    const fields = lines[0].split(',').map(field => field.trim());
+    const latitudeIndex = fields.findIndex(field => field.toLowerCase() === 'latitude');
+    const longitudeIndex = fields.findIndex(field => field.toLowerCase() === 'longitude');
+
+    if (latitudeIndex === -1 || longitudeIndex === -1)
+        return null;
+
+    for (const line of lines.slice(1)) {
+        const values = line.split(',').map(value => value.trim());
+        const latitude = parseFloat(values[latitudeIndex]);
+        const longitude = parseFloat(values[longitudeIndex]);
+
+        if (Number.isFinite(latitude) && Number.isFinite(longitude))
+            return { Latitude: latitude, Longitude: longitude };
+    }
+
+    return null;
 }
 
 const LayerSettings = (props: { Layer: ILayerSetting, SetLayer: (layer: ILayerSetting | undefined) => void, Index: number }) => {
