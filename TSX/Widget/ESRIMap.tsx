@@ -269,6 +269,11 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
         const [authToken, setAuthToken] = React.useState<string>("");
         const [structureLocation, setStructureLocation] = React.useState<IStructureLocation | null>(null);
         const [structureStatus, setStructureStatus] = React.useState<Application.Types.Status>('uninitiated');
+        const [stationStatus, setStationStatus] = React.useState<Application.Types.Status>('uninitiated');
+        const [crawlerReturnedNoCoordinates, setCrawlerReturnedNoCoordinates] = React.useState<boolean>(false);
+        const locationWarning = getLocationWarning(structureStatus, stationStatus, crawlerReturnedNoCoordinates, structureLocation != null);
+        const mapWarning = [layerErrors.length > 0 ? `Unable to load ${layerErrors.length} map ${layerErrors.length === 1 ? 'layer' : 'layers'}.` : '', locationWarning]
+            .filter(message => message.length > 0).join(' ');
 
         /* Get Lightning Info */
         React.useEffect(() => {
@@ -345,10 +350,33 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
 
         }, [props.EventID])
 
-        /* Get the nearest structure location from the configured structure crawler. */
+        /* Get the nearest structure location, falling back to the meter's substation location. */
         React.useEffect(() => {
             setStructureLocation(null);
             setStructureStatus('uninitiated');
+            setStationStatus('uninitiated');
+            setCrawlerReturnedNoCoordinates(false);
+
+            let stationHandle: JQuery.jqXHR<IStructureLocation[]> | undefined;
+
+            /** Loads the event meter's substation location as a fallback. */
+            const loadStationLocation = () => {
+                setStationStatus('loading');
+                stationHandle = $.ajax({
+                    type: 'GET',
+                    url: `${props.HomePath}api/EventWidgets/ESRIMap/SubstationLocation/${props.EventID}`,
+                    dataType: 'json',
+                    cache: true
+                }) as JQuery.jqXHR<IStructureLocation[]>;
+
+                stationHandle.done((data) => {
+                    setStructureLocation(data[0] ?? null);
+                    setStationStatus('idle');
+                }).fail((response) => {
+                    setStationStatus('error');
+                    console.error('Unable to fetch the substation location: ' + JSON.stringify(response));
+                });
+            };
 
             const station = getFaultInfoValue(faultInfo, 'StationID');
             const line = getFaultInfoValue(faultInfo, 'LineAssetKey');
@@ -365,20 +393,30 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
                 cache: true,
                 xhrFields: { withCredentials: true }
             }).done((response) => {
-                setStructureLocation(parseStructureLocation(response));
-                setStructureStatus('idle');
-            }).fail((response, status) => {
-                if (status === 'abort') return;
+                const location = parseStructureLocation(response);
+                setCrawlerReturnedNoCoordinates(location == null);
 
+                if (location == null) {
+                    setStructureStatus('idle');
+                    loadStationLocation();
+                    return;
+                }
+
+                setStructureLocation(location);
+                setStructureStatus('idle');
+            }).fail((response) => {
                 setStructureStatus('error');
                 console.error('Unable to fetch structure crawler data: ' + JSON.stringify(response));
+                loadStationLocation();
             });
 
             return () => {
                 if (handle?.abort != null)
                     handle.abort();
+                if (stationHandle?.abort != null)
+                    stationHandle.abort();
             };
-        }, [faultInfo, props.Settings.StructureCrawlerURL]);
+        }, [faultInfo, props.EventID, props.HomePath, props.Settings.StructureCrawlerURL]);
 
         React.useEffect(() => {
             map.current = leaflet.map(div.current, { center: [props.Settings.CenterLat, props.Settings.CenterLong], zoom: props.Settings.Zoom });
@@ -450,7 +488,9 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
         React.useEffect(() => {
             if (structureLocation == null || map.current == null) return;
 
-            const fault_marker = leaflet.marker([structureLocation.Latitude, structureLocation.Longitude]).addTo(map.current);
+            const coordinates: [number, number] = [structureLocation.Latitude, structureLocation.Longitude];
+            const fault_marker = leaflet.marker(coordinates).addTo(map.current);
+            map.current.setView(coordinates, map.current.getZoom());
 
             return () => {
                 map.current?.removeLayer(fault_marker);
@@ -544,18 +584,10 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
                     </div>
                 </div>
                 <link rel="stylesheet" href="node_modules/leaflet/dist/leaflet.css" />
-                {layerErrors.length > 0 ?
+                {mapWarning.length > 0 ?
                     <div className="row">
                         <div className="col">
-                            <Alert Class='alert-warning'>Unable to load the {layerErrors.length} map layers.</Alert>
-                        </div>
-                    </div> :
-                    null
-                }
-                {structureStatus === 'error' ?
-                    <div className="row">
-                        <div className="col">
-                            <Alert Class='alert-warning'>Unable to load the nearest structure location.</Alert>
+                            <Alert Class='alert-warning'>{mapWarning}</Alert>
                         </div>
                     </div>
                     : null
@@ -705,6 +737,19 @@ function parseStructureLocation(response: string): IStructureLocation | null {
     }
 
     return null;
+}
+
+/** Returns the warning for the structure-to-substation fallback. */
+function getLocationWarning(structureStatus: Application.Types.Status, stationStatus: Application.Types.Status, crawlerReturnedNoCoordinates: boolean, hasLocation: boolean): string {
+    if (stationStatus === 'uninitiated') return '';
+
+    const crawlerResult = structureStatus === 'error' ? 'failed' : crawlerReturnedNoCoordinates ? 'returned no coordinates' : '';
+    if (crawlerResult.length === 0) return '';
+    if (stationStatus === 'loading')
+        return `The structure crawler ${crawlerResult}. The map is attempting to use the meter's substation location instead.`;
+    if (hasLocation)
+        return `The structure crawler ${crawlerResult}. The map is using the meter's substation location instead.`;
+    return `The structure crawler ${crawlerResult}, and no valid substation location was available.`;
 }
 
 const LayerSettings = (props: { Layer: ILayerSetting, SetLayer: (layer: ILayerSetting | undefined) => void, Index: number }) => {
