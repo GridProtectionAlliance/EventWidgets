@@ -24,7 +24,7 @@
 import React from 'react';
 import leaflet from 'leaflet';
 import 'proj4leaflet';
-import { basemapLayer, dynamicMapLayer, Geometry, query } from 'esri-leaflet';
+import { basemapLayer, dynamicMapLayer, query } from 'esri-leaflet';
 import moment from 'moment';
 import { EventWidget } from '../global';
 import { Application } from '@gpa-gemstone/application-typings';
@@ -77,6 +77,17 @@ interface ISettings {
     StructureCrawlerURL: string,
     UserAuthentication: boolean
 }
+
+const markerIcon = leaflet.divIcon({
+    className: 'draggable-marker',
+    html: `
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="red" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-map-pin">
+        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+        <circle cx="12" cy="10" r="3"></circle>
+    </svg>`,
+    iconSize: [24, 24],
+    iconAnchor: [12, 24],
+});
 
 const ESRIMap: EventWidget.IWidget<ISettings> = {
     Name: 'ESRIMap',
@@ -479,7 +490,7 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
             if (markerLocation == null || map.current == null) return;
 
             const coordinates: [number, number] = [markerLocation.Latitude, markerLocation.Longitude];
-            const fault_marker = leaflet.marker(coordinates).addTo(map.current);
+            const fault_marker = leaflet.marker(coordinates, { icon: markerIcon }).addTo(map.current);
             map.current.setView(coordinates, map.current.getZoom());
 
             return () => {
@@ -573,7 +584,6 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
                         </div>
                     </div>
                 </div>
-                <link rel="stylesheet" href="node_modules/leaflet/dist/leaflet.css" />
                 {mapWarning.length > 0 ?
                     <div className="row">
                         <div className="col">
