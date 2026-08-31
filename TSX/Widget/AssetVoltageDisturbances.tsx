@@ -37,10 +37,13 @@ interface IDisturbanceData {
     StartTime: string;
     SeverityCode: string;
     IsWorstDisturbance: boolean;
-    GroupNumber?: number;
     GroupColor?: string;
     IsFirstGroupRow?: boolean;
     IsLastGroupRow?: boolean;
+}
+
+interface IEventData {
+    EventType: string;
 }
 
 const GROUP_COLORS = ['var(--blue)', 'var(--orange)', 'var(--green)', 'var(--purple)', 'var(--red)', 'var(--teal)', 'var(--pink)', 'var(--indigo)'];
@@ -53,7 +56,22 @@ const AssetVoltageDisturbances: EventWidget.IWidget<{}> = {
     Widget: (props: EventWidget.IWidgetProps<{}>) => {
         const [data, setData] = React.useState<IDisturbanceData[]>([]);
         const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
-        const groupedData = React.useMemo(() => groupDisturbances(data), [data]);
+        const [selectedEventType, setSelectedEventType] = React.useState<string>();
+        const [eventTypeStatus, setEventTypeStatus] = React.useState<Application.Types.Status>('uninitiated');
+        const groupedData = React.useMemo(() =>
+            groupDisturbances(data, selectedEventType === 'Transient'),
+            [data, selectedEventType]);
+
+        // Fetch the event type locally for now; if other widgets need it, add it to the shared widget props.
+        React.useEffect(() => {
+            setEventTypeStatus('loading');
+            const handle = getEventType(props.HomePath, props.EventID);
+            handle.done((eventData) => {
+                setSelectedEventType(eventData[0]?.EventType);
+                setEventTypeStatus('idle');
+            }).fail(() => setEventTypeStatus('error'));
+            return () => { if (handle?.abort != null) handle.abort(); }
+        }, [props.EventID, props.HomePath]);
 
         // Load voltage disturbances whenever the selected event or application path changes.
         React.useEffect(() => {
@@ -72,12 +90,12 @@ const AssetVoltageDisturbances: EventWidget.IWidget<{}> = {
                 <div className="card-header fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>
                     Voltage Disturbance in Waveform:</div>
                 <div className="card-body">
-                    {status === 'error' ?
+                    {status === 'error' || eventTypeStatus === 'error' ?
                         <Alert Class='alert-danger'>
                             An error occurred while fetching voltage disturbance data.
                         </Alert>
                         : null}
-                    {status === 'loading' ?
+                    {status === 'loading' || eventTypeStatus === 'loading' ?
 
                         <div className='d-flex align-items-center justify-content-center' style={{ height: 250 }}>
                             <ReactIcons.SpiningIcon Size={'50%'} />
@@ -99,28 +117,18 @@ const AssetVoltageDisturbances: EventWidget.IWidget<{}> = {
                                 RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                             >
                                 <Column<IDisturbanceData>
-                                    Key='GroupStatus'
+                                    Key='Status'
                                     AllowSort={false}
-                                    HeaderStyle={{ width: 180 }}
-                                    RowStyle={{ width: 180 }}
+                                    HeaderStyle={{ width: 80 }}
+                                    RowStyle={{ width: 80 }}
                                     Content={({ item, style }) => {
                                         applyGroupCellStyle(item, style, 'left');
-                                        return <>
-                                            {item.GroupNumber != null ?
-                                                <span
-                                                    className='badge mr-1'
-                                                    style={{ backgroundColor: item.GroupColor, color: 'white' }}
-                                                >
-                                                    {item.EventType} Group {item.GroupNumber}
-                                                </span>
-                                                : null}
-                                            {item.IsWorstDisturbance ?
-                                                <span className='badge badge-warning'>Worst</span>
-                                                : null}
-                                        </>;
+                                        return item.IsWorstDisturbance ?
+                                            <span className='badge badge-warning'>Worst</span>
+                                            : '\u00A0';
                                     }}
                                 >
-                                    Group / Status
+                                    Status
                                 </Column>
                                 <Column<IDisturbanceData>
                                     Key='EventType'
@@ -210,60 +218,66 @@ const AssetVoltageDisturbances: EventWidget.IWidget<{}> = {
 
 interface IDisturbanceBucket {
     Rows: IDisturbanceData[];
-    StartTime: number;
     EndTime: number;
 }
 
-/** Groups disturbances of the same event type into contiguous display blocks, including singleton groups. */
-export const groupDisturbances = (data: IDisturbanceData[]): IDisturbanceData[] => {
-    const rowsByType = new Map<string, IDisturbanceData[]>();
-
-    data.forEach(row => {
-        const rows = rowsByType.get(row.EventType) ?? [];
-        rows.push(row);
-        rowsByType.set(row.EventType, rows);
-    });
-
+/** Groups overlapping disturbances into contiguous display blocks, including singleton groups. */
+export const groupDisturbances = (data: IDisturbanceData[], isTransientEvent = false): IDisturbanceData[] => {
+    const sortedRows = [...data].sort(compareDisturbances);
     const blocks: IDisturbanceBucket[] = [];
-    rowsByType.forEach(rows => {
-        const sortedRows = [...rows].sort(compareDisturbances);
-        let currentBlock: IDisturbanceBucket | undefined;
+    let currentBlock: IDisturbanceBucket | undefined;
 
-        sortedRows.forEach(row => {
-            const startTime = getStartTime(row);
-            const endTime = startTime + row.DurationSeconds * 1000;
+    sortedRows.forEach(row => {
+        const startTime = getStartTime(row);
+        const endTime = startTime + row.DurationSeconds * 1000;
 
-            if (currentBlock == null || startTime > currentBlock.EndTime) {
-                currentBlock = { Rows: [row], StartTime: startTime, EndTime: endTime };
-                blocks.push(currentBlock);
-            }
-            else {
-                currentBlock.Rows.push(row);
-                currentBlock.EndTime = Math.max(currentBlock.EndTime, endTime);
-            }
-        });
+        if (currentBlock == null || startTime > currentBlock.EndTime) {
+            currentBlock = { Rows: [row], EndTime: endTime };
+            blocks.push(currentBlock);
+        }
+        else {
+            currentBlock.Rows.push(row);
+            currentBlock.EndTime = Math.max(currentBlock.EndTime, endTime);
+        }
     });
 
-    blocks.sort((left, right) => left.StartTime - right.StartTime);
-
-    const groupNumbersByType = new Map<string, number>();
     let groupColorIndex = 0;
     return blocks.reduce<IDisturbanceData[]>((result, block) => {
-        const eventType = block.Rows[0].EventType;
-        const groupNumber = (groupNumbersByType.get(eventType) ?? 0) + 1;
-        groupNumbersByType.set(eventType, groupNumber);
-
         const groupColor = GROUP_COLORS[groupColorIndex % GROUP_COLORS.length];
+        const selectedWorst = selectGroupWorst(block.Rows, isTransientEvent);
         groupColorIndex++;
         block.Rows.forEach((row, index) => result.push({
             ...row,
-            GroupNumber: groupNumber,
+            IsWorstDisturbance: selectedWorst == null ? row.IsWorstDisturbance : row.ID === selectedWorst.ID,
             GroupColor: groupColor,
             IsFirstGroupRow: index === 0,
             IsLastGroupRow: index === block.Rows.length - 1
         }));
         return result;
     }, []);
+}
+
+/** Selects the worst row for a display group when frontend correction is required. */
+const selectGroupWorst = (rows: IDisturbanceData[], isTransientEvent: boolean): IDisturbanceData | undefined => {
+    if (isTransientEvent) return selectFarthestMagnitude(rows);
+
+    const worstDisturbances = rows.filter(row => row.IsWorstDisturbance);
+    if (worstDisturbances.length <= 1) return undefined;
+
+    const interruptions = worstDisturbances.filter(row => row.EventType === 'Interruption');
+    if (interruptions.length > 0) return selectFarthestMagnitude(interruptions);
+
+    const sagsAndSwells = worstDisturbances.filter(row => row.EventType === 'Sag' || row.EventType === 'Swell');
+    if (sagsAndSwells.length > 0) return selectFarthestMagnitude(sagsAndSwells);
+
+    return selectFarthestMagnitude(worstDisturbances);
+}
+
+/** Returns the disturbance whose normalized magnitude is farthest from one. */
+const selectFarthestMagnitude = (rows: IDisturbanceData[]): IDisturbanceData => {
+    return rows.reduce((selected, row) =>
+        Math.abs(row.PerUnitMagnitude - 1) > Math.abs(selected.PerUnitMagnitude - 1) ? row : selected
+    );
 }
 
 /** Sorts disturbances by start time while preserving input order for equal starts. */
@@ -299,6 +313,18 @@ const getDisturbanceData = (homePath: string, eventID: number) => {
         contentType: "application/json; charset=utf-8",
         dataType: 'json',
         cache: false,
+        async: true
+    });
+}
+
+/** Requests the selected event type. */
+const getEventType = (homePath: string, eventID: number): JQuery.jqXHR<IEventData[]> => {
+    return $.ajax({
+        type: 'GET',
+        url: `${homePath}api/EventWidgets/EventInfo/${eventID}`,
+        contentType: 'application/json; charset=utf-8',
+        dataType: 'json',
+        cache: true,
         async: true
     });
 }
