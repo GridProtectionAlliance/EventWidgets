@@ -20,7 +20,7 @@
 //       Generated original version of source code.
 //
 //******************************************************************************************************
-import React from 'react';
+import * as React from 'react';
 import moment from 'moment';
 import { Table, Column } from '@gpa-gemstone/react-table';
 import { EventWidget } from '../global';
@@ -37,8 +37,18 @@ interface IDisturbanceData {
     StartTime: string;
     SeverityCode: string;
     IsWorstDisturbance: boolean;
+    GroupColor?: string;
+    IsFirstGroupRow?: boolean;
+    IsLastGroupRow?: boolean;
 }
 
+interface IEventData {
+    EventType: string;
+}
+
+const GROUP_COLORS = ['var(--blue)', 'var(--orange)', 'var(--green)', 'var(--purple)', 'var(--red)', 'var(--teal)', 'var(--pink)', 'var(--indigo)'];
+
+/** Displays voltage disturbances for the selected event. */
 const AssetVoltageDisturbances: EventWidget.IWidget<{}> = {
     Name: 'VoltageDisturbances',
     DefaultSettings: {},
@@ -46,7 +56,24 @@ const AssetVoltageDisturbances: EventWidget.IWidget<{}> = {
     Widget: (props: EventWidget.IWidgetProps<{}>) => {
         const [data, setData] = React.useState<IDisturbanceData[]>([]);
         const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
+        const [selectedEventType, setSelectedEventType] = React.useState<string>();
+        const [eventTypeStatus, setEventTypeStatus] = React.useState<Application.Types.Status>('uninitiated');
+        const groupedData = React.useMemo(() =>
+            groupDisturbances(data, selectedEventType === 'Transient'),
+            [data, selectedEventType]);
 
+        // Fetch the event type locally for now; if other widgets need it, add it to the shared widget props.
+        React.useEffect(() => {
+            setEventTypeStatus('loading');
+            const handle = getEventType(props.HomePath, props.EventID);
+            handle.done((eventData) => {
+                setSelectedEventType(eventData[0]?.EventType);
+                setEventTypeStatus('idle');
+            }).fail(() => setEventTypeStatus('error'));
+            return () => { if (handle?.abort != null) handle.abort(); }
+        }, [props.EventID, props.HomePath]);
+
+        // Load voltage disturbances whenever the selected event or application path changes.
         React.useEffect(() => {
             setStatus('loading');
             const handle = getDisturbanceData(props.HomePath, props.EventID);
@@ -63,12 +90,12 @@ const AssetVoltageDisturbances: EventWidget.IWidget<{}> = {
                 <div className="card-header fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>
                     Voltage Disturbance in Waveform:</div>
                 <div className="card-body">
-                    {status === 'error' ?
+                    {status === 'error' || eventTypeStatus === 'error' ?
                         <Alert Class='alert-danger'>
                             An error occurred while fetching voltage disturbance data.
                         </Alert>
-                    : null}
-                    {status === 'loading' ?
+                        : null}
+                    {status === 'loading' || eventTypeStatus === 'loading' ?
 
                         <div className='d-flex align-items-center justify-content-center' style={{ height: 250 }}>
                             <ReactIcons.SpiningIcon Size={'50%'} />
@@ -77,77 +104,111 @@ const AssetVoltageDisturbances: EventWidget.IWidget<{}> = {
                             <Alert Class='alert-info'>
                                 No voltage disturbance data.
                             </Alert>
-                        :
-                        <Table<IDisturbanceData>
-                            Data={data}
-                            KeySelector={(item) => item.ID}
-                            OnSort={() => {/*Do Nothing*/ }}
-                            SortKey={''}
-                            Ascending={true}
-                            TableClass="table"
-                            TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', height: 50 }}
-                            TbodyStyle={{ display: 'block', overflowY: 'auto', width: '100%', maxHeight: props.MaxHeight ?? 500 }}
-                            RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                            Selected={(r) => r.IsWorstDisturbance}
-                        >
-                            <Column<IDisturbanceData>
-                                Key={'EventType'}
-                                AllowSort={false}
-                                Field={'EventType'}
-                                HeaderStyle={{ width: 'auto' }}
-                                RowStyle={{ width: 'auto' }}
+                            :
+                            <Table<IDisturbanceData>
+                                Data={groupedData}
+                                KeySelector={(item) => item.ID}
+                                OnSort={() => {/*Do Nothing*/ }}
+                                SortKey={''}
+                                Ascending={true}
+                                TableClass='table'
+                                TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', height: 50 }}
+                                TbodyStyle={{ display: 'block', overflowY: 'auto', width: '100%', maxHeight: props.MaxHeight ?? 500 }}
+                                RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                             >
-                                Disturbance Type
-                            </Column>
-                            <Column<IDisturbanceData>
-                                Key={'Phase'}
-                                AllowSort={false}
-                                Field={'Phase'}
-                                HeaderStyle={{ width: 'auto' }}
-                                RowStyle={{ width: 'auto' }}
-                            >
-                                Phase
-                            </Column>
-                            <Column<IDisturbanceData>
-                                Key={'PerUnitMagnitude'}
-                                AllowSort={false}
-                                Field={'PerUnitMagnitude'}
-                                HeaderStyle={{ width: 'auto' }}
-                                RowStyle={{ width: 'auto' }}
-                                Content={row => (row.item.PerUnitMagnitude * 100).toFixed(1)}
-                            >
-                                Magnitude (%)
-                            </Column>
-                            <Column<IDisturbanceData>
-                                Key={'DurationSeconds'}
-                                AllowSort={false}
-                                Field={'DurationSeconds'}
-                                HeaderStyle={{ width: 'auto' }}
-                                RowStyle={{ width: 'auto' }}
-                                Content={row => (row.item.DurationSeconds * 1000).toFixed(2)}
-                            >
-                                Duration (ms)
-                            </Column>
-                            <Column<IDisturbanceData>
-                                Key={'StartTime'}
-                                AllowSort={false}
-                                Field={'StartTime'}
-                                HeaderStyle={{ width: 'auto' }}
-                                RowStyle={{ width: 'auto' }}
-                                Content={row => moment(row.item.StartTime).format('HH:mm:ss.SSS')}
-                            >
-                                Start Time
-                            </Column>
-                            <Column<IDisturbanceData>
-                                Key={'SeverityCode'}
-                                AllowSort={false}
-                                Field={'SeverityCode'}
-                                HeaderStyle={{ width: 'auto' }}
-                                RowStyle={{ width: 'auto' }}
-                            >
-                                Severity
-                            </Column>
-                        </Table>
+                                <Column<IDisturbanceData>
+                                    Key='Status'
+                                    AllowSort={false}
+                                    HeaderStyle={{ width: 80 }}
+                                    RowStyle={{ width: 80 }}
+                                    Content={({ item, style }) => {
+                                        applyGroupCellStyle(item, style, 'left');
+                                        return item.IsWorstDisturbance ?
+                                            <span className='badge badge-warning'>Worst</span>
+                                            : '\u00A0';
+                                    }}
+                                >
+                                    Status
+                                </Column>
+                                <Column<IDisturbanceData>
+                                    Key='EventType'
+                                    AllowSort={false}
+                                    Field='EventType'
+                                    HeaderStyle={{ width: 'auto' }}
+                                    RowStyle={{ width: 'auto' }}
+                                    Content={({ item, style }) => {
+                                        applyGroupCellStyle(item, style);
+                                        return item.EventType;
+                                    }}
+                                >
+                                    Disturbance Type
+                                </Column>
+                                <Column<IDisturbanceData>
+                                    Key='Phase'
+                                    AllowSort={false}
+                                    Field='Phase'
+                                    HeaderStyle={{ width: 'auto' }}
+                                    RowStyle={{ width: 'auto' }}
+                                    Content={({ item, style }) => {
+                                        applyGroupCellStyle(item, style);
+                                        return item.Phase;
+                                    }}
+                                >
+                                    Phase
+                                </Column>
+                                <Column<IDisturbanceData>
+                                    Key='PerUnitMagnitude'
+                                    AllowSort={false}
+                                    Field='PerUnitMagnitude'
+                                    HeaderStyle={{ width: 'auto' }}
+                                    RowStyle={{ width: 'auto' }}
+                                    Content={({ item, style }) => {
+                                        applyGroupCellStyle(item, style);
+                                        return (item.PerUnitMagnitude * 100).toFixed(1);
+                                    }}
+                                >
+                                    Magnitude (%)
+                                </Column>
+                                <Column<IDisturbanceData>
+                                    Key='DurationSeconds'
+                                    AllowSort={false}
+                                    Field='DurationSeconds'
+                                    HeaderStyle={{ width: 'auto' }}
+                                    RowStyle={{ width: 'auto' }}
+                                    Content={({ item, style }) => {
+                                        applyGroupCellStyle(item, style);
+                                        return (item.DurationSeconds * 1000).toFixed(2);
+                                    }}
+                                >
+                                    Duration (ms)
+                                </Column>
+                                <Column<IDisturbanceData>
+                                    Key='StartTime'
+                                    AllowSort={false}
+                                    Field='StartTime'
+                                    HeaderStyle={{ width: 'auto' }}
+                                    RowStyle={{ width: 'auto' }}
+                                    Content={({ item, style }) => {
+                                        applyGroupCellStyle(item, style);
+                                        return moment(item.StartTime).format('HH:mm:ss.SSS');
+                                    }}
+                                >
+                                    Start Time
+                                </Column>
+                                <Column<IDisturbanceData>
+                                    Key='SeverityCode'
+                                    AllowSort={false}
+                                    Field='SeverityCode'
+                                    HeaderStyle={{ width: 'auto' }}
+                                    RowStyle={{ width: 'auto' }}
+                                    Content={({ item, style }) => {
+                                        applyGroupCellStyle(item, style, 'right');
+                                        return item.SeverityCode;
+                                    }}
+                                >
+                                    Severity
+                                </Column>
+                            </Table>
                     }
                 </div>
             </div>
@@ -155,6 +216,96 @@ const AssetVoltageDisturbances: EventWidget.IWidget<{}> = {
     }
 }
 
+interface IDisturbanceBucket {
+    Rows: IDisturbanceData[];
+    EndTime: number;
+}
+
+/** Groups overlapping disturbances into contiguous display blocks, including singleton groups. */
+export const groupDisturbances = (data: IDisturbanceData[], isTransientEvent = false): IDisturbanceData[] => {
+    const sortedRows = [...data].sort(compareDisturbances);
+    const blocks: IDisturbanceBucket[] = [];
+    let currentBlock: IDisturbanceBucket | undefined;
+
+    sortedRows.forEach(row => {
+        const startTime = getStartTime(row);
+        const endTime = startTime + row.DurationSeconds * 1000;
+
+        if (currentBlock == null || startTime > currentBlock.EndTime) {
+            currentBlock = { Rows: [row], EndTime: endTime };
+            blocks.push(currentBlock);
+        }
+        else {
+            currentBlock.Rows.push(row);
+            currentBlock.EndTime = Math.max(currentBlock.EndTime, endTime);
+        }
+    });
+
+    let groupColorIndex = 0;
+    return blocks.reduce<IDisturbanceData[]>((result, block) => {
+        const groupColor = GROUP_COLORS[groupColorIndex % GROUP_COLORS.length];
+        const selectedWorst = selectGroupWorst(block.Rows, isTransientEvent);
+        groupColorIndex++;
+        block.Rows.forEach((row, index) => result.push({
+            ...row,
+            IsWorstDisturbance: selectedWorst == null ? row.IsWorstDisturbance : row.ID === selectedWorst.ID,
+            GroupColor: groupColor,
+            IsFirstGroupRow: index === 0,
+            IsLastGroupRow: index === block.Rows.length - 1
+        }));
+        return result;
+    }, []);
+}
+
+/** Selects the worst row for a display group when frontend correction is required. */
+const selectGroupWorst = (rows: IDisturbanceData[], isTransientEvent: boolean): IDisturbanceData | undefined => {
+    if (isTransientEvent) return selectFarthestMagnitude(rows);
+
+    const worstDisturbances = rows.filter(row => row.IsWorstDisturbance);
+    if (worstDisturbances.length <= 1) return undefined;
+
+    const interruptions = worstDisturbances.filter(row => row.EventType === 'Interruption');
+    if (interruptions.length > 0) return selectFarthestMagnitude(interruptions);
+
+    const sagsAndSwells = worstDisturbances.filter(row => row.EventType === 'Sag' || row.EventType === 'Swell');
+    if (sagsAndSwells.length > 0) return selectFarthestMagnitude(sagsAndSwells);
+
+    return selectFarthestMagnitude(worstDisturbances);
+}
+
+/** Returns the disturbance whose normalized magnitude is farthest from one. */
+const selectFarthestMagnitude = (rows: IDisturbanceData[]): IDisturbanceData => {
+    return rows.reduce((selected, row) =>
+        Math.abs(row.PerUnitMagnitude - 1) > Math.abs(selected.PerUnitMagnitude - 1) ? row : selected
+    );
+}
+
+/** Sorts disturbances by start time while preserving input order for equal starts. */
+const compareDisturbances = (left: IDisturbanceData, right: IDisturbanceData): number => {
+    return getStartTime(left) - getStartTime(right);
+}
+
+/** Converts a disturbance start time to milliseconds. */
+const getStartTime = (row: IDisturbanceData): number => moment.utc(row.StartTime).valueOf();
+
+/** Applies grouped-row borders to the style object Gemstone passes from Column.Content to its td. */
+const applyGroupCellStyle = (row: IDisturbanceData, style?: React.CSSProperties, columnEdge?: 'left' | 'right'): void => {
+    if (row.GroupColor == null || style == null) return;
+
+    if (row.IsFirstGroupRow)
+        style.borderTop = `2px solid ${row.GroupColor}`;
+
+    if (row.IsLastGroupRow)
+        style.borderBottom = `2px solid ${row.GroupColor}`;
+
+    if (columnEdge === 'left')
+        style.borderLeft = `2px solid ${row.GroupColor}`;
+
+    if (columnEdge === 'right')
+        style.borderRight = `2px solid ${row.GroupColor}`;
+}
+
+/** Requests voltage disturbances for an event. */
 const getDisturbanceData = (homePath: string, eventID: number) => {
     return $.ajax({
         type: "GET",
@@ -162,6 +313,18 @@ const getDisturbanceData = (homePath: string, eventID: number) => {
         contentType: "application/json; charset=utf-8",
         dataType: 'json',
         cache: false,
+        async: true
+    });
+}
+
+/** Requests the selected event type. */
+const getEventType = (homePath: string, eventID: number): JQuery.jqXHR<IEventData[]> => {
+    return $.ajax({
+        type: 'GET',
+        url: `${homePath}api/EventWidgets/EventInfo/${eventID}`,
+        contentType: 'application/json; charset=utf-8',
+        dataType: 'json',
+        cache: true,
         async: true
     });
 }
