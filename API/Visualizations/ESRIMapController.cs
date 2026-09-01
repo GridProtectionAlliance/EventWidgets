@@ -58,6 +58,10 @@ namespace Widgets.API.Visualizations
         public async ServerResponse GetLightningInfo(int eventID, int timeWindow, CancellationToken token) =>
             await ForwardRequest(token).ConfigureAwait(false);
 
+        [Route("SubstationLocation/{eventID:int}"), HttpGet]
+        public async ServerResponse GetSubstationLocation(int eventID, CancellationToken token) =>
+            await ForwardRequest(token).ConfigureAwait(false);
+
         [Route("NearestStructure/{station}/{line}"), HttpGet]
         public async ServerResponse GetNearestStructure(string station, string line, CancellationToken token) =>
             await ForwardRequest(token).ConfigureAwait(false);
