@@ -25,7 +25,7 @@ import { Application, Gemstone, OpenXDA } from '@gpa-gemstone/application-typing
 import { useGetContainerPosition } from '@gpa-gemstone/helper-functions';
 import { Line, Plot, Circle, AggregatingCircles } from '@gpa-gemstone/react-graph';
 import { CheckBox, Input } from '@gpa-gemstone/react-forms';
-import { GenericController, LoadingIcon } from '@gpa-gemstone/react-interactive';
+import { Alert, GenericController, LoadingIcon } from '@gpa-gemstone/react-interactive';
 import * as React from 'react';
 import { EventWidget } from '../../global';
 import { DynamicEventSearchRow, FetchFallbackDynamicEventSearchData, IDynamicEventSearchQuery } from '../DynamicEventTable/DynamicEventSearchData';
@@ -220,9 +220,18 @@ const DynamicMagDurChart: EventWidget.ICollectionWidget<ISettings, DynamicEventS
             ];
         }, [magDurCurves, events, props.EventID, data, props.Settings.Aggregate])
 
+        const errorAlert = status === 'error' || magDurStatus === 'error' ? (
+            <div style={{ flexShrink: 0 }}>
+                <Alert Class='alert-danger'>
+                    {status === 'error' && magDurStatus === 'error' ? 'Error retrieving event data and magnitude duration curves.' :
+                        status === 'error' ? 'Error retrieving event data.' : 'Error retrieving magnitude duration curves.'}
+                </Alert>
+            </div>
+        ) : null;
+
         const content = (
-            <>
-                <LoadingIcon Show={status !== 'idle' || magDurStatus !== 'idle'} />
+            <div style={{ flex: 1, minHeight: 0, overflow: 'hidden' }} ref={bodyRef}>
+                <LoadingIcon Show={status === 'loading' || magDurStatus === 'loading'} />
                 <Plot height={bodyHeight ?? 500} width={bodyWidth ?? 500} showBorder={false} menuLocation={'right'}
                     defaultTdomain={[0.00001, 1000]}
                     defaultYdomain={[0, 5]}
@@ -263,12 +272,13 @@ const DynamicMagDurChart: EventWidget.ICollectionWidget<ISettings, DynamicEventS
                         setSelectedMag(0);
                     }}
                 />
-            </>
+            </div>
         );
 
         if (!props.Settings.ShowCard)
             return (
-                <div className="h-100 w-100" style={{ display: 'flex', flexDirection: "column", overflow: 'hidden' }} ref={bodyRef}>
+                <div className="h-100 w-100" style={{ display: 'flex', flexDirection: "column", overflow: 'hidden' }}>
+                    {errorAlert}
                     {content}
                 </div>
             );
@@ -278,7 +288,8 @@ const DynamicMagDurChart: EventWidget.ICollectionWidget<ISettings, DynamicEventS
                 <div className="card-header">
                     {props.Title == null ? "Magnitude Duration Chart" : props.Title}
                 </div>
-                <div className="card-body p-0" style={{ display: 'flex', flexDirection: "column", flex: 1, overflow: 'hidden' }} ref={bodyRef}>
+                <div className="card-body p-0" style={{ display: 'flex', flexDirection: "column", flex: 1, overflow: 'hidden' }}>
+                    {errorAlert}
                     {content}
                 </div>
             </div>
