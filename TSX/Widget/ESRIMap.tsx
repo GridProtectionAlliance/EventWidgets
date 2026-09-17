@@ -559,8 +559,8 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
         }, [faultInfo, authToken, props.Settings.TransmissionLineLayer, props.Settings.TransmissionLineQuery]);
 
         return (
-            <div className="card" style={{ maxHeight: props.MaxHeight ?? '50vh' }}>
-                <div className="card-header fixed-top" style={{ position: 'sticky' }}>
+            <div className="card" style={{ maxHeight: props.MaxHeight ?? '50vh', display: 'block', overflowY: 'auto', overflowX: 'hidden' }}>
+                <div className="card-header fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>
                     <div className="row">
                         <div className="col-6 d-flex align-items-center">
                             ESRI Map
