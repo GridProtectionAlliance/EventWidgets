@@ -30,7 +30,7 @@ export interface IDynamicEventSearchRequest {
     eventID?: number,
     durationMin?: number,
     durationMax?: number,
-    phases?: { AN: boolean, BN: boolean, CN: boolean, AB: boolean, BC: boolean, CA: boolean, ABG: boolean, BCG: boolean, ABC: boolean, ABCG: boolean },
+    phases?: { AN: boolean, BN: boolean, CN: boolean, AB: boolean, BC: boolean, CA: boolean, ABG: boolean, BCG: boolean, CAG: boolean, ABC: boolean, ABCG: boolean },
     transientMin?: number,
     transientMax?: number,
     transientType?: 'both' | 'LL' | 'LN',
@@ -108,6 +108,7 @@ export function BuildFallbackDynamicEventSearchRequest(
             CA: true,
             ABG: true,
             BCG: true,
+            CAG: true,
             ABC: true,
             ABCG: true
         },
