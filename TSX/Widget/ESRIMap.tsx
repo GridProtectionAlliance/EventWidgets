@@ -89,6 +89,10 @@ const markerIcon = leaflet.divIcon({
     iconAnchor: [12, 24],
 });
 
+const MAX_SECTION_HEIGHT = 500;
+const MIN_MAP_HEIGHT = 250;
+const MIN_TABLE_HEIGHT = 150;
+
 const ESRIMap: EventWidget.IWidget<ISettings> = {
     Name: 'ESRIMap',
     DefaultSettings: {
@@ -285,6 +289,10 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
         const locationWarning = structureStatus === 'error' ? `Unable to load the nearest structure location. The map will use the meter's location instead.` : '';
         const mapWarning = [layerErrors.length > 0 ? `Unable to load ${layerErrors.length} map ${layerErrors.length === 1 ? 'layer' : 'layers'}.` : '', locationWarning]
             .filter(message => message.length > 0).join(' ');
+        // Map and table each get half the widget height, capped at MAX_SECTION_HEIGHT once MaxHeight exceeds 1000.
+        const sectionHeight = Math.min(MAX_SECTION_HEIGHT, props.MaxHeight / 2);
+        const mapHeight = Math.max(MIN_MAP_HEIGHT, sectionHeight);
+        const tableHeight = Math.max(MIN_TABLE_HEIGHT, sectionHeight);
 
         /* Get Lightning Info */
         React.useEffect(() => {
@@ -425,6 +433,11 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
             basemapLayer('Gray').addTo(map.current);
         }, []);
 
+        // Re-measure the map when its height changes so Leaflet fills the resized container.
+        React.useEffect(() => {
+            map.current?.invalidateSize();
+        }, [mapHeight]);
+
         /* Create map and map layers */
         React.useEffect(() => {
             if (div.current == null) return;
@@ -559,8 +572,8 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
         }, [faultInfo, authToken, props.Settings.TransmissionLineLayer, props.Settings.TransmissionLineQuery]);
 
         return (
-            <div className="card" style={{ maxHeight: props.MaxHeight ?? '50vh' }}>
-                <div className="card-header fixed-top" style={{ position: 'sticky' }}>
+            <div className="card">
+                <div className="card-header fixed-top" style={{ position: 'sticky', background: '#f7f7f7' }}>
                     <div className="row">
                         <div className="col-6 d-flex align-items-center">
                             ESRI Map
@@ -594,7 +607,7 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
                 }
                 <div className="row">
                     <div className="col">
-                        <div ref={div} style={{ height: 400, padding: 5, border: 'solid 1px gray' }}></div>
+                        <div ref={div} style={{ height: mapHeight, padding: 5, border: 'solid 1px gray' }}></div>
                     </div>
                 </div>
                 <div className="row">
@@ -616,7 +629,7 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
                             Ascending={true}
                             OnSort={() => {/*Do Nothing*/ }}
                             TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                            TbodyStyle={{ display: 'block', overflowY: 'auto', maxHeight: props.MaxHeight ?? 500 }}
+                            TbodyStyle={{ display: 'block', overflowY: 'auto', maxHeight: tableHeight }}
                             RowStyle={{ display: 'table', tableLayout: 'fixed', width: 'calc(100%)' }}
                             Selected={() => false}
                         >
