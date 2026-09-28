@@ -91,7 +91,7 @@ const markerIcon = leaflet.divIcon({
 
 const MAX_SECTION_HEIGHT = 500;
 const MIN_MAP_HEIGHT = 250;
-const MIN_TABLE_HEIGHT = 150;
+const MIN_TABLE_HEIGHT = 200;
 
 const ESRIMap: EventWidget.IWidget<ISettings> = {
     Name: 'ESRIMap',
