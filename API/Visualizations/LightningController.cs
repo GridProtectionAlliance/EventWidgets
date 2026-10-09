@@ -52,8 +52,8 @@ namespace Widgets.API.Visualizations
         public LightningController(IAPICredentialRetriever retriever) : base(retriever) { }
 #endif
 
-        [Route("{eventID:int}"), HttpGet]
-        public async ServerResponse Get(int eventID, CancellationToken token) =>
+        [Route("{eventID:int}/{widgetID:int}"), HttpGet]
+        public async ServerResponse Get(int eventID, int widgetID, CancellationToken token) =>
             await ForwardRequest(token).ConfigureAwait(false);
     }
 }

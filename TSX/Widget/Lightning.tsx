@@ -29,14 +29,47 @@ import { Table, Column } from '@gpa-gemstone/react-table';
 import { useGetContainerPosition } from '@gpa-gemstone/helper-functions';
 import { Application } from '@gpa-gemstone/application-typings';
 import { Alert } from '@gpa-gemstone/react-interactive';
+import { TextArea } from '@gpa-gemstone/react-forms';
 
-const TVALightningChart: EventWidget.IWidget<{}> = {
+interface ISetting {
+    /** SQL query run against the dbLightning connection. When empty, the built-in default query is used. */
+    SQLCommand: string
+}
+
+type LightningRow = Record<string, string | number | null>;
+
+const TVALightningChart: EventWidget.IWidget<ISetting> = {
     Name: 'Lightning',
-    DefaultSettings: {},
-    Settings: () => {
-        return <></>
+    DefaultSettings: {
+        SQLCommand: ''
     },
-    Widget: (props: EventWidget.IWidgetProps<{}>) => {
+    Settings: (props) => {
+        return (
+            <div className="row">
+                <div className="col">
+                    <TextArea<ISetting>
+                        Rows={10}
+                        Record={props.Settings}
+                        Field="SQLCommand"
+                        Label="SQL Command"
+                        Valid={() => true}
+                        Setter={props.SetSettings}
+                        Help={
+                            <>
+                                Leave blank to use the default query. <code>{'{0}'}</code> is replaced with the event start time (UTC).
+                                The query must return one row per day, ordered by day, with the following columns:
+                                <ul className="mb-0">
+                                    <li><code>Day</code> - the date of the row.</li>
+                                    <li>One numeric column per lightning service containing the strike count for that day. The column name is used as the series label in the chart and table.</li>
+                                </ul>
+                            </>
+                        }
+                    />
+                </div>
+            </div>
+        );
+    },
+    Widget: (props: EventWidget.IWidgetProps<ISetting>) => {
         const divref = React.useRef<HTMLDivElement | null>(null);
         const { offsetWidth } = useGetContainerPosition(divref);
 
@@ -55,30 +88,21 @@ const TVALightningChart: EventWidget.IWidget<{}> = {
         const [xaxis, setXaxis] = React.useState<Array<number>>([]);
         const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
 
+        // Reload the lightning history whenever the event or the widget whose query is used changes.
         React.useEffect(() => {
             setHidden(true);
             setPaths([]);
-            return GetData();
-        }, [props.EventID]);
+            const handle = getLightningData(props.HomePath, props.EventID, props.WidgetID);
 
-        function GetData() {
-            const handle = $.ajax({
-                type: "GET",
-                url: `${props.HomePath}api/EventWidgets/Lightning/${props.EventID}`,
-                contentType: "application/json; charset=utf-8",
-                dataType: 'json',
-                cache: true,
-                async: true
-            }).done(data => {
+            handle.done(data => {
                 setStatus('idle');
                 MakeDict(data);
             }).fail(() => setStatus('error'));
 
-
-            return function () {
-                if (handle.abort != undefined) handle.abort();
-            }
-        }
+            return () => {
+                if (handle?.abort != null) handle.abort();
+            };
+        }, [props.EventID, props.HomePath, props.WidgetID]);
 
         function MakeDict(data) {
             const dict: { Day: { Data: Array<number> } } = { Day: { Data: [] } };
@@ -286,5 +310,17 @@ const TVALightningChart: EventWidget.IWidget<{}> = {
         );
     }
 }
+
+/** Fetches the daily lightning strike counts for an event using the widget's configured query. */
+const getLightningData = (homePath: string, eventID: number, widgetID: number) => {
+    return $.ajax({
+        type: "GET",
+        url: `${homePath}api/EventWidgets/Lightning/${eventID}/${widgetID}`,
+        contentType: "application/json; charset=utf-8",
+        dataType: 'json',
+        cache: false,
+        async: true
+    }) as JQuery.jqXHR<LightningRow[]>;
+};
 
 export default TVALightningChart;
