@@ -57,10 +57,10 @@ const TVALightningChart: EventWidget.IWidget<ISetting> = {
                         Help={
                             <>
                                 Leave blank to use the default query. <code>{'{0}'}</code> is replaced with the event start time (UTC).
-                                The query must return one row per day, ordered by day, with the following columns:
+                                The query must return one row per day for 30 days, ordered by <code>Day</code>, with the following columns:
                                 <ul className="mb-0">
-                                    <li><code>Day</code> - the date of the row.</li>
-                                    <li>One numeric column per lightning service containing the strike count for that day. The column name is used as the series label in the chart and table.</li>
+                                    <li><code>Day</code> - the date of the row. The name is case-sensitive.</li>
+                                    <li>One numeric column per lightning service containing the strike count for that day. Every column other than <code>Day</code> is treated as a service, and its name is used as the series label in the chart and table.</li>
                                 </ul>
                             </>
                         }
