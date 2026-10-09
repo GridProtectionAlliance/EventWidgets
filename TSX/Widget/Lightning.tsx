@@ -26,7 +26,7 @@ import { scaleLinear, line, extent, select, axisLeft } from 'd3';
 import moment from 'moment';
 import { EventWidget } from '../global';
 import { Table, Column } from '@gpa-gemstone/react-table';
-import { useGetContainerPosition } from '@gpa-gemstone/helper-functions';
+import { useGetContainerPosition, GetColor } from '@gpa-gemstone/helper-functions';
 import { Application } from '@gpa-gemstone/application-typings';
 import { Alert } from '@gpa-gemstone/react-interactive';
 import { TextArea } from '@gpa-gemstone/react-forms';
@@ -106,13 +106,18 @@ const TVALightningChart: EventWidget.IWidget<ISetting> = {
 
         function MakeDict(data) {
             const dict: { Day: { Data: Array<number> } } = { Day: { Data: [] } };
+            let paletteIndex = 0;
 
             data.forEach((d) => {
                 Object.keys(d).forEach((key) => {
                     if (Object.prototype.hasOwnProperty.call(dict, key))
                         dict[key].Data.push((key == 'Day' ? moment(d[key]).unix() : d[key]))
                     else
-                        dict[key] = { Data: [(key == 'Day' ? moment(d[key]).unix() : d[key])], Show: true }
+                        dict[key] = {
+                            Data: [(key == 'Day' ? moment(d[key]).unix() : d[key])],
+                            Show: true,
+                            Color: GetColor(paletteIndex++)
+                        }
                 });
             })
             setTableData(dict)
@@ -162,7 +167,7 @@ const TVALightningChart: EventWidget.IWidget<ISetting> = {
             $.each(Object.keys(dict).filter(x => x != 'Day'), (index, key) => {
                 if (!dict[key].Show) return;
                 const d = dict[key].Data.map((a, i) => [dict["Day"].Data[i], a]);
-                newPaths.push(<path key={key} fill='none' strokeLinejoin='round' strokeWidth='1.5' stroke={getColor(key)} d={linefunc(d)} />);
+                newPaths.push(<path key={key} fill='none' strokeLinejoin='round' strokeWidth='1.5' style={{ stroke: dict[key].Color }} d={linefunc(d)} />);
             });
             setPaths(newPaths);
 
@@ -171,22 +176,6 @@ const TVALightningChart: EventWidget.IWidget<ISetting> = {
             //})).call(g => g.select(".domain").remove());
             select('#yaxis').call(axisLeft(y).ticks(5) as any).call(g => g.select(".domain").remove());
 
-        }
-
-        function getColor(label) {
-            if (label.indexOf('Vaisala - Stroke') >= 0) return '#A30000';
-            if (label.indexOf('Vaisala - Flash') >= 0) return '#0029A3';
-            if (label.indexOf('Vaisala Reprocess - Stroke') >= 0) return '#007A29';
-            if (label.indexOf('Vaisala Reprocess - Flash') >= 0) return '#8B008B';
-            if (label.indexOf('Weatherbug') >= 0) return '#FF0000';
-
-            else {
-                const ranNumOne = Math.floor(Math.random() * 256).toString(16);
-                const ranNumTwo = Math.floor(Math.random() * 256).toString(16);
-                const ranNumThree = Math.floor(Math.random() * 256).toString(16);
-
-                return `#${(ranNumOne.length > 1 ? ranNumOne : "0" + ranNumOne)}${(ranNumTwo.length > 1 ? ranNumTwo : "0" + ranNumTwo)}${(ranNumThree.length > 1 ? ranNumThree : "0" + ranNumThree)}`;
-            }
         }
 
         function handleMouseOver(evt: React.MouseEvent<SVGSVGElement, MouseEvent>) {
@@ -258,7 +247,7 @@ const TVALightningChart: EventWidget.IWidget<ISetting> = {
                                             tableData[key].Show = !tableData[key].Show
                                             setTableData(tableData);
                                             DrawChart(tableData);
-                                        }} style={{ display: 'inline-block', marginRight: 10, height: 20, width: 20, backgroundColor: (tableData[key].Show ? getColor(key) : 'darkgray') }}
+                                        }} style={{ display: 'inline-block', marginRight: 10, height: 20, width: 20, backgroundColor: (tableData[key].Show ? tableData[key].Color : 'darkgray') }}
                                         >
                                         </span>
                                         {key}
