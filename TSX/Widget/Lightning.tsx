@@ -26,17 +26,50 @@ import { scaleLinear, line, extent, select, axisLeft } from 'd3';
 import moment from 'moment';
 import { EventWidget } from '../global';
 import { Table, Column } from '@gpa-gemstone/react-table';
-import { useGetContainerPosition } from '@gpa-gemstone/helper-functions';
+import { useGetContainerPosition, GetColor } from '@gpa-gemstone/helper-functions';
 import { Application } from '@gpa-gemstone/application-typings';
 import { Alert } from '@gpa-gemstone/react-interactive';
+import { TextArea } from '@gpa-gemstone/react-forms';
 
-const TVALightningChart: EventWidget.IWidget<{}> = {
+interface ISetting {
+    /** SQL query run against the dbLightning connection. When empty, the built-in default query is used. */
+    SQLCommand: string
+}
+
+type LightningRow = Record<string, string | number | null>;
+
+const TVALightningChart: EventWidget.IWidget<ISetting> = {
     Name: 'Lightning',
-    DefaultSettings: {},
-    Settings: () => {
-        return <></>
+    DefaultSettings: {
+        SQLCommand: ''
     },
-    Widget: (props: EventWidget.IWidgetProps<{}>) => {
+    Settings: (props) => {
+        return (
+            <div className="row">
+                <div className="col">
+                    <TextArea<ISetting>
+                        Rows={10}
+                        Record={props.Settings}
+                        Field="SQLCommand"
+                        Label="SQL Command"
+                        Valid={() => true}
+                        Setter={props.SetSettings}
+                        Help={
+                            <>
+                                Leave blank to use the default query. <code>{'{0}'}</code> is replaced with the event start time (UTC).
+                                The query must return one row per day for 30 days, ordered by <code>Day</code>, with the following columns:
+                                <ul className="mb-0">
+                                    <li><code>Day</code> - the date of the row. The name is case-sensitive.</li>
+                                    <li>One numeric column per lightning service containing the strike count for that day. Every column other than <code>Day</code> is treated as a service, and its name is used as the series label in the chart and table.</li>
+                                </ul>
+                            </>
+                        }
+                    />
+                </div>
+            </div>
+        );
+    },
+    Widget: (props: EventWidget.IWidgetProps<ISetting>) => {
         const divref = React.useRef<HTMLDivElement | null>(null);
         const { offsetWidth } = useGetContainerPosition(divref);
 
@@ -55,40 +88,36 @@ const TVALightningChart: EventWidget.IWidget<{}> = {
         const [xaxis, setXaxis] = React.useState<Array<number>>([]);
         const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
 
+        // Reload the lightning history whenever the event or the widget whose query is used changes.
         React.useEffect(() => {
             setHidden(true);
             setPaths([]);
-            return GetData();
-        }, [props.EventID]);
+            const handle = getLightningData(props.HomePath, props.EventID, props.WidgetID);
 
-        function GetData() {
-            const handle = $.ajax({
-                type: "GET",
-                url: `${props.HomePath}api/EventWidgets/Lightning/${props.EventID}`,
-                contentType: "application/json; charset=utf-8",
-                dataType: 'json',
-                cache: true,
-                async: true
-            }).done(data => {
+            handle.done(data => {
                 setStatus('idle');
                 MakeDict(data);
             }).fail(() => setStatus('error'));
 
-
-            return function () {
-                if (handle.abort != undefined) handle.abort();
-            }
-        }
+            return () => {
+                if (handle?.abort != null) handle.abort();
+            };
+        }, [props.EventID, props.HomePath, props.WidgetID]);
 
         function MakeDict(data) {
             const dict: { Day: { Data: Array<number> } } = { Day: { Data: [] } };
+            let paletteIndex = 0;
 
             data.forEach((d) => {
                 Object.keys(d).forEach((key) => {
                     if (Object.prototype.hasOwnProperty.call(dict, key))
                         dict[key].Data.push((key == 'Day' ? moment(d[key]).unix() : d[key]))
                     else
-                        dict[key] = { Data: [(key == 'Day' ? moment(d[key]).unix() : d[key])], Show: true }
+                        dict[key] = {
+                            Data: [(key == 'Day' ? moment(d[key]).unix() : d[key])],
+                            Show: true,
+                            Color: GetColor(paletteIndex++)
+                        }
                 });
             })
             setTableData(dict)
@@ -138,7 +167,7 @@ const TVALightningChart: EventWidget.IWidget<{}> = {
             $.each(Object.keys(dict).filter(x => x != 'Day'), (index, key) => {
                 if (!dict[key].Show) return;
                 const d = dict[key].Data.map((a, i) => [dict["Day"].Data[i], a]);
-                newPaths.push(<path key={key} fill='none' strokeLinejoin='round' strokeWidth='1.5' stroke={getColor(key)} d={linefunc(d)} />);
+                newPaths.push(<path key={key} fill='none' strokeLinejoin='round' strokeWidth='1.5' style={{ stroke: dict[key].Color }} d={linefunc(d)} />);
             });
             setPaths(newPaths);
 
@@ -147,22 +176,6 @@ const TVALightningChart: EventWidget.IWidget<{}> = {
             //})).call(g => g.select(".domain").remove());
             select('#yaxis').call(axisLeft(y).ticks(5) as any).call(g => g.select(".domain").remove());
 
-        }
-
-        function getColor(label) {
-            if (label.indexOf('Vaisala - Stroke') >= 0) return '#A30000';
-            if (label.indexOf('Vaisala - Flash') >= 0) return '#0029A3';
-            if (label.indexOf('Vaisala Reprocess - Stroke') >= 0) return '#007A29';
-            if (label.indexOf('Vaisala Reprocess - Flash') >= 0) return '#8B008B';
-            if (label.indexOf('Weatherbug') >= 0) return '#FF0000';
-
-            else {
-                const ranNumOne = Math.floor(Math.random() * 256).toString(16);
-                const ranNumTwo = Math.floor(Math.random() * 256).toString(16);
-                const ranNumThree = Math.floor(Math.random() * 256).toString(16);
-
-                return `#${(ranNumOne.length > 1 ? ranNumOne : "0" + ranNumOne)}${(ranNumTwo.length > 1 ? ranNumTwo : "0" + ranNumTwo)}${(ranNumThree.length > 1 ? ranNumThree : "0" + ranNumThree)}`;
-            }
         }
 
         function handleMouseOver(evt: React.MouseEvent<SVGSVGElement, MouseEvent>) {
@@ -234,7 +247,7 @@ const TVALightningChart: EventWidget.IWidget<{}> = {
                                             tableData[key].Show = !tableData[key].Show
                                             setTableData(tableData);
                                             DrawChart(tableData);
-                                        }} style={{ display: 'inline-block', marginRight: 10, height: 20, width: 20, backgroundColor: (tableData[key].Show ? getColor(key) : 'darkgray') }}
+                                        }} style={{ display: 'inline-block', marginRight: 10, height: 20, width: 20, backgroundColor: (tableData[key].Show ? tableData[key].Color : 'darkgray') }}
                                         >
                                         </span>
                                         {key}
@@ -286,5 +299,17 @@ const TVALightningChart: EventWidget.IWidget<{}> = {
         );
     }
 }
+
+/** Fetches the daily lightning strike counts for an event using the widget's configured query. */
+const getLightningData = (homePath: string, eventID: number, widgetID: number) => {
+    return $.ajax({
+        type: "GET",
+        url: `${homePath}api/EventWidgets/Lightning/${eventID}/${widgetID}`,
+        contentType: "application/json; charset=utf-8",
+        dataType: 'json',
+        cache: false,
+        async: true
+    }) as JQuery.jqXHR<LightningRow[]>;
+};
 
 export default TVALightningChart;
