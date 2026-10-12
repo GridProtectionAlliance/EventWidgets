@@ -302,7 +302,7 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
                 url: `${props.HomePath}api/EventWidgets/ESRIMap/GetLightningInfo/${props.EventID}/${window}`,
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
-                cache: true,
+                cache: false,
                 async: true
             }).done((d) => {
                 setLightningInfo(d);
@@ -355,7 +355,7 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
                 url: `${props.HomePath}api/EventWidgets/FaultInformation/${props.EventID}`,
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
-                cache: true,
+                cache: false,
                 async: true,
                 error: function (response, ajaxOptions, thrownError) {
                     console.error('StringError: ' + ajaxOptions + '\n\nthrownError: ' + JSON.stringify(thrownError) + '\n\nResponse: ' + JSON.stringify(response));
@@ -377,7 +377,7 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
                 type: 'GET',
                 url: `${props.HomePath}api/EventWidgets/ESRIMap/SubstationLocation/${props.EventID}`,
                 dataType: 'json',
-                cache: true
+                cache: false
             }) as JQuery.jqXHR<IStructureLocation[]>;
 
             handle.done((data) => {
@@ -411,7 +411,7 @@ const ESRIMap: EventWidget.IWidget<ISettings> = {
                 type: 'GET',
                 url: resolveVars(props.Settings.StructureCrawlerURL, faultInfo),
                 dataType: 'text',
-                cache: true,
+                cache: false,
                 xhrFields: { withCredentials: true }
             }).done((response) => {
                 const location = parseStructureLocation(response);

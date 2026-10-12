@@ -182,7 +182,7 @@ const getHasPQIData = (homePath: string, eventID: number) => {
         contentType: 'application/json; charset=utf-8',
         data: JSON.stringify({ EventID: eventID }),
         dataType: 'json',
-        cache: true,
+        cache: false,
         async: true
     }) as JQuery.jqXHR<boolean>;
 }
@@ -194,7 +194,7 @@ const getEquipment = (homePath: string, eventID: number) => {
         contentType: 'application/json; charset=utf-8',
         data: JSON.stringify({ EventID: eventID }),
         dataType: 'json',
-        cache: true,
+        cache: false,
         async: true
     }) as JQuery.jqXHR<PQI.Types.Equipment[]>;
 }

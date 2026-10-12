@@ -83,7 +83,7 @@ const LineParameters: EventWidget.IWidget<ISetting> = {
                 url: `${props.HomePath}api/EventWidgets/LineParameter/${props.EventID}`,
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
-                cache: true,
+                cache: false,
                 async: true
             });
 

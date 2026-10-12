@@ -44,7 +44,7 @@ const StructureInfo: EventWidget.IWidget<{}> = {
                 url: `${props.HomePath}api/EventWidgets/FaultInformation/${props.EventID}`,
                 contentType: 'application/json; charset=utf-8',
                 dataType: 'json',
-                cache: true,
+                cache: false,
                 async: true,
             });
             return res;
@@ -56,7 +56,7 @@ const StructureInfo: EventWidget.IWidget<{}> = {
                 url: `${props.HomePath}api/EventWidgets/ESRIMap/NearestStructure/${station}/${line}?mileage=${mileage}`,
                 contentType: 'application/json; charset=utf-8',
                 dataType: 'json',
-                cache: true,
+                cache: false,
                 async: true,
             });
             return res;

@@ -63,7 +63,7 @@ const EventCountTable: EventWidget.ICollectionWidget<{}> = {
                     EndTime: props.CurrentFilter.TimeFilter.EndTime
                 }),
                 dataType: 'json',
-                cache: true,
+                cache: false,
                 async: true
             });
             

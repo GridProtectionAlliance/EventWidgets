@@ -475,7 +475,7 @@ const getNoteTypes = (homePath: string): JQuery.jqXHR<OpenXDA.Types.NoteType[]> 
         url: `${homePath}api/EventWidgets/Note/NoteType`,
         contentType: 'application/json; charset=utf-8',
         dataType: 'json',
-        cache: true,
+        cache: false,
         async: true
     }) as JQuery.jqXHR<OpenXDA.Types.NoteType[]>;
 };
@@ -486,7 +486,7 @@ const getNoteTags = (homePath: string): JQuery.jqXHR<OpenXDA.Types.NoteTag[]> =>
         url: `${homePath}api/EventWidgets/Note/NoteTag`,
         contentType: 'application/json; charset=utf-8',
         dataType: 'json',
-        cache: true,
+        cache: false,
         async: true
     }) as JQuery.jqXHR<OpenXDA.Types.NoteTag[]>;
 };
@@ -497,7 +497,7 @@ const getNoteApp = (homePath: string): JQuery.jqXHR<OpenXDA.Types.NoteApplicatio
         url: `${homePath}api/EventWidgets/Note/NoteApp`,
         contentType: 'application/json; charset=utf-8',
         dataType: 'json',
-        cache: true,
+        cache: false,
         async: true
     }) as JQuery.jqXHR<OpenXDA.Types.NoteApplication[]>;
 };
@@ -506,7 +506,7 @@ const getIDs = (homePath: string, eventID: number): JQuery.jqXHR<IEventInformati
     return $.ajax({
         type: 'GET',
         url: `${homePath}api/EventWidgets/Note/EventInformation/${eventID}`,
-        cache: true,
+        cache: false,
         async: true
     }) as JQuery.jqXHR<IEventInformation>;
 };
