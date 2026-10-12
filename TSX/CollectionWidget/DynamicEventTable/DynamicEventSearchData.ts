@@ -76,7 +76,7 @@ export function GetDynamicEventSearchData(params: IDynamicEventSearchRequest, ro
         contentType: "application/json; charset=utf-8",
         data: JSON.stringify(params),
         dataType: 'json',
-        cache: true,
+        cache: false,
         async: true
     });
 }

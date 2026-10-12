@@ -129,16 +129,21 @@ const DynamicMagDurChart: EventWidget.ICollectionWidget<ISettings, DynamicEventS
                 return;
             }
 
+            // Set by cleanup so a cancelled request is not reported as a failure
+            let cancelled = false;
+
             handle.then((data) => {
                 setEvents(data);
                 setStatus('idle');
                 if (props.OnDataLoaded != null)
                     props.OnDataLoaded(data.length);
             }, () => {
-                setStatus('error');
+                if (!cancelled)
+                    setStatus('error');
             });
 
             return () => {
+                cancelled = true;
                 if (handle?.abort != null)
                     handle.abort();
             };
@@ -223,8 +228,8 @@ const DynamicMagDurChart: EventWidget.ICollectionWidget<ISettings, DynamicEventS
         const errorAlert = status === 'error' || magDurStatus === 'error' ? (
             <div style={{ flexShrink: 0 }}>
                 <Alert Class='alert-danger'>
-                    {status === 'error' && magDurStatus === 'error' ? 'Error retrieving event data and magnitude duration curves.' :
-                        status === 'error' ? 'Error retrieving event data.' : 'Error retrieving magnitude duration curves.'}
+                    {status === 'error' && magDurStatus === 'error' ? 'Error retrieving event data and magnitude duration curves. The last successful results are shown.' :
+                        status === 'error' ? 'Error retrieving event data. The last successful results are shown.' : 'Error retrieving magnitude duration curves.'}
                 </Alert>
             </div>
         ) : null;
