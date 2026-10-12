@@ -217,7 +217,7 @@ const getInterruptionData = (homePath: string, eventID: number, hours: number) =
         url: `${homePath}api/EventWidgets/InterruptionReport/GetEvents/${hours}/${eventID}`,
         contentType: "application/json; charset=utf-8",
         dataType: 'json',
-        cache: true,
+        cache: false,
         async: true
     });
 };

@@ -168,7 +168,7 @@ const getHistoryData = (homePath: string, eventID: number, count: number) => {
         url: `${homePath}api/EventWidgets/AssetHistoryTable/${eventID}/${count}`,
         contentType: "application/json; charset=utf-8",
         dataType: 'json',
-        cache: true,
+        cache: false,
         async: true
     });
 };

@@ -164,7 +164,7 @@ const EventCountChart: EventWidget.ICollectionWidget<ISettings> = {
                     Granularity: props.Settings.Granularity
                 }),
                 dataType: 'json',
-                cache: true,
+                cache: false,
                 async: true
             });
 

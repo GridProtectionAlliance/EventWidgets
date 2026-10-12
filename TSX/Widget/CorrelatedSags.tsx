@@ -218,7 +218,7 @@ const getTimeCorrelatedSags = (homePath: string, eventID: number, timeTolerance:
         url: `${homePath}api/EventWidgets/CorrelatedSags?eventId=${eventID}&timeTolerance=${timeTolerance}`,
         contentType: 'application/json; charset=utf-8',
         dataType: 'json',
-        cache: true,
+        cache: false,
         async: true
     });
 };

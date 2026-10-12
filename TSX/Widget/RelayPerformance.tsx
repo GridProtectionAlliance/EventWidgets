@@ -238,7 +238,7 @@ const getRelayPerformanceData = (homePath: string, eventID: number) => {
         url: `${homePath}api/EventWidgets/RelayPerformance?eventId=${eventID}`,
         contentType: "application/json; charset=utf-8",
         dataType: 'json',
-        cache: true,
+        cache: false,
         async: true
     });
 };

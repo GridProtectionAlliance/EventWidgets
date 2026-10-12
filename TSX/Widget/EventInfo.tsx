@@ -68,7 +68,7 @@ const EventInfo: EventWidget.IWidget<{}> = {
                 url: `${props.HomePath}api/EventWidgets/EventInfo/${props.EventID}`,
                 contentType: 'application/json; charset=utf-8',
                 dataType: 'json',
-                cache: true,
+                cache: false,
                 async: true,
             });
 

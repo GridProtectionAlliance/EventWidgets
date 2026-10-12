@@ -171,7 +171,7 @@ const getFaultInfo = (homePath: string, eventID: number) => {
         url: `${homePath}api/EventWidgets/FaultInformation/${eventID}`,
         contentType: "application/json; charset=utf-8",
         dataType: 'json',
-        cache: true,
+        cache: false,
         async: true
     });
 };
@@ -182,7 +182,7 @@ const getFaultInfoLinks = (homePath: string) => {
         url: `${homePath}api/EventWidgets/FaultInformation/GetLinks/FaultInfo`,
         contentType: "application/json; charset=utf-8",
         dataType: 'json',
-        cache: true,
+        cache: false,
         async: true
     });
 };

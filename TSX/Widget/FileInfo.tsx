@@ -210,7 +210,7 @@ const getFileName = (homePath: string, eventID: number) => {
         url: `${homePath}api/EventWidgets/FileInfo/GetFileName/${eventID}`,
         contentType: "application/json; charset=utf-8",
         dataType: 'json',
-        cache: true,
+        cache: false,
         async: true
     });
 };
@@ -221,7 +221,7 @@ const getMappedChannels = (homePath: string, eventID: number) => {
         url: `${homePath}api/EventWidgets/FileInfo/GetMappedChannels/${eventID}`,
         contentType: "application/json; charset=utf-8",
         dataType: 'json',
-        cache: true,
+        cache: false,
         async: true
     });
 };
@@ -232,7 +232,7 @@ const getMeterConfiguration = (homePath: string, eventID: number) => {
         url: `${homePath}api/EventWidgets/FileInfo/GetMeterConfiguration/${eventID}`,
         contentType: "application/json; charset=utf-8",
         dataType: 'json',
-        cache: true,
+        cache: false,
         async: true
     });
 };

@@ -324,7 +324,7 @@ const getEventType = (homePath: string, eventID: number): JQuery.jqXHR<IEventDat
         url: `${homePath}api/EventWidgets/EventInfo/${eventID}`,
         contentType: 'application/json; charset=utf-8',
         dataType: 'json',
-        cache: true,
+        cache: false,
         async: true
     });
 }
