@@ -117,7 +117,7 @@ namespace Widgets.Configuration
 
         private IEnumerable<string[]> LoadWidgetSettings(AdoDataConnection connection, int widgetID)
         {
-            string widgetSettings = new TableOperations<SEBrowser.Model.Widget>(connection).QueryRecord(new RecordRestriction("ID = {0}", widgetID)).Setting;
+            string widgetSettings = new TableOperations<PQBrowser.Model.Widget>(connection).QueryRecord(new RecordRestriction("ID = {0}", widgetID)).Setting;
             return JsonConfigurationParser.Parse(widgetSettings).Select(v => ToArray(v.Key, v.Value));
         }
 
