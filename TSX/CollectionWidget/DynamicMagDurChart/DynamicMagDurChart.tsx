@@ -228,8 +228,9 @@ const DynamicMagDurChart: EventWidget.ICollectionWidget<ISettings, DynamicEventS
         const errorAlert = status === 'error' || magDurStatus === 'error' ? (
             <div style={{ flexShrink: 0 }}>
                 <Alert Class='alert-danger'>
-                    {status === 'error' && magDurStatus === 'error' ? 'Error retrieving event data and magnitude duration curves. The last successful results are shown.' :
-                        status === 'error' ? 'Error retrieving event data. The last successful results are shown.' : 'Error retrieving magnitude duration curves.'}
+                    {status === 'error' && magDurStatus === 'error' ? 'Error retrieving event data and magnitude duration curves.' :
+                        status === 'error' ? 'Error retrieving event data.' : 'Error retrieving magnitude duration curves.'}
+                    {status === 'error' && events.length > 0 ? ' The last successful results are shown.' : null}
                 </Alert>
             </div>
         ) : null;

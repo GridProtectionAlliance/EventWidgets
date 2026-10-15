@@ -107,7 +107,8 @@ const DynamicEventSearch: EventWidget.ICollectionWidget<ISettings, DynamicEventS
         const errorAlert = status === 'error' ? (
             <div style={{ flexShrink: 0 }}>
                 <Alert Class='alert-danger'>
-                    Error retrieving event data. The last successful results are shown.
+                    Error retrieving event data.
+                    {events.length > 0 ? ' The last successful results are shown.' : null}
                 </Alert>
             </div>
         ) : null;
