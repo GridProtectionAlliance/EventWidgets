@@ -19,6 +19,7 @@
 import { Application, Gemstone } from '@gpa-gemstone/application-typings';
 import { useGetContainerPosition } from '@gpa-gemstone/helper-functions';
 import { CheckBox, Input } from '@gpa-gemstone/react-forms';
+import { Alert } from '@gpa-gemstone/react-interactive';
 import _ from 'lodash';
 import * as React from 'react';
 import { DynamicEventSearchList } from './DynamicEventSearchTable';
@@ -83,48 +84,65 @@ const DynamicEventSearch: EventWidget.ICollectionWidget<ISettings, DynamicEventS
                 return;
             }
 
+            // Set by cleanup so a cancelled request is not reported as a failure
+            let cancelled = false;
+
             handle.then((data) => {
                 setEvents(data);
                 setStatus('idle');
                 if (props.OnDataLoaded != null)
                     props.OnDataLoaded(data.length);
             }, () => {
-                setStatus('error');
+                if (!cancelled)
+                    setStatus('error');
             });
 
             return () => {
+                cancelled = true;
                 if (handle?.abort != null)
                     handle.abort();
             };
         }, [props.GetEventData, props.CurrentFilter, props.HomePath, props.Settings.NumberResults, props.OnDataLoaded, sortField, ascending]);
 
+        const errorAlert = status === 'error' ? (
+            <div style={{ flexShrink: 0 }}>
+                <Alert Class='alert-danger'>
+                    Error retrieving event data.
+                    {events.length > 0 ? ' The last successful results are shown.' : null}
+                </Alert>
+            </div>
+        ) : null;
+
         const content = (
-            <DynamicEventSearchList
-                Eventid={props.EventID ?? -1}
-                SelectEvent={(eventID, row) => {
-                    if (props.Callback != null)
-                        props.Callback(eventID, row?.DisturbanceID, row?.FaultID);
-                }}
-                Height={height}
-                Data={sortedEvents}
-                Status={status}
-                SortField={sortField}
-                Ascending={ascending}
-                OnSort={(colKey) => {
-                    if (colKey == sortField)
-                        setAscending(!ascending);
-                    else {
-                        setSortField(colKey);
-                        setAscending(true);
-                    }
-                }}
-                LocalStorageKey={LocalStorageKey}
-            />
+            <div style={{ flex: 1, minHeight: 0, overflow: 'hidden' }} ref={bodyRef}>
+                <DynamicEventSearchList
+                    Eventid={props.EventID ?? -1}
+                    SelectEvent={(eventID, row) => {
+                        if (props.Callback != null)
+                            props.Callback(eventID, row?.DisturbanceID, row?.FaultID);
+                    }}
+                    Height={height}
+                    Data={sortedEvents}
+                    Status={status}
+                    SortField={sortField}
+                    Ascending={ascending}
+                    OnSort={(colKey) => {
+                        if (colKey == sortField)
+                            setAscending(!ascending);
+                        else {
+                            setSortField(colKey);
+                            setAscending(true);
+                        }
+                    }}
+                    LocalStorageKey={LocalStorageKey}
+                />
+            </div>
         );
 
         if (!props.Settings.ShowCard)
             return (
-                <div className="h-100 w-100" style={{ display: 'flex', flexDirection: "column", overflow: 'hidden' }} ref={bodyRef}>
+                <div className="h-100 w-100" style={{ display: 'flex', flexDirection: "column", overflow: 'hidden' }}>
+                    {errorAlert}
                     {content}
                 </div>
             );
@@ -134,7 +152,8 @@ const DynamicEventSearch: EventWidget.ICollectionWidget<ISettings, DynamicEventS
                 <div className="card-header">
                     {props.Title == null ? "Event Search" : props.Title}
                 </div>
-                <div className="card-body p-0" style={{ display: 'flex', flexDirection: "column", flex: 1, overflow: 'hidden' }} ref={bodyRef}>
+                <div className="card-body p-0" style={{ display: 'flex', flexDirection: "column", flex: 1, overflow: 'hidden' }}>
+                    {errorAlert}
                     {content}
                 </div>
             </div>
