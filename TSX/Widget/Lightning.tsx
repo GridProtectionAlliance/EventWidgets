@@ -28,7 +28,7 @@ import { Table, Column } from '@gpa-gemstone/react-table';
 import { useGetContainerPosition, GetColor, GetTextWidth } from '@gpa-gemstone/helper-functions';
 import { Application } from '@gpa-gemstone/application-typings';
 import { Alert } from '@gpa-gemstone/react-interactive';
-import { TextArea } from '@gpa-gemstone/react-forms';
+import { TextArea, ToolTip } from '@gpa-gemstone/react-forms';
 import { EventWidget } from '../global';
 
 interface ISetting {
@@ -107,6 +107,7 @@ const Lightning: EventWidget.IWidget<ISetting> = {
         const [hiddenSeries, setHiddenSeries] = React.useState<string[]>([]);
         const [hoveredIndex, setHoveredIndex] = React.useState<number | null>(null);
         const [isCursorVisible, setIsCursorVisible] = React.useState<boolean>(false);
+        const [hoveredToggle, setHoveredToggle] = React.useState<string | null>(null);
         const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
 
         const days = React.useMemo(() => rows.map(row => moment(row.Day).unix()), [rows]);
@@ -271,11 +272,19 @@ const Lightning: EventWidget.IWidget<ISetting> = {
                                     <button
                                         type='button'
                                         className='btn p-0 border-0 align-middle'
-                                        aria-pressed={!hiddenSeries.includes(item.Name)}
-                                        aria-label={`Toggle ${item.Name}`}
+                                        data-tooltip={`lightning-${props.WidgetID}-${item.Name}`}
                                         onClick={() => handleToggleSeries(item.Name)}
+                                        onMouseEnter={() => setHoveredToggle(item.Name)}
+                                        onMouseLeave={() => setHoveredToggle(null)}
                                         style={{ marginRight: 10, height: 20, width: 20, borderRadius: 0, backgroundColor: hiddenSeries.includes(item.Name) ? 'darkgray' : item.Color }}
                                     />
+                                    <ToolTip
+                                        Show={hoveredToggle === item.Name}
+                                        Position='top'
+                                        Target={`lightning-${props.WidgetID}-${item.Name}`}
+                                    >
+                                        {hiddenSeries.includes(item.Name) ? 'Show' : 'Hide'} {item.Name}
+                                    </ToolTip>
                                     {item.Name}
                                 </>
                             }
