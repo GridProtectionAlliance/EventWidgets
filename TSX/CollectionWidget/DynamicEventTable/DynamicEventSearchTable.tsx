@@ -133,7 +133,7 @@ export function DynamicEventSearchList(props: IDynamicEventSearchListProps) {
             ref={containerRef}
             style={{
                 width: '100%',
-                maxHeight: props.Height,
+                height: props.Height,
                 overflowY: "hidden",
                 overflowX: "hidden",
             }}
